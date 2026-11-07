@@ -2,6 +2,11 @@
 
 > 后续每次修改项目内容时，同步在本文件追加日期、改动摘要和验证结果，作为项目进度记录。
 
+## 2026-11-07 — 修复 GitHub Actions 的 pnpm workspace 配置
+
+- GitHub Pages 构建因 `pnpm-workspace.yaml` 缺少必需的 `packages` 字段而失败；补充根目录包声明 `packages: ['.']`，保留现有构建脚本和权限配置。
+- 本地尝试 `pnpm run build`：当前运行环境尝试联网下载项目指定的 pnpm 9.15.9，但网络不可用；改用本机依赖直接构建时又被沙箱的 `spawn EPERM` 阻止。配置修复本身需提交并推送到 GitHub 后，Actions 才会重新运行验证。
+
 ## 2026-10-15 — MVP 初版
 
 - 从空目录搭建 Vite + 原生 HTML/CSS/JavaScript 项目，引入 Flubber 做 SVG 轮廓插值。
