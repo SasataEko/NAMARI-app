@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fbf9f2" />
+    <title>ことばのかたち</title>
+    <style>
+      html, body { min-height: 100%; margin: 0; background: #fbf9f2; }
+      body { color: #191919; }
+      #app { min-height: 100vh; }
+      .boot-screen { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 18px; background: #fbf9f2; color: #191919; font: 500 14px/1.5 system-ui, sans-serif; letter-spacing: .16em; }
+      .boot-mark { width: 48px; height: 48px; border: 1px solid #d1c5ab; border-radius: 50%; display: grid; place-items: center; color: #e73a59; font-size: 24px; }
+      .boot-line { width: 36px; height: 1px; background: #e73a59; transform-origin: left; animation: boot-wait 1.2s ease-in-out infinite alternate; }
+      @keyframes boot-wait { to { transform: scaleX(.35); opacity: .45; } }
+      @media (prefers-reduced-motion: reduce) { .boot-line { animation: none; } }
+    </style>
+  </head>
+  <body>
+    <div id="app"><main class="boot-screen" aria-label="読み込み中"><span class="boot-mark" aria-hidden="true">あ</span><span>ことばのかたち</span><i class="boot-line" aria-hidden="true"></i></main></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
