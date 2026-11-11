@@ -36,7 +36,11 @@ npm run dev
 
 `public/assets/` に `ku-normal.svg` / `ku-accented.svg` / `su-normal.svg` / `ri-normal.svg` と `kusuri-audio.mp3` があります。SVG の素材パスは `src/data/levels.js` で管理しています。
 
-「く」の通常/変形 SVG は同じ viewBox・座標系にし、アウトライン化した path の数と順序を揃えてください。不要なアンカーポイントを減らし、輪郭の位置と大きさも合わせます。孔を含む複合パスや、輪郭数・構造の差は形崩れや補間失敗の原因になります。現在の読み込み処理は path の `d` と fill を扱い、CSS、stroke、mask、clipPath、filter、外部参照には対応しません。失敗時は画面に説明を出し、コンソールに `[glyph-morph]` の詳細を記録します。フェード表示に切り替えることはありません。
+「く」の通常/変形 SVG は同じ viewBox・座標系で、閉じた path の数と順序を揃えます。不要なアンカーポイントを減らし、輪郭の位置と大きさも合わせます。現在の2枚は viewBox が同じで単一の閉じた path を持ち、group/transform/clip/mask はありません。path の `d` コマンド列は異なりますが、Flubber が輪郭をサンプリングするため補間できます。素材の `<style>` class に指定された fill 色も読み取ります。transform、stroke、mask、clipPath、filter、外部参照、複雑な複合パス/孔の fill-rule は未対応で、見つけた場合は明示的にエラー表示します。失敗時にフェード表示へ切り替えることはありません。
+
+「くすり」画面の「開発テスト」パネルには集団選択率の仮データと強度スライダーがあります。`src/data/mockStatistics.js` の選択人数を変更すると各仮名の選択率が更新されます。現在、変形後 SVG があるのは「く」だけなので「す」「り」のスライダーは操作不可で、素材不足を表示します。変形後 SVG を用意したら `src/data/levels.js` の該当文字に `custom` 素材パスを追加すると、そこに独立したスライダーが有効になります。通常/変形ペアを差し替える場合は対応するファイルを `public/assets/` に置き、`levels.js` の `normal` / `custom` を更新してください。
+
+強度は `src/data/mockStatistics.js` の `selectionRateToIntensity()` で選択率を 0～1 に線形変換します。曲線を調整する場合はこの関数を変更します。将来 Supabase を接続する際は、問題ごとに各仮名を選んだ人数と重複を除いた回答者総数を集計し、`{ totalPlayers, characters: { 'く': 93, 'す': 13, 'り': 5 } }` の形式にして `getCharacterStatistics()` に渡します。現在、データベース接続はありません。
 
 ## アクセント素材の追加
 
@@ -46,9 +50,14 @@ npm run dev
 
 - `src/main.js`：画面表示、遷移、回答記録、イベント処理
 - `src/data/levels.js`：DIY字形と音声素材の設定
+- `src/data/mockStatistics.js`：仮の群体選択人数、選択率と変形強度への線形変換
 - `src/data/catalog.js`：図鑑カード
 - `src/data/profileStore.js`：プロフィール、設定のローカル保存
 - `src/data/diyStore.js`：DIY問題と録音 Blob を IndexedDB に保存
 - `src/glyph/loadGlyph.js`：SVG 読み込み
-- `src/glyph/morph.js`：Flubber による path 補間アニメーション
+- `src/glyph/morph.js`：Flubber による path 補間、任意強度プレビューとアニメーション
 - `src/style.css`：テーマ、レスポンシブ UI、アニメーション
+
+## リアルタイム探索モード
+
+ホームの「挑战新模式」から、既存のくすりチャレンジと比較できます。母音/子音の特性カード、LHHを初期値とするアクセント、2拍の伸長とッの追加拍に対応。送信後は個人作品の下に、明示された仮データの全体平均を表示します。詳細・データ仕様・検証記録は [REALTIME_MODE.md](REALTIME_MODE.md) を参照してください。実際の参加者データベースには未接続です。

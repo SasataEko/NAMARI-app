@@ -5,6 +5,7 @@ export const levels = [
   {
     id: 'kusuri',
     word: 'くすり',
+    defaultAccent: ['low', 'high', 'high'],
     instruction: '発音の特徴がある文字を選んでください。',
     audio: asset('kusuri-audio.mp3'),
     characters: [

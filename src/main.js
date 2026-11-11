@@ -1,15 +1,18 @@
+import { mountExploration } from './exploration.js';
 import './style.css';
 import { levels } from './data/levels.js';
 import { catalogCards } from './data/catalog.js';
 import { listDiyQuestions, saveDiyQuestion } from './data/diyStore.js';
 import { loadGlyph } from './glyph/loadGlyph.js';
-import { animateMorph, createMorph } from './glyph/morph.js';
+import { animateMorph, createMorph, setMorphIntensity } from './glyph/morph.js';
+import { getCharacterStatistics, mockStatistics } from './data/mockStatistics.js';
 import { loadProfiles, loadSettings, profiles, saveProfile, saveSettings } from './data/profileStore.js';
 
 const app = document.querySelector('#app');
 const level = levels[0];
 const normalGlyphs = new Map();
 const customGlyphs = new Map();
+const morphInterpolations = new Map();
 let profileRecords = loadProfiles();
 let activeProfileId = localStorage.getItem('kotoba-active-profile');
 let activeProfile = profiles.find(({ id }) => id === activeProfileId) || null;
@@ -81,6 +84,7 @@ function render() {
   const pages = {
     profiles: renderProfiles,
     home: renderHome,
+    exploration: renderExploration,
     challenges: renderChallengeSelect,
     chapterLevels: renderChapterLevels,
     vowelChallenge: renderMorphGame,
@@ -152,9 +156,15 @@ function renderProfiles() {
 }
 
 function renderHome() {
-  app.innerHTML = `<main class="page-shell">${profileHeader()}<section class="cover-intro"><p class="cover-eyebrow">PHONETIC TYPO PLAY</p><h1>化ける言語</h1><p>発音のちがいを、かたちでみつける。</p></section><section class="floating-cover" aria-label="訛をテーマにしたゲームカバー"><span class="float-card float-card-yellow">高<br>低</span><span class="float-card float-card-blue">あ</span><span class="float-card float-card-pink">声</span><span class="float-card float-card-white">A</span><span class="cover-kanji">訛</span><span class="cover-spark spark-one">✳</span><span class="cover-spark spark-two">·</span></section><button class="primary-cta challenge-cta" data-action="challenge"><span>チャレンジする！</span><span aria-hidden="true">→</span></button><section class="archive-section"><div class="section-heading"><div><p class="eyebrow">COLLECTION & MODE</p><h2>アーカイブ & モード</h2></div></div><div class="archive-circles"><button class="archive-circle circle-blue" data-nav="collection"><i>▣</i><b>図鑑</b><small>${collectedCount()}/${catalogCards.length}</small></button><button class="archive-circle circle-lavender" data-nav="diy"><i>✳</i><b>DIYモード</b><small>字形をつくる</small></button><button class="archive-circle circle-neutral" data-nav="settings"><i>⚙</i><b>設定</b><small>音・振動</small></button></div></section>${bottomNav('')}</main>`;
+  app.innerHTML = `<main class="page-shell">${profileHeader()}<section class="cover-intro"><p class="cover-eyebrow">PHONETIC TYPO PLAY</p><h1>化ける言語</h1><p>発音のちがいを、かたちでみつける。</p></section><section class="floating-cover" aria-label="訛をテーマにしたゲームカバー"><span class="float-card float-card-yellow">高<br>低</span><span class="float-card float-card-blue">あ</span><span class="float-card float-card-pink">声</span><span class="float-card float-card-white">A</span><span class="cover-kanji">訛</span><span class="cover-spark spark-one">✳</span><span class="cover-spark spark-two">·</span></section><button class="primary-cta challenge-cta" data-action="challenge"><span>チャレンジする！</span><span aria-hidden="true">→</span></button><button class="explore-entry" data-nav="exploration">挑战新模式 · 新モードに挑戦　↗</button><section class="archive-section"><div class="section-heading"><div><p class="eyebrow">COLLECTION & MODE</p><h2>アーカイブ & モード</h2></div></div><div class="archive-circles"><button class="archive-circle circle-blue" data-nav="collection"><i>▣</i><b>図鑑</b><small>${collectedCount()}/${catalogCards.length}</small></button><button class="archive-circle circle-lavender" data-nav="diy"><i>✳</i><b>DIYモード</b><small>字形をつくる</small></button><button class="archive-circle circle-neutral" data-nav="settings"><i>⚙</i><b>設定</b><small>音・振動</small></button></div></section>${bottomNav('')}</main>`;
   bindNav('');
   app.querySelector('[data-action="challenge"]').addEventListener('click', () => navigate('challenges'));
+}
+
+function renderExploration() {
+  app.innerHTML = `<main class="page-shell">${profileHeader()}${titleReturn()}<div data-exploration></div>${bottomNav('')}</main>`;
+  bindNav('');
+  mountExploration(app.querySelector('[data-exploration]'), { level, profileId: activeProfileId });
 }
 
 function renderChallengeSelect() {
@@ -763,7 +773,13 @@ function renderMorphGame() {
       <svg class="character-svg" viewBox="0 0 170.08 170.08" role="img" aria-label="${text}"></svg>
       <span class="character-name">${text}</span>
     </button>`).join('');
-  app.innerHTML = `<main class="page-shell morph-page">${profileHeader()}<section class="morph-heading"><button class="back-circle" data-action="back-home">←</button><div><p class="eyebrow">母音＆子音篇　/　01</p><h1>「${level.word}」の字形変形</h1><p>発音の特徴がある文字を選んでください。</p></div></section><section class="morph-stage"><div class="morph-label"><span>WORD / ${level.word}</span><span>SELECT A SOUND</span></div><div class="character-row">${characterButtons}</div><p class="status" id="status" aria-live="polite">「く」をクリックしてみよう</p></section><div class="morph-controls"><button class="primary-cta compact" id="play">変形を再生　↗</button><button class="outline-button" id="reset">元の形に戻す</button><button class="text-action" id="again">もう一度 ↻</button></div><div class="audio-control"><button class="audio-pill" id="audio-play">▶　単語の音声を聞く</button><span>くすり</span><audio id="word-audio" preload="metadata" src="${level.audio}"></audio></div><p class="error" id="error" role="alert" hidden></p><p class="morph-footnote">SVG path interpolation / 1000ms</p>${bottomNav('diy')}</main>`;
+  const statistics = getCharacterStatistics(level.characters);
+  const testRows = level.characters.map((character) => {
+    const stats = statistics[character.text];
+    const hasPattern = Boolean(character.custom);
+    return `<div class="intensity-test-row ${hasPattern ? '' : 'missing-pattern'}"><div class="intensity-test-glyph"><svg class="intensity-preview-svg" data-preview-glyph="${character.id}" viewBox="0 0 170.08 170.08" role="img" aria-label="${character.text} の変形テスト"></svg><b>${character.text}</b></div><label class="intensity-slider-label" for="intensity-${character.id}"><span>${character.text}　${stats.selectedCount} / ${stats.totalPlayers}人</span><output data-intensity-output="${character.id}">${Math.round(stats.intensity * 100)}%</output><input id="intensity-${character.id}" data-intensity-slider="${character.id}" type="range" min="0" max="100" step="1" value="${Math.round(stats.intensity * 100)}" ${hasPattern ? '' : 'disabled'} aria-label="${character.text} の変形度"></label>${hasPattern ? '' : '<small class="intensity-missing-note">この文字の変形 SVG は未登録</small>'}</div>`;
+  }).join('');
+  app.innerHTML = `<main class="page-shell morph-page">${profileHeader()}<section class="morph-heading"><button class="back-circle" data-action="back-home">←</button><div><p class="eyebrow">母音＆子音篇　/　01</p><h1>「${level.word}」の字形変形</h1><p>発音の特徴がある文字を選んでください。</p></div></section><section class="morph-stage"><div class="morph-label"><span>WORD / ${level.word}</span><span>SELECT A SOUND</span></div><div class="character-row">${characterButtons}</div><p class="status" id="status" aria-live="polite">「く」をクリックしてみよう</p></section><details class="intensity-test"><summary>開発テスト　/　集団選択率の変形プレビュー</summary><p class="intensity-test-description">仮データ：${mockStatistics.totalPlayers}人。各字の選択率を変形度にそのまま反映します。複数選択できるため合計は100%を超える場合があります。</p><div class="intensity-test-list">${testRows}</div></details><div class="morph-controls"><button class="primary-cta compact" id="play">変形を再生　↗</button><button class="outline-button" id="reset">元の形に戻す</button><button class="text-action" id="again">もう一度 ↻</button></div><div class="audio-control"><button class="audio-pill" id="audio-play">▶　単語の音声を聞く</button><span>くすり</span><audio id="word-audio" preload="metadata" src="${level.audio}"></audio></div><p class="error" id="error" role="alert" hidden></p><p class="morph-footnote">SVG path interpolation / 1000ms</p>${bottomNav('diy')}</main>`;
   bindNav('diy');
   app.querySelector('[data-action="back-home"]').addEventListener('click', () => navigate('challenges'));
   app.querySelectorAll('.character-button').forEach((button) => button.addEventListener('click', () => handleCharacterClick(button.dataset.character)));
@@ -784,20 +800,51 @@ async function setupGlyphs() {
         const custom = await loadGlyph(character.custom);
         assertCompatiblePair(normal, custom, character.text);
         customGlyphs.set(character.id, custom);
+        morphInterpolations.set(character.id, createMorph(normal.shapes.map((shape) => shape.d), custom.shapes.map((shape) => shape.d)));
       }
       const svg = app.querySelector(`[data-character="${character.id}"] .character-svg`);
       if (!svg) return;
       svg.setAttribute('viewBox', normal.viewBox);
-      svg.replaceChildren(...normal.shapes.map(({ d, fill }) => createPath(d, fill)));
+      svg.replaceChildren(...normal.shapes.map((shape) => createPath(shape.d, shape.fill, shape)));
+      const preview = app.querySelector(`[data-preview-glyph="${character.id}"]`);
+      if (preview) {
+        preview.setAttribute('viewBox', normal.viewBox);
+        preview.replaceChildren(...normal.shapes.map((shape) => createPath(shape.d, shape.fill, shape)));
+      }
     }));
+    setupIntensityTest(getCharacterStatistics(level.characters));
   } catch (error) { showError(error); }
 }
 
-function createPath(d, fill) {
+function createPath(d, fill, shape = {}) {
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   path.setAttribute('d', d);
   path.setAttribute('fill', fill);
+  for (const attribute of ['fillRule', 'clipRule', 'opacity']) {
+    if (shape[attribute]) path.setAttribute(attribute.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`), shape[attribute]);
+  }
   return path;
+}
+
+function setupIntensityTest(statistics) {
+  app.querySelectorAll('[data-intensity-slider]').forEach((slider) => {
+    const character = level.characters.find(({ id }) => id === slider.dataset.intensitySlider);
+    if (!character?.custom) return;
+    const glyph = app.querySelector(`[data-preview-glyph="${character.id}"]`);
+    const paths = [...glyph.querySelectorAll('path')];
+    const interpolation = morphInterpolations.get(character.id);
+    if (!interpolation) return;
+    const update = () => {
+      const intensity = Number(slider.value) / 100;
+      setMorphIntensity(paths, interpolation, intensity);
+      app.querySelector(`[data-intensity-output="${character.id}"]`).value = `${slider.value}%`;
+      app.querySelector(`[data-intensity-output="${character.id}"]`).textContent = `${slider.value}%`;
+    };
+    slider.addEventListener('input', update);
+    // 初始值来自模拟选择率，用户仍可拖动至任意强度。
+    slider.value = String(Math.round(statistics[character.text].intensity * 100));
+    update();
+  });
 }
 
 function assertCompatiblePair(normal, custom, label) {
