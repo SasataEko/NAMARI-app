@@ -22,21 +22,36 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
   const alive = () => root.isConnected && root.explorationSession === session;
   function svgFor(i) {
     const svg = document.createElementNS(ns,'svg'); svg.setAttribute('viewBox',glyphs[i].normal.viewBox);svg.setAttribute('role','img');svg.setAttribute('aria-label',level.characters[i].text);
+    if(glyphs[i].normal.text){const text=document.createElementNS(ns,'text');text.textContent=glyphs[i].normal.text;text.setAttribute('x','85.04');text.setAttribute('y','85.04');text.setAttribute('text-anchor','middle');text.setAttribute('dominant-baseline','central');text.setAttribute('font-size','100');text.setAttribute('fill','currentColor');svg.append(text);}
     for(const shape of glyphs[i].normal.shapes) {const p=document.createElementNS(ns,'path');p.setAttribute('d',shape.d);p.setAttribute('fill',shape.fill);if(shape.fillRule)p.setAttribute('fill-rule',shape.fillRule);svg.append(p);}
     return svg;
   }
   function paint(svg,i,feature,intensity,animate=false) {
-    const previous=animations.get(svg);if(previous) cancelAnimationFrame(previous.frame);
-    const targetMorph=glyphs[i].variants.find(v=>v.id===feature)?.morph;
-    const morph=targetMorph || glyphs[i].variants.find(v=>v.id===svg.dataset.feature)?.morph;
-    const start=Number(svg.dataset.amount || 0);const target=targetMorph?intensity:0;
-    const apply=value=>{if(morph)setMorphIntensity([...svg.children],morph,value);else [...svg.children].forEach((p,j)=>p.setAttribute('d',glyphs[i].normal.shapes[j].d));svg.dataset.amount=String(value);fitGlyph(svg,i);};
-    if(!animate || matchMedia('(prefers-reduced-motion: reduce)').matches){apply(target);svg.dataset.feature=feature||'';return;}
-    // Animate both selection and strength changes with smooth acceleration/deceleration.
-    const from=!targetMorph || svg.dataset.feature===feature?start:0;svg.dataset.feature=feature||'';const time=performance.now();const token={frame:0};animations.set(svg,token);
-    const tick=now=>{if(!svg.isConnected)return;const t=Math.min(1,(now-time)/650);apply(from+(target-from)*ease(t));if(t<1)token.frame=requestAnimationFrame(tick);};token.frame=requestAnimationFrame(tick);
+    if(glyphs[i].normal.text){fitGlyph(svg,i);return;}
+    const previous=animations.get(svg);
+    if(previous)cancelAnimationFrame(previous.frame);
+    const morph=glyphs[i].variants.find(v=>v.id===feature)?.morph;
+    const target=morph?intensity:0;
+    const apply=value=>{
+      if(morph)setMorphIntensity([...svg.children],morph,value);
+      else [...svg.children].forEach((path,j)=>path.setAttribute('d',glyphs[i].normal.shapes[j].d));
+      svg.dataset.amount=String(value);fitGlyph(svg,i);
+    };
+    svg.dataset.feature=feature||'';
+    // Unmark/unclear restores the original immediately. Each explicit Pattern
+    // preview restarts from the original, including reselecting the same card.
+    if(!animate||!morph||target===0){apply(target);animations.delete(svg);return;}
+    apply(0);
+    const start=performance.now(),token={frame:0};animations.set(svg,token);
+    const tick=now=>{
+      if(!svg.isConnected)return;
+      const t=Math.min(1,(now-start)/900);apply(target*ease(t));
+      if(t<1)token.frame=requestAnimationFrame(tick);else animations.delete(svg);
+    };
+    token.frame=requestAnimationFrame(tick);
   }
   function paintAverage(svg,i,rates) {
+    if(glyphs[i].normal.text)return;
     let current=glyphs[i].normal.shapes.map(s=>s.d),weight=Math.max(0,1-Object.values(rates).reduce((a,b)=>a+b,0));
     for(const variant of glyphs[i].variants){const rate=rates[variant.id]||0;if(!rate)continue;const total=weight+rate;current=weight===0?variant.morph.to:createMorph(current,variant.morph.to).map(f=>f(rate/total));weight=total;}
     [...svg.children].forEach((path,j)=>path.setAttribute('d',current[j]));
@@ -48,11 +63,11 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
     if(!ink.width)return;
     const [,y,,height]=glyphs[i].normal.viewBox.trim().split(/[ ,]+/).map(Number);
     const width=ink.width*80/height+80*Math.max(0,Number(svg.dataset.beats)-1);
-    // Remove SVG canvas side bearings, then keep the same 20px ink-to-ink gap.
+    // Remove SVG canvas side bearings, then keep the same 16px ink-to-ink gap.
     svg.setAttribute('viewBox',`${ink.x} ${y} ${ink.width} ${height}`);
     svg.setAttribute('preserveAspectRatio',Number(svg.dataset.beats)>1?'none':'xMidYMid meet');
     svg.style.width=`${width}px`;svg.style.transform='none';
-    svg.closest('.explore-unit').style.width=`${width+20}px`;
+    svg.closest('.explore-unit').style.width=`${width+16}px`;
   }
   function accentBuilder(data, editing) {
     const box=document.createElement('div');box.className='pitch-builder explore-accent-builder';
@@ -97,7 +112,16 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
       if(i<n-1){const gap=document.createElement('div');gap.className=`explore-gap ${data.blanks[i]?'has-blank':''}`;
         if(data.blanks[i]){gap.style.width=`${data.aggregation==='mean'?80:80*Number(data.blanks[i])}px`;const blank=document.createElement('div');blank.className='explore-blank-cell';blank.setAttribute('role','img');blank.setAttribute('aria-label',`追加拍 ${Number(data.blanks[i]).toFixed(2)}拍`);blank.innerHTML='<span aria-hidden="true">ッ</span>';if(data.aggregation==='mean')blank.querySelector('span').style.fontSize=`${14+16*Number(data.blanks[i])}px`;gap.append(blank,beatDots(Number(data.blanks[i]),true));}
         if(editing&&mode==='duration'){const button=document.createElement('button');button.textContent=data.blanks[i]?'−':'＋';button.setAttribute('aria-label',`${c.text}の後の空白拍を${data.blanks[i]?'削除':'追加'}`);button.onclick=()=>{state.blanks[i]=!state.blanks[i];state.touched.duration=true;renderEditor();};gap.append(button);}stage.append(gap);}
-    });requestAnimationFrame(()=>stage.querySelectorAll('.explore-kana svg').forEach((svg,i)=>fitGlyph(svg,i)));return stage;
+     });
+    // Measure the completed row offscreen in this task, before it can be painted.
+    // Rebuilding for a selection must never expose the provisional 90px cells.
+    const measure=document.createElement('div');
+    measure.setAttribute('aria-hidden','true');
+    measure.style.cssText='position:fixed;left:-100000px;top:0;visibility:hidden;pointer-events:none;';
+    document.body.append(measure);measure.append(stage);
+    try{stage.querySelectorAll('.explore-kana svg').forEach((svg,i)=>fitGlyph(svg,i));}
+    finally{stage.remove();measure.remove();}
+    return stage;
   }
   // Keep audio outside the editing area so changing tools never interrupts playback.
   root.innerHTML=`<section class="explore-card"><p class="eyebrow">REALTIME EXPLORATION / 01</p><h1>これ、訛ってる？</h1><audio controls preload="metadata" src="${level.audio}" aria-label="研究録音"></audio><p class="explore-listen-copy">発音を聞いてみよう</p><p class="explore-headphone-note">※イヤホン推奨します</p><div class="explore-study-mode"><label>データモード <select aria-label="データモード"><option value="test">開発试玩 / Test</option><option value="research">正式テスト / Research</option></select></label><small data-mode-hint></small></div><div data-editor></div><p data-status role="status">字形を読み込んでいます…</p></section>`;
@@ -142,5 +166,5 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
     root.querySelector('[data-personal]').append(makeStage(record));root.querySelector('[data-again]').onclick=()=>mountExploration(root,{level,profileId,studyMode});window.scrollTo({top:0,behavior:'smooth'});
     try{const group=await getExplorationAggregate(level,{studyMode,excludeParticipantId:anonymousId});if(!alive())return;if(!group.count){root.querySelector('[data-group-note]').textContent='同じモードで集計対象となる他の参加者の回答はまだありません。';return;}root.querySelector('[data-group]').append(makeStage(group));root.querySelector('[data-group-note]').textContent=`${group.count}人の集計。自分・異なるモードの回答は含めません。`;}catch{if(alive())root.querySelector('[data-group-note]').textContent='比較データを読み込めませんでした。個人の記録は保存済みです。';}
   }
-  Promise.all(level.characters.map(async c=>{const normal=await loadGlyph(c.normal);const variants=await Promise.all(featuresFor(c).slice(0,3).map(async v=>{const custom=await loadGlyph(v.svg);return {...v,morph:createMorph(normal.shapes.map(s=>s.d),custom.shapes.map(s=>s.d))};}));return {normal,variants};})).then(data=>{if(!alive())return;glyphs=data;ready=true;status.textContent='どの操作も任意です。何も選ばず送信・スキップもできます。';renderEditor();}).catch(e=>{if(alive())status.textContent=`字形を読み込めませんでした：${e.message}`;});
+  Promise.all(level.characters.map(async c=>{const normal=c.normal?await loadGlyph(c.normal):{text:c.text,viewBox:'0 0 170.08 170.08',shapes:[]};const variants=await Promise.all(featuresFor(c).map(async v=>{const custom=await loadGlyph(v.svg);return {...v,morph:createMorph(normal.shapes.map(s=>s.d),custom.shapes.map(s=>s.d))};}));return {normal,variants};})).then(data=>{if(!alive())return;glyphs=data;ready=true;status.textContent='どの操作も任意です。何も選ばず送信・スキップもできます。';renderEditor();}).catch(e=>{if(alive())status.textContent=`字形を読み込めませんでした：${e.message}`;});
 }

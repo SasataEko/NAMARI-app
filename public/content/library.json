@@ -1,0 +1,284 @@
+{
+  "revision": 11,
+  "groups": [
+    {
+      "id": "existing-ku",
+      "title": "「う」列が丸い発音",
+      "description": "中国語の母音「u」に影響された発音傾向。",
+      "color": "#ffe08b"
+    },
+    {
+      "id": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
+      "title": "「あ」列が広い発音",
+      "description": "/a/より/æ/，口が大きく開いた発音",
+      "color": "#f36868"
+    }
+  ],
+  "glyphs": [
+    {
+      "kana": "あ",
+      "patterns": [
+        {
+          "id": "22288605-1674-4ba8-9c3d-93d914bb427c",
+          "title": "口が大きく開く発音",
+          "description": "",
+          "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
+          "svg": "uploads/glyphs/2cf3bd94-2117-4a03-b943-391e596384f9.svg"
+        }
+      ],
+      "normal": "assets/normal/a.svg"
+    },
+    {
+      "kana": "い",
+      "patterns": [],
+      "normal": "assets/normal/i.svg"
+    },
+    {
+      "kana": "う",
+      "patterns": [],
+      "normal": "assets/normal/u.svg"
+    },
+    {
+      "kana": "え",
+      "patterns": [],
+      "normal": "assets/normal/e.svg"
+    },
+    {
+      "kana": "お",
+      "patterns": [],
+      "normal": "assets/normal/o.svg"
+    },
+    {
+      "kana": "か",
+      "patterns": [],
+      "normal": "assets/normal/ka.svg"
+    },
+    {
+      "kana": "き",
+      "patterns": [],
+      "normal": "assets/normal/ki.svg"
+    },
+    {
+      "kana": "く",
+      "normal": "assets/normal/ku.svg",
+      "patterns": [
+        {
+          "id": "ku-custom",
+          "groupId": "existing-ku",
+          "title": "丸くなった「く」",
+          "description": "「う」の発音が中国語のuになっているから、重く聞こえるよね",
+          "svg": "uploads/glyphs/fc491359-900c-47ce-a0d1-e701b16952ee.svg"
+        }
+      ]
+    },
+    {
+      "kana": "け",
+      "patterns": [],
+      "normal": "assets/normal/ke.svg"
+    },
+    {
+      "kana": "こ",
+      "patterns": [],
+      "normal": "assets/normal/ko.svg"
+    },
+    {
+      "kana": "さ",
+      "patterns": [],
+      "normal": "assets/normal/sa.svg"
+    },
+    {
+      "kana": "し",
+      "patterns": [],
+      "normal": "assets/normal/shi.svg"
+    },
+    {
+      "kana": "す",
+      "normal": "assets/normal/su.svg",
+      "patterns": []
+    },
+    {
+      "kana": "せ",
+      "patterns": [],
+      "normal": "assets/normal/se.svg"
+    },
+    {
+      "kana": "そ",
+      "patterns": [],
+      "normal": "assets/normal/so.svg"
+    },
+    {
+      "kana": "た",
+      "patterns": [],
+      "normal": "assets/normal/ta.svg"
+    },
+    {
+      "kana": "ち",
+      "patterns": [],
+      "normal": "assets/normal/chi.svg"
+    },
+    {
+      "kana": "つ",
+      "patterns": [],
+      "normal": "assets/normal/tsu.svg"
+    },
+    {
+      "kana": "て",
+      "patterns": [],
+      "normal": "assets/normal/te.svg"
+    },
+    {
+      "kana": "と",
+      "patterns": [],
+      "normal": "assets/normal/to.svg"
+    },
+    {
+      "kana": "な",
+      "patterns": [],
+      "normal": "assets/normal/na.svg"
+    },
+    {
+      "kana": "に",
+      "patterns": [],
+      "normal": "assets/normal/ni.svg"
+    },
+    {
+      "kana": "ぬ",
+      "patterns": [],
+      "normal": "assets/normal/nu.svg"
+    },
+    {
+      "kana": "ね",
+      "patterns": [],
+      "normal": "assets/normal/ne.svg"
+    },
+    {
+      "kana": "の",
+      "patterns": [],
+      "normal": "assets/normal/no.svg"
+    },
+    {
+      "kana": "は",
+      "patterns": [],
+      "normal": "assets/normal/ha.svg"
+    },
+    {
+      "kana": "ひ",
+      "patterns": [],
+      "normal": "assets/normal/hi.svg"
+    },
+    {
+      "kana": "ふ",
+      "patterns": [],
+      "normal": "assets/normal/hu.svg"
+    },
+    {
+      "kana": "へ",
+      "patterns": [],
+      "normal": "assets/normal/he.svg"
+    },
+    {
+      "kana": "ほ",
+      "patterns": [],
+      "normal": "assets/normal/ho.svg"
+    },
+    {
+      "kana": "ま",
+      "patterns": [],
+      "normal": "assets/normal/ma.svg"
+    },
+    {
+      "kana": "み",
+      "patterns": [],
+      "normal": "assets/normal/mi.svg"
+    },
+    {
+      "kana": "む",
+      "patterns": [],
+      "normal": "assets/normal/mu.svg"
+    },
+    {
+      "kana": "め",
+      "patterns": [],
+      "normal": "assets/normal/me.svg"
+    },
+    {
+      "kana": "も",
+      "patterns": [],
+      "normal": "assets/normal/mo.svg"
+    },
+    {
+      "kana": "や",
+      "patterns": [],
+      "normal": "assets/normal/ya.svg"
+    },
+    {
+      "kana": "ゆ",
+      "patterns": [],
+      "normal": "assets/normal/yu.svg"
+    },
+    {
+      "kana": "よ",
+      "patterns": [],
+      "normal": "assets/normal/yo.svg"
+    },
+    {
+      "kana": "ら",
+      "patterns": [],
+      "normal": "assets/normal/ra.svg"
+    },
+    {
+      "kana": "り",
+      "normal": "assets/normal/ri.svg",
+      "patterns": []
+    },
+    {
+      "kana": "る",
+      "patterns": [],
+      "normal": "assets/normal/ru.svg"
+    },
+    {
+      "kana": "れ",
+      "patterns": [],
+      "normal": "assets/normal/re.svg"
+    },
+    {
+      "kana": "ろ",
+      "patterns": [],
+      "normal": "assets/normal/ro.svg"
+    },
+    {
+      "kana": "わ",
+      "patterns": [],
+      "normal": "assets/normal/wa.svg"
+    },
+    {
+      "kana": "を",
+      "patterns": [],
+      "normal": "assets/normal/wo.svg"
+    },
+    {
+      "kana": "ん",
+      "patterns": [],
+      "normal": "assets/normal/n.svg"
+    }
+  ],
+  "levels": [
+    {
+      "id": "9e584fe5-6873-4db1-9b09-d75c806d5bb4",
+      "word": "あくび",
+      "morae": [
+        "あ",
+        "く",
+        "び"
+      ],
+      "audio": "uploads/audio/92d1d38b-a476-4ab0-80dd-1cd798437ce1.wav",
+      "recordingId": "652a38c4-4f16-47af-a88f-7a69e2d4b58a",
+      "defaultAccent": [
+        "low",
+        "high",
+        "high"
+      ]
+    }
+  ],
+  "updatedAt": "2026-11-11T15:35:03.347Z"
+}

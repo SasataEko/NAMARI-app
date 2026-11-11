@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import {Readable} from 'node:stream';
+import {localAuthoring} from '../server/localAuthoring.js';
+test('local uploads persist, saves back up and reject stale or unsafe writes',async()=>{
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'namari-author-'));await fs.mkdir(path.join(root,'public/content'),{recursive:true});await fs.writeFile(path.join(root,'public/content/library.json'),JSON.stringify({revision:1,glyphs:[],groups:[],levels:[]}));let handle;
+ localAuthoring().configureServer({config:{root,base:'/NAMARI-app/'},middlewares:{use:fn=>handle=fn}});
+ const call=async(url,body='',origin='http://127.0.0.1:5173',method='POST')=>{const req=Readable.from([Buffer.from(body)]);req.url=url;req.method=method;req.headers={host:'127.0.0.1:5173',origin,'x-local-authoring':'1'};req.socket={remoteAddress:'127.0.0.1'};let output;const res={statusCode:200,setHeader(){},end(v){output=v;}};await handle(req,res,()=>{});return {code:res.statusCode,data:JSON.parse(String(output))};};
+ const svg='<svg viewBox="0 0 10 10"><path d="M0 0L10 0L10 10Z"/></svg>';
+ const upload=await call('/__author/upload?name=sample.svg',svg);assert.equal(upload.code,200);assert.equal(await fs.readFile(path.join(root,'public',upload.data.path),'utf8'),svg);
+ assert.equal((await call('/__author/upload?name=bad.svg','<svg viewBox="0 0 10 10"><script>x</script><path/></svg>')).code,400);
+ assert.equal((await call('/__author/upload?name=sample.svg',svg,'https://other.example')).code,403);
+ const data={revision:1,glyphs:[{kana:'あ',normal:upload.data.path,patterns:[]}],groups:[],levels:[]};assert.equal((await call('/__author/save',JSON.stringify(data))).data.revision,2);assert.equal((await fs.readdir(path.join(root,'authoring-backups'))).length,1);
+ assert.equal((await call('/__author/save',JSON.stringify(data))).code,409);
+ assert.equal((await call('/__author/save',JSON.stringify({...data,revision:2,glyphs:[{normal:'uploads/../../private',patterns:[]}]}))).code,400);
+ assert.equal(JSON.parse(await fs.readFile(path.join(root,'public/content/library.json'),'utf8')).revision,2);
+});

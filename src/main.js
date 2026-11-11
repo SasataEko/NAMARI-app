@@ -1,3 +1,5 @@
+import { mountLibrary, mountAuthor } from './libraryStudio.js';
+import { readLibrary, playableLevels } from './data/projectLibrary.js';
 import { mountExploration } from './exploration.js';
 import './style.css';
 import { levels } from './data/levels.js';
@@ -85,6 +87,7 @@ function render() {
     profiles: renderProfiles,
     home: renderHome,
     exploration: renderExploration,
+    developer: renderDeveloper,
     challenges: renderChallengeSelect,
     chapterLevels: renderChapterLevels,
     vowelChallenge: renderMorphGame,
@@ -156,15 +159,22 @@ function renderProfiles() {
 }
 
 function renderHome() {
-  app.innerHTML = `<main class="page-shell">${profileHeader()}<section class="cover-intro"><p class="cover-eyebrow">PHONETIC TYPO PLAY</p><h1>化ける言語</h1><p>発音のちがいを、かたちでみつける。</p></section><section class="floating-cover" aria-label="訛をテーマにしたゲームカバー"><span class="float-card float-card-yellow">高<br>低</span><span class="float-card float-card-blue">あ</span><span class="float-card float-card-pink">声</span><span class="float-card float-card-white">A</span><span class="cover-kanji">訛</span><span class="cover-spark spark-one">✳</span><span class="cover-spark spark-two">·</span></section><button class="primary-cta challenge-cta" data-action="challenge"><span>チャレンジする！</span><span aria-hidden="true">→</span></button><button class="explore-entry" data-nav="exploration">挑战新模式 · 新モードに挑戦　↗</button><section class="archive-section"><div class="section-heading"><div><p class="eyebrow">COLLECTION & MODE</p><h2>アーカイブ & モード</h2></div></div><div class="archive-circles"><button class="archive-circle circle-blue" data-nav="collection"><i>▣</i><b>図鑑</b><small>${collectedCount()}/${catalogCards.length}</small></button><button class="archive-circle circle-lavender" data-nav="diy"><i>✳</i><b>DIYモード</b><small>字形をつくる</small></button><button class="archive-circle circle-neutral" data-nav="settings"><i>⚙</i><b>設定</b><small>音・振動</small></button></div></section>${bottomNav('')}</main>`;
+  app.innerHTML = `<main class="page-shell">${profileHeader()}<section class="cover-intro"><p class="cover-eyebrow">PHONETIC TYPO PLAY</p><h1>化ける言語</h1><p>発音のちがいを、かたちでみつける。</p></section><section class="floating-cover" aria-label="訛をテーマにしたゲームカバー"><span class="float-card float-card-yellow">高<br>低</span><span class="float-card float-card-blue">あ</span><span class="float-card float-card-pink">声</span><span class="float-card float-card-white">A</span><span class="cover-kanji">訛</span><span class="cover-spark spark-one">✳</span><span class="cover-spark spark-two">·</span></section><button class="primary-cta challenge-cta" data-action="challenge"><span>チャレンジする！</span><span aria-hidden="true">→</span></button><button class="explore-entry" data-nav="exploration">挑战新模式 · 新モードに挑戦　↗</button>${import.meta.env.DEV ? '<button class="explore-entry" data-nav="developer">开发者模式 · 项目素材与关卡　↗</button>' : ''}<section class="archive-section"><div class="section-heading"><div><p class="eyebrow">COLLECTION & MODE</p><h2>アーカイブ & モード</h2></div></div><div class="archive-circles"><button class="archive-circle circle-blue" data-nav="collection"><i>▣</i><b>図鑑</b><small>五十音・パターン</small></button><button class="archive-circle circle-lavender" data-nav="diy"><i>✳</i><b>DIYモード</b><small>字形をつくる</small></button><button class="archive-circle circle-neutral" data-nav="settings"><i>⚙</i><b>設定</b><small>音・振動</small></button></div></section>${bottomNav('')}</main>`;
   bindNav('');
   app.querySelector('[data-action="challenge"]').addEventListener('click', () => navigate('challenges'));
 }
 
-function renderExploration() {
+function renderDeveloper() {
+  app.innerHTML=`<main class="page-shell">${profileHeader()}${titleReturn()}<div data-studio></div>${bottomNav('')}</main>`;
+  bindNav('');mountAuthor(app.querySelector('[data-studio]'));
+}
+async function renderExploration() {
   app.innerHTML = `<main class="page-shell">${profileHeader()}${titleReturn()}<div data-exploration></div>${bottomNav('')}</main>`;
-  bindNav('');
-  mountExploration(app.querySelector('[data-exploration]'), { level, profileId: activeProfileId });
+  bindNav('');const root=app.querySelector('[data-exploration]');root.textContent='関卡を読み込み中…';
+  try{const library=await readLibrary();if(!root.isConnected)return;const available=playableLevels(library);
+    root.innerHTML='<section class="library-intro"><h1>聴くことばを選ぼう</h1><p>同じ録音から、自分の聴こえ方を描こう。</p></section><div class="author-levels"></div>';
+    available.forEach(l=>{const b=document.createElement('button');b.textContent=l.word;b.onclick=()=>{if(isAnimating)stopAnimation();mountExploration(root,{level:l,profileId:activeProfileId});};root.querySelector('.author-levels').append(b);});
+  }catch(e){root.textContent=e.message;}
 }
 
 function renderChallengeSelect() {
@@ -269,6 +279,10 @@ function unlockCards(ids) {
 }
 
 function renderCollection() {
+  app.innerHTML=`<main class="page-shell">${profileHeader()}${titleReturn()}${import.meta.env.DEV?'<button class="text-action" data-nav="developer">図鑑を編集 ↗</button>':''}<div data-library></div>${bottomNav('collection')}</main>`;
+  bindNav('collection');mountLibrary(app.querySelector('[data-library]'));
+}
+function renderLegacyCollection() {
   const filters = [['all', '全て'], ['vowel', '母音'], ['consonant', '子音'], ['accent', 'アクセント']];
   const cards = catalogCards.filter((card) => selectedFilter === 'all' || card.category === selectedFilter);
   const unlocked = card => profileData.collectedCards?.includes(card.id);
