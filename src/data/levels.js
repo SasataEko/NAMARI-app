@@ -4,6 +4,7 @@ const asset = (name) => `${import.meta.env.BASE_URL}assets/${name}`;
 export const levels = [
   {
     id: 'kusuri',
+    recordingId: 'kusuri-recording-v1',
     word: 'くすり',
     defaultAccent: ['low', 'high', 'high'],
     instruction: '発音の特徴がある文字を選んでください。',

@@ -1,15 +1,21 @@
 import { loadGlyph } from './glyph/loadGlyph.js';
 import { createMorph, setMorphIntensity } from './glyph/morph.js';
 import { featuresFor } from './data/explorationFeatures.js';
-import { saveExploration, getExplorationAggregate, defaultAccent, pitchValue } from './data/explorationStore.js';
+import { saveExploration, getExplorationAggregate, defaultAccent, pitchValue, participantId } from './data/explorationStore.js';
+import { studyConfig } from './data/studyConfig.js';
 import './exploration.css';
 
 const ns = 'http://www.w3.org/2000/svg';
 const labels = { segment: '母音/子音', pitch: 'アクセント', duration: '拍' };
 const ease = t => t * t * (3 - 2 * t);
-export function mountExploration(root, { level, profileId }) {
+export function mountExploration(root, { level, profileId, studyMode = studyConfig.defaultMode }) {
+  if(!['test','research'].includes(studyMode))studyMode='test';
+  const anonymousId=participantId(), startedAt=new Date().toISOString(), started=performance.now();
+  const audioMetrics={audioPlayed:false,audioCompleted:false,audioPlayCount:0,listenedMs:0};
+  let lastAudioTime=null;
+  const accountAudio=()=>{const audio=root.querySelector('audio');if(!audio)return;if(lastAudioTime!==null){const delta=audio.currentTime-lastAudioTime;if(delta>0&&delta<1)audioMetrics.listenedMs+=delta*1000;}lastAudioTime=audio.currentTime;};
   const n = level.characters.length;
-  const state = { features: Array(n).fill(null), intensity: Array(n).fill(0), pitch: defaultAccent(level), beats: Array(n).fill(1), blanks: Array(Math.max(0,n-1)).fill(false), touched: {segment:false,pitch:false,duration:false} };
+  const state = { noticed:Array(n).fill(false), pattern:Array(n).fill(null), markingReason:Array(n).fill(null), answerStatus:'explored', features: Array(n).fill(null), intensity: Array(n).fill(0), pitch: defaultAccent(level), beats: Array(n).fill(1), blanks: Array(Math.max(0,n-1)).fill(false), touched: {segment:false,pitch:false,duration:false} };
   let mode = 'segment', selected = null, ready = false, busy = false, glyphs;
   const animations = new WeakMap();
   const session = {}; root.explorationSession = session;
@@ -72,25 +78,46 @@ export function mountExploration(root, { level, profileId }) {
       const unit=document.createElement('div');unit.className=`explore-unit ${data.beats[i]===2?'is-two-beats':''}`;unit.style.width=`${data.beats[i]*90}px`;
       const kana=document.createElement(editing?'button':'div');kana.className='explore-kana';kana.classList.toggle('marked',editing&&mode==='segment'&&selected===i);kana.classList.toggle('has-answer',data.features[i]!==null);kana.style.transform=`translateY(${18-36*pitchValue(data.pitch[i])}px)`;
       const svg=svgFor(i);svg.style.width='80px';svg.style.height='80px';svg.setAttribute('preserveAspectRatio','xMidYMid meet');svg.dataset.beats=String(data.beats[i]);kana.append(svg);paint(svg,i,data.features[i],data.features[i]&&data.features[i]!=='none'?1:0);if(data.featureRates)paintAverage(svg,i,data.featureRates[i]);
-      if(editing){kana.dataset.kana=i;kana.setAttribute('aria-label',`${c.text}を${selected===i?'選択解除':'選ぶ'}`);kana.setAttribute('aria-pressed',String(selected===i));kana.onclick=()=>{if(mode!=='segment')return;if(selected===i){state.features[i]=null;state.intensity[i]=0;state.touched.segment=state.features.some(f=>f!==null);selected=null;}else selected=i;renderEditor();};}
+      const noticedRate=data.noticedRates?data.noticedRates[i]:(data.noticed?.[i]?1:0);
+      const rate=data.noticedRates?Math.max(0,Math.min(1,noticedRate)):0;
+      // Color uses all noticed answers; shape continues to use featureRates only.
+      const base=[35,24,21],red=[229,35,91];
+      kana.style.color=`rgb(${base.map((v,j)=>Math.round(v+(red[j]-v)*rate)).join(', ')})`;
+      kana.dataset.noticedRate=String(rate);
+      svg.querySelectorAll('path').forEach(path=>path.style.fill='currentColor');
+      svg.setAttribute('aria-label',`${c.text} ・マーク ${Math.round(noticedRate*100)}%${data.featureRates?` ・Pattern ${Math.round(Object.values(data.featureRates[i]).reduce((a,b)=>a+b,0)*100)}%`:''}`);
+      if(editing){kana.dataset.kana=i;kana.setAttribute('aria-label',`${c.text}を${selected===i?'選択解除':'選ぶ'}`);kana.setAttribute('aria-pressed',String(state.noticed[i]));kana.onclick=()=>{if(mode!=='segment')return;if(selected===i){state.noticed[i]=false;state.pattern[i]=null;state.markingReason[i]=null;state.features[i]=null;state.intensity[i]=0;selected=null;}else{selected=i;state.noticed[i]=true;state.markingReason[i]||='noticed_only';state.answerStatus='explored';}state.touched.segment=state.noticed.some(Boolean);renderEditor();};}
       unit.append(kana);
       const dots=beatDots(data.beats[i]);
       dots.classList.toggle('is-selected',editing&&mode==='segment'&&selected===i);
-      dots.setAttribute('aria-label',`${c.text} ${Number(data.beats[i].toFixed(2))}拍${data.features[i]==='none'?'・該当なし':data.features[i]?'・回答済み':''}`);
+      dots.setAttribute('aria-label',`${c.text} ${Number(data.beats[i].toFixed(2))}拍${data.noticed?.[i]?'・気づいた':''}`);
       unit.append(dots);
       if(editing&&mode==='duration') {const toggle=document.createElement('button');toggle.className='explore-beat-toggle';toggle.textContent=data.beats[i]===2?'→ 1拍':'→ 2拍';toggle.setAttribute('aria-label',`${c.text}を${data.beats[i]===2?'1':'2'}拍にする`);toggle.onclick=()=>{state.beats[i]=state.beats[i]===1?2:1;state.touched.duration=true;renderEditor();};unit.append(toggle);}
       stage.append(unit);
       if(i<n-1){const gap=document.createElement('div');gap.className=`explore-gap ${data.blanks[i]?'has-blank':''}`;
-        if(data.blanks[i]){gap.style.width=`${80*Number(data.blanks[i])}px`;const blank=document.createElement('div');blank.className='explore-blank-cell';blank.setAttribute('role','img');blank.setAttribute('aria-label',`追加拍 ${Number(data.blanks[i]).toFixed(2)}拍`);blank.innerHTML='<span aria-hidden="true">ッ</span>';gap.append(blank,beatDots(Number(data.blanks[i]),true));}
+        if(data.blanks[i]){gap.style.width=`${data.aggregation==='mean'?80:80*Number(data.blanks[i])}px`;const blank=document.createElement('div');blank.className='explore-blank-cell';blank.setAttribute('role','img');blank.setAttribute('aria-label',`追加拍 ${Number(data.blanks[i]).toFixed(2)}拍`);blank.innerHTML='<span aria-hidden="true">ッ</span>';if(data.aggregation==='mean')blank.querySelector('span').style.fontSize=`${14+16*Number(data.blanks[i])}px`;gap.append(blank,beatDots(Number(data.blanks[i]),true));}
         if(editing&&mode==='duration'){const button=document.createElement('button');button.textContent=data.blanks[i]?'−':'＋';button.setAttribute('aria-label',`${c.text}の後の空白拍を${data.blanks[i]?'削除':'追加'}`);button.onclick=()=>{state.blanks[i]=!state.blanks[i];state.touched.duration=true;renderEditor();};gap.append(button);}stage.append(gap);}
     });requestAnimationFrame(()=>stage.querySelectorAll('.explore-kana svg').forEach((svg,i)=>fitGlyph(svg,i)));return stage;
   }
   // Keep audio outside the editing area so changing tools never interrupts playback.
-  root.innerHTML=`<section class="explore-card"><p class="eyebrow">REALTIME EXPLORATION / 01</p><h1>これ、訛ってる？</h1><audio controls preload="metadata" src="${level.audio}" aria-label="研究録音"></audio><p class="explore-listen-copy">発音を聞いてみよう</p><p class="explore-headphone-note">※イヤホン推奨します</p><div data-editor></div><p data-status role="status">字形を読み込んでいます…</p></section>`;
+  root.innerHTML=`<section class="explore-card"><p class="eyebrow">REALTIME EXPLORATION / 01</p><h1>これ、訛ってる？</h1><audio controls preload="metadata" src="${level.audio}" aria-label="研究録音"></audio><p class="explore-listen-copy">発音を聞いてみよう</p><p class="explore-headphone-note">※イヤホン推奨します</p><div class="explore-study-mode"><label>データモード <select aria-label="データモード"><option value="test">開発试玩 / Test</option><option value="research">正式テスト / Research</option></select></label><small data-mode-hint></small></div><div data-editor></div><p data-status role="status">字形を読み込んでいます…</p></section>`;
   const editor=root.querySelector('[data-editor]'), status=root.querySelector('[data-status]');
+  const modeSelect=root.querySelector('.explore-study-mode select');modeSelect.value=studyMode;
+  root.querySelector('[data-mode-hint]').textContent=studyMode==='research'?'正式テストのローカル記録。全参加者のクラウド統計には未接続です。':'试玩データのみ。正式テストには含めません。';
+  modeSelect.onchange=()=>mountExploration(root,{level,profileId,studyMode:modeSelect.value});
+  const audio=root.querySelector('audio');
+  audio.addEventListener('play',()=>{audioMetrics.audioPlayed=true;audioMetrics.audioPlayCount++;lastAudioTime=audio.currentTime;});
+  audio.addEventListener('timeupdate',accountAudio);audio.addEventListener('pause',()=>{accountAudio();lastAudioTime=null;});
+  audio.addEventListener('ended',()=>{accountAudio();audioMetrics.audioCompleted=true;lastAudioTime=null;});
+  audio.addEventListener('seeking',()=>{lastAudioTime=null;});audio.addEventListener('seeked',()=>{lastAudioTime=audio.currentTime;});
+
+  function hasChanges(){
+    return state.noticed.some(Boolean)||state.pattern.some(Boolean)||state.pitch.some((p,i)=>p!==level.defaultAccent[i])||state.beats.some(b=>b!==1)||state.blanks.some(Boolean);
+  }
+  function updateSubmitLabel(){const button=editor.querySelector('[data-submit]');if(button)button.textContent=hasChanges()?'こう聞こえます':'特に訛ってないよ';}
   function renderEditor(){
     if(!ready)return;
-    editor.innerHTML=`<div class="explore-tools" role="group" aria-label="操作を選ぶ">${Object.entries(labels).map(([key,label])=>`<button data-mode="${key}" aria-pressed="${key===mode}">${label}</button>`).join('')}</div><p>${{segment:'気になる文字を選んでカードを試そう。同じ文字をもう一度押すと、回答を取り消せます。',pitch:'各拍の「高」「低」を選んで、音の流れを描こう。',duration:'文字を2拍にのばしたり、文字の間に空白の1拍を加えよう。'}[mode]}</p><div class="explore-scroll" data-word></div><div data-features></div><div class="explore-actions"><button class="judge-button" data-submit>このかたちを送信</button><button class="outline-button" data-skip>スキップ</button></div>`;
+    editor.innerHTML=`<div class="explore-tools" role="group" aria-label="操作を選ぶ">${Object.entries(labels).map(([key,label])=>`<button data-mode="${key}" aria-pressed="${key===mode}">${label}</button>`).join('')}</div><p>${{segment:'気になる文字を選んでカードを試そう。同じ文字をもう一度押すと、回答を取り消せます。',pitch:'各拍の「高」「低」を選んで、音の流れを描こう。',duration:'文字を2拍にのばしたり、文字の間に空白の1拍を加えよう。'}[mode]}</p><div class="explore-scroll" data-word></div><div data-features></div><div class="explore-actions"><button class="judge-button" data-submit>${hasChanges()?'こう聞こえます':'特に訛ってないよ'}</button><button class="outline-button" data-skip>スキップ</button></div>`;
     editor.querySelector('[data-word]').append(makeStage(state,true));
     editor.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;renderEditor();});
     editor.querySelector('[data-submit]').onclick=()=>submit(false);editor.querySelector('[data-skip]').onclick=()=>submit(true);
@@ -99,21 +126,21 @@ export function mountExploration(root, { level, profileId }) {
   }
   function renderCards(){
     const i=selected,c=level.characters[i],variants=glyphs[i].variants,panel=editor.querySelector('[data-features]');
-    panel.innerHTML=`<section class="explore-features"><h2>「${c.text}」の聴こえ方</h2><p>${variants.length?'カードを選ぶと、字形の変化をプレビューします。':'この文字の特性カードは準備中です。変形素材はまだ登録されていません。'}</p><p class="explore-cancel-hint">同じ文字をもう一度押すと、選択と回答を取り消せます。</p><div class="explore-feature-list"></div></section>`;
+    panel.innerHTML=`<section class="explore-features"><h2>「${c.text}」の聴こえ方</h2><p>${variants.length?'カードを選ぶと、字形の変化をプレビューします。':'この文字のパターンは未登録です。マークだけで記録できます。'}</p><p class="explore-cancel-hint">同じ文字をもう一度押すと、選択と回答を取り消せます。</p><div class="explore-feature-list"></div></section>`;
     const list=panel.querySelector('.explore-feature-list');
-    [...variants,{id:'none',title:'どれも当てはまらない',description:'カードの変化とは違って聴こえる。'}].forEach(v=>{
-      const b=document.createElement('button');b.className='explore-feature';b.setAttribute('aria-pressed',String(state.features[i]===v.id));const title=document.createElement('b'),desc=document.createElement('small');title.textContent=v.title;desc.textContent=v.description;b.append(title,desc);b.onclick=()=>{state.features[i]=v.id;state.intensity[i]=v.id==='none'?0:1;state.touched.segment=true;const svg=editor.querySelector(`[data-kana="${i}"] svg`);paint(svg,i,v.id,state.intensity[i],true);const dots=editor.querySelector(`[data-kana="${i}"]`).parentElement.querySelector('.explore-beat-dots');dots.setAttribute('aria-label',`${c.text} ${state.beats[i]}拍・${v.id==='none'?'該当なし':'回答済み'}`);renderCards();};list.append(b);
+    [...variants,{id:'unclear',title:'違いは感じるけれど、うまく言えない',description:'マークだけを残し、字形は変えません。'}].forEach(v=>{
+      const b=document.createElement('button');b.className='explore-feature';b.setAttribute('aria-pressed',String(state.pattern[i]===v.id||(v.id==='unclear'&&state.markingReason[i]==='unclear')));const title=document.createElement('b'),desc=document.createElement('small');title.textContent=v.title;desc.textContent=v.description;b.append(title,desc);b.onclick=()=>{state.noticed[i]=true;state.pattern[i]=v.id==='unclear'?null:v.id;state.features[i]=state.pattern[i];state.markingReason[i]=v.id==='unclear'?'unclear':'pattern';state.intensity[i]=state.pattern[i]?1:0;state.touched.segment=true;state.answerStatus='explored';const svg=editor.querySelector(`[data-kana="${i}"] svg`);paint(svg,i,v.id,state.intensity[i],true);const dots=editor.querySelector(`[data-kana="${i}"]`).parentElement.querySelector('.explore-beat-dots');dots.setAttribute('aria-label',`${c.text} ${state.beats[i]}拍・回答済み`);updateSubmitLabel();renderCards();};list.append(b);
     });
 
   }
   async function submit(skipped){
-    if(busy||!ready)return;busy=true;editor.querySelectorAll('button,input').forEach(b=>b.disabled=true);
-    try{const record={id:crypto.randomUUID(),schemaVersion:2,levelId:level.id,profileId,createdAt:new Date().toISOString(),skipped,...structuredClone(state)};await saveExploration(record);if(alive())renderResult(record);}catch{busy=false;status.textContent='保存できませんでした。もう一度お試しください。';renderEditor();}
+    if(busy||!ready)return;state.answerStatus=hasChanges()?'explored':'no_difference';accountAudio();busy=true;editor.querySelectorAll('button,input').forEach(b=>b.disabled=true);
+    try{const record={id:crypto.randomUUID(),schemaVersion:3,levelId:level.id,profileId,participantId:anonymousId,studyMode,startedAt,responseDurationMs:Math.round(performance.now()-started),...audioMetrics,createdAt:new Date().toISOString(),skipped,...structuredClone(state)};const saved=await saveExploration(record,level);if(alive())renderResult(saved);}catch{busy=false;status.textContent='保存できませんでした。もう一度お試しください。';renderEditor();}
   }
   async function renderResult(record){
-    root.innerHTML=`<section class="explore-results"><p class="eyebrow">YOUR PREVIEW</p><h1>あなたがつくった、ことばのかたち。</h1><p role="status">${record.skipped?'スキップを保存しました。下書きのプレビューです。':'このブラウザーに保存しました。'}</p><div class="explore-scroll" data-personal></div><section class="explore-group"><h2>みんなの答えと見比べる</h2><p class="explore-simulation">仮データ · 実際の参加者の回答ではありません。</p><div class="explore-scroll" data-group></div><p data-group-note>読み込み中…</p></section><button class="outline-button" data-again>もう一度つくる</button></section>`;
-    root.querySelector('[data-personal]').append(makeStage(record));if(record.pitch.some(p=>p!==null))root.querySelector('[data-personal]').after(accentBuilder(record,false));root.querySelector('[data-again]').onclick=()=>mountExploration(root,{level,profileId});window.scrollTo({top:0,behavior:'smooth'});
-    try{const group=await getExplorationAggregate(level);if(!alive())return;root.querySelector('[data-group]').append(makeStage(group));if(group.pitch.some(p=>p!==null))root.querySelector('[data-group]').after(accentBuilder(group,false));root.querySelector('[data-group-note]').textContent=`模擬回答 ${group.count}件すべての平均。スキップは標準アクセント・通常の字形と拍として集計。`;}catch{if(alive())root.querySelector('[data-group-note]').textContent='比較データを読み込めませんでした。個人の記録は保存済みです。';}
+    root.innerHTML=`<section class="explore-results"><p class="eyebrow">YOUR PREVIEW</p><h1>あなたの聞こえ方</h1><p role="status">${record.skipped?'スキップを保存しました。下書きのプレビューです。':'このブラウザーに保存しました。再回答しても正式集計の人数は増えません。'}</p><div class="explore-scroll" data-personal></div><section class="explore-group"><h2>みんなの答えと見比べる</h2><p class="explore-simulation">${studyMode==='research'?'正式テスト':'開発试玩'} · このブラウザーの他の参加者のローカル集計（クラウド未接続）</p><div class="explore-scroll" data-group></div><p data-group-note>読み込み中…</p></section><button class="outline-button" data-again>もう一度つくる</button></section>`;
+    root.querySelector('[data-personal]').append(makeStage(record));root.querySelector('[data-again]').onclick=()=>mountExploration(root,{level,profileId,studyMode});window.scrollTo({top:0,behavior:'smooth'});
+    try{const group=await getExplorationAggregate(level,{studyMode,excludeParticipantId:anonymousId});if(!alive())return;if(!group.count){root.querySelector('[data-group-note]').textContent='同じモードで集計対象となる他の参加者の回答はまだありません。';return;}root.querySelector('[data-group]').append(makeStage(group));root.querySelector('[data-group-note]').textContent=`${group.count}人の集計。自分・異なるモードの回答は含めません。`;}catch{if(alive())root.querySelector('[data-group-note]').textContent='比較データを読み込めませんでした。個人の記録は保存済みです。';}
   }
   Promise.all(level.characters.map(async c=>{const normal=await loadGlyph(c.normal);const variants=await Promise.all(featuresFor(c).slice(0,3).map(async v=>{const custom=await loadGlyph(v.svg);return {...v,morph:createMorph(normal.shapes.map(s=>s.d),custom.shapes.map(s=>s.d))};}));return {normal,variants};})).then(data=>{if(!alive())return;glyphs=data;ready=true;status.textContent='どの操作も任意です。何も選ばず送信・スキップもできます。';renderEditor();}).catch(e=>{if(alive())status.textContent=`字形を読み込めませんでした：${e.message}`;});
 }
