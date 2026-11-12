@@ -1,5 +1,5 @@
 {
-  "revision": 12,
+  "revision": 17,
   "groups": [
     {
       "id": "existing-ku",
@@ -265,20 +265,82 @@
   "levels": [
     {
       "id": "9e584fe5-6873-4db1-9b09-d75c806d5bb4",
-      "word": "あくび",
+      "word": "ゆでたまご",
       "morae": [
-        "あ",
-        "く",
-        "び"
+        "ゆ",
+        "で",
+        "た",
+        "ま",
+        "ご"
       ],
       "audio": "uploads/audio/92d1d38b-a476-4ab0-80dd-1cd798437ce1.wav",
       "recordingId": "652a38c4-4f16-47af-a88f-7a69e2d4b58a",
       "defaultAccent": [
         "low",
         "high",
+        "high",
+        "low",
+        "low"
+      ]
+    },
+    {
+      "id": "130bfe9f-865c-4bf5-a2de-30e514330402",
+      "word": "カリキュラム",
+      "morae": [
+        "カ",
+        "リ",
+        "キュ",
+        "ラ",
+        "ム"
+      ],
+      "audio": "uploads/audio/e1494519-3987-4966-86df-6f0f0184ba0d.wav",
+      "recordingId": "8d78a141-3435-4c45-a7eb-bccdfc9c64bc",
+      "defaultAccent": [
+        "low",
+        "high",
+        "high",
+        "low",
+        "low"
+      ]
+    },
+    {
+      "id": "ccb4f0b9-8e27-4cbf-9998-37ce23e56908",
+      "word": "きんめだる",
+      "morae": [
+        "き",
+        "ん",
+        "め",
+        "だ",
+        "る"
+      ],
+      "audio": "uploads/audio/cbc9fb5d-e353-47f1-bc0b-b102f875ee32.wav",
+      "recordingId": "b9a07a4b-b5fa-4729-89e0-6e9f00ba9860",
+      "defaultAccent": [
+        "low",
+        "high",
+        "high",
+        "low",
+        "low"
+      ]
+    },
+    {
+      "id": "0d3eb58f-7be3-4d09-aaf3-ecbb7f9e3254",
+      "word": "しょうしん",
+      "morae": [
+        "しょ",
+        "う",
+        "し",
+        "ん"
+      ],
+      "audio": "uploads/audio/83b5b997-b49d-4f06-bb48-6783fc51c65a.wav",
+      "recordingId": "ef39e724-ed27-4025-ac83-c09840827d93",
+      "defaultAccent": [
+        "low",
+        "high",
+        "high",
         "high"
       ]
     }
   ],
-  "updatedAt": "2026-11-12T04:05:24.007Z"
+  "updatedAt": "2026-11-12T04:32:41.504Z"
 }
