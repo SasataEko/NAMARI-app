@@ -1,3 +1,4 @@
+globalThis.fetch=async()=>({ok:true,json:async()=>({enabled:false})});
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { studyConfig } from '../src/data/studyConfig.js';

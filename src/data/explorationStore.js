@@ -1,3 +1,4 @@
+import { collectionConfig, queueAndSend, cloudAggregate } from './cloudCollection.js';
 import { featuresFor } from './explorationFeatures.js';
 import { studyConfig, recordingIdFor, qualityCheckFor } from './studyConfig.js';
 export function defaultAccent(level) {
@@ -53,6 +54,7 @@ export async function saveExploration(record, level) {
   }
   rows.push(saved); // Append-only revisions preserve original answers, including flagged ones.
   localStorage.setItem(RAW_KEY,JSON.stringify(rows));
+  try{saved.sync=await queueAndSend(saved,level);}catch(e){saved.sync={status:'pending',error:e.message};}
   return saved;
 }
 export function includedResponses(records, level, { studyMode = 'test', excludeParticipantId = null, rules = studyConfig.qualityRules } = {}) {
@@ -87,5 +89,6 @@ export function aggregateExplorations(records, level, options = {}) {
   }); return result;
 }
 export async function getExplorationAggregate(level, options = {}) {
+  const config=await collectionConfig();if(config.enabled)return cloudAggregate(level,options);
   return { ...aggregateExplorations(readRawResponses(),level,options), source:'local', studyMode:options.studyMode || 'test', qualityRulesVersion:studyConfig.qualityRules.version };
 }

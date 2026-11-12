@@ -1,5 +1,5 @@
 // 关卡配置按字保存素材和点击判定；后续可以继续追加题目。
-const asset = (name) => `${import.meta.env.BASE_URL}assets/${name}`;
+const asset = (name) => `${import.meta.env?.BASE_URL || '/NAMARI-app/'}assets/${name}`;
 
 export const levels = [
   {

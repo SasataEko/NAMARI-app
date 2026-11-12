@@ -1,3 +1,4 @@
+import { retryPending, collectionConfig, readOutbox, retryAllPending } from './data/cloudCollection.js';
 import { loadGlyph } from './glyph/loadGlyph.js';
 import { createMorph, setMorphIntensity } from './glyph/morph.js';
 import { featuresFor } from './data/explorationFeatures.js';
@@ -124,11 +125,14 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
     return stage;
   }
   // Keep audio outside the editing area so changing tools never interrupts playback.
-  root.innerHTML=`<section class="explore-card"><p class="eyebrow">REALTIME EXPLORATION / 01</p><h1>これ、訛ってる？</h1><audio controls preload="metadata" src="${level.audio}" aria-label="研究録音"></audio><p class="explore-listen-copy">発音を聞いてみよう</p><p class="explore-headphone-note">※イヤホン推奨します</p><div class="explore-study-mode"><label>データモード <select aria-label="データモード"><option value="test">開発试玩 / Test</option><option value="research">正式テスト / Research</option></select></label><small data-mode-hint></small></div><div data-editor></div><p data-status role="status">字形を読み込んでいます…</p></section>`;
+  root.innerHTML=`<section class="explore-card"><p class="eyebrow">REALTIME EXPLORATION / 01</p><h1>これ、訛ってる？</h1><audio controls preload="metadata" src="${level.audio}" aria-label="研究録音"></audio><p class="explore-listen-copy">発音を聞いてみよう</p><p class="explore-headphone-note">※イヤホン推奨します</p><div class="explore-study-mode"><label>データモード <select aria-label="データモード"><option value="test">開発试玩 / Test</option><option value="research">正式テスト / Research</option></select></label><small data-mode-hint></small></div><p data-pending-queue></p><button class="text-action" data-retry-all hidden>未送信の回答を再送</button><div data-editor></div><p data-status role="status">字形を読み込んでいます…</p></section>`;
   const editor=root.querySelector('[data-editor]'), status=root.querySelector('[data-status]');
   const modeSelect=root.querySelector('.explore-study-mode select');modeSelect.value=studyMode;
   root.querySelector('[data-mode-hint]').textContent=studyMode==='research'?'正式テストのローカル記録。全参加者のクラウド統計には未接続です。':'试玩データのみ。正式テストには含めません。';
   modeSelect.onchange=()=>mountExploration(root,{level,profileId,studyMode:modeSelect.value});
+  const pendingCount=readOutbox().length,pending=root.querySelector('[data-pending-queue]'),retryAll=root.querySelector('[data-retry-all]');
+  pending.textContent=pendingCount?`${pendingCount}件の回答が端末で送信待ちです。`:'';retryAll.hidden=!pendingCount;
+  retryAll.onclick=async()=>{retryAll.disabled=true;pending.textContent='送信を確認しています…';try{const n=await retryAllPending();pending.textContent=`${n}件の保存を確認しました。`;retryAll.hidden=!readOutbox().length;}catch(e){pending.textContent=e.message;}finally{retryAll.disabled=false;}};
   const audio=root.querySelector('audio');
   audio.addEventListener('play',()=>{audioMetrics.audioPlayed=true;audioMetrics.audioPlayCount++;lastAudioTime=audio.currentTime;});
   audio.addEventListener('timeupdate',accountAudio);audio.addEventListener('pause',()=>{accountAudio();lastAudioTime=null;});
@@ -158,13 +162,18 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
 
   }
   async function submit(skipped){
-    if(busy||!ready)return;state.answerStatus=hasChanges()?'explored':'no_difference';accountAudio();busy=true;editor.querySelectorAll('button,input').forEach(b=>b.disabled=true);
+    if(busy||!ready)return;state.answerStatus=hasChanges()?'explored':'no_difference';accountAudio();busy=true;status.textContent='回答を保存・送信しています…';editor.querySelectorAll('button,input').forEach(b=>b.disabled=true);
     try{const record={id:crypto.randomUUID(),schemaVersion:3,levelId:level.id,profileId,participantId:anonymousId,studyMode,startedAt,responseDurationMs:Math.round(performance.now()-started),...audioMetrics,createdAt:new Date().toISOString(),skipped,...structuredClone(state)};const saved=await saveExploration(record,level);if(alive())renderResult(saved);}catch{busy=false;status.textContent='保存できませんでした。もう一度お試しください。';renderEditor();}
   }
   async function renderResult(record){
-    root.innerHTML=`<section class="explore-results"><p class="eyebrow">YOUR PREVIEW</p><h1>あなたの聞こえ方</h1><p role="status">${record.skipped?'スキップを保存しました。下書きのプレビューです。':'このブラウザーに保存しました。再回答しても正式集計の人数は増えません。'}</p><div class="explore-scroll" data-personal></div><section class="explore-group"><h2>みんなの答えと見比べる</h2><p class="explore-simulation">${studyMode==='research'?'正式テスト':'開発试玩'} · このブラウザーの他の参加者のローカル集計（クラウド未接続）</p><div class="explore-scroll" data-group></div><p data-group-note>読み込み中…</p></section><button class="outline-button" data-again>もう一度つくる</button></section>`;
+    root.innerHTML=`<section class="explore-results"><p class="eyebrow">YOUR PREVIEW</p><h1>あなたの聞こえ方</h1><p role="status">${record.skipped?'スキップを保存しました。下書きのプレビューです。':'このブラウザーに保存しました。再回答しても正式集計の人数は増えません。'}</p><p data-cloud-status role="status"></p><button class="outline-button" data-cloud-retry hidden>保存を確認・再送</button><div class="explore-scroll" data-personal></div><section class="explore-group"><h2>みんなの答えと見比べる</h2><p class="explore-simulation">${studyMode==='research'?'正式テスト':'開発试玩'} · このブラウザーの他の参加者のローカル集計（クラウド未接続）</p><div class="explore-scroll" data-group></div><p data-group-note>読み込み中…</p></section><button class="outline-button" data-again>もう一度つくる</button></section>`;
+    const cloudStatus=root.querySelector('[data-cloud-status]'),retry=root.querySelector('[data-cloud-retry]');
+    cloudStatus.textContent=record.sync?.status==='synced'?'Google Sheetsへの保存を確認しました。':record.sync?.status==='pending'?`端末には保存済み・Google Sheetsへの保存未確認。${record.sync.error}`:'ローカル保存モード';
+    retry.hidden=record.sync?.status!=='pending';retry.onclick=async()=>{retry.disabled=true;cloudStatus.textContent='保存を確認・再送しています…';try{record.sync=await retryPending(record,level);if(alive())renderResult(record);}catch(e){cloudStatus.textContent=e.message;retry.disabled=false;}};
+    const config=await collectionConfig().catch(()=>({enabled:false}));if(!alive())return;
+    root.querySelector('.explore-simulation').textContent=config.enabled?`${studyMode==='research'?'正式研究':'试玩'} · Google Sheets集計（同じ録音・関卡バージョン）`:`${studyMode==='research'?'正式研究':'试玩'} · このブラウザーの他の参加者のローカル集計`;
     root.querySelector('[data-personal]').append(makeStage(record));root.querySelector('[data-again]').onclick=()=>mountExploration(root,{level,profileId,studyMode});window.scrollTo({top:0,behavior:'smooth'});
-    try{const group=await getExplorationAggregate(level,{studyMode,excludeParticipantId:anonymousId});if(!alive())return;if(!group.count){root.querySelector('[data-group-note]').textContent='同じモードで集計対象となる他の参加者の回答はまだありません。';return;}root.querySelector('[data-group]').append(makeStage(group));root.querySelector('[data-group-note]').textContent=`${group.count}人の集計。自分・異なるモードの回答は含めません。`;}catch{if(alive())root.querySelector('[data-group-note]').textContent='比較データを読み込めませんでした。個人の記録は保存済みです。';}
+    try{const group=await getExplorationAggregate(level,{studyMode,excludeParticipantId:anonymousId});if(!alive())return;if(group.suppressed){root.querySelector('[data-group-note]').textContent='プライバシー保護のため、集計対象が3人以上になると平均を表示します。';return;}if(!group.count){root.querySelector('[data-group-note]').textContent='同じモードで集計対象となる他の参加者の回答はまだありません。';return;}root.querySelector('[data-group]').append(makeStage(group));root.querySelector('[data-group-note]').textContent=`${group.count}人の集計。${group.source==='google-sheets'?'自分を含む全参加者の平均です。':'自分の回答は含めません。'}異なるモードの回答は含めません。`;}catch{if(alive())root.querySelector('[data-group-note]').textContent='比較データを読み込めませんでした。個人の記録は保存済みです。';}
   }
   Promise.all(level.characters.map(async c=>{const normal=c.normal?await loadGlyph(c.normal):{text:c.text,viewBox:'0 0 170.08 170.08',shapes:[]};const variants=await Promise.all(featuresFor(c).map(async v=>{const custom=await loadGlyph(v.svg);return {...v,morph:createMorph(normal.shapes.map(s=>s.d),custom.shapes.map(s=>s.d))};}));return {normal,variants};})).then(data=>{if(!alive())return;glyphs=data;ready=true;status.textContent='どの操作も任意です。何も選ばず送信・スキップもできます。';renderEditor();}).catch(e=>{if(alive())status.textContent=`字形を読み込めませんでした：${e.message}`;});
 }

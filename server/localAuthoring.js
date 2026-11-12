@@ -7,6 +7,9 @@ export function localAuthoring(){
  const root=server.config.root,publicRoot=path.join(root,'public'),file=path.join(publicRoot,'content/library.json');
  server.middlewares.use(async(req,res,next)=>{
  const url=new URL(req.url,'http://localhost');
+ if(req.method==='GET'&&['library.json','collection.json','study-manifest.json'].some(name=>url.pathname===`${server.config.base}content/${name}`)){
+   try{const bytes=await fs.readFile(path.join(publicRoot,'content',path.basename(url.pathname)));res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.end(bytes);}catch{res.statusCode=404;res.end();}return;
+ }
  const assetPrefix=`${server.config.base}uploads/`;
  if(req.method==='GET'&&url.pathname.startsWith(assetPrefix)){
    const relative=url.pathname.slice(assetPrefix.length);

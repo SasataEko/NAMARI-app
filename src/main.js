@@ -1,3 +1,4 @@
+import { mountCollectionCheck } from './collectionCheck.js';
 import { mountLibrary, mountAuthor } from './libraryStudio.js';
 import { readLibrary, playableLevels } from './data/projectLibrary.js';
 import { mountExploration } from './exploration.js';
@@ -998,4 +999,4 @@ async function playAudio() {
   catch (error) { showError(new Error(`音声を再生できませんでした：${error.message}`)); }
 }
 
-render();
+if(new URLSearchParams(location.search).has('collection-check'))mountCollectionCheck(app);else render();

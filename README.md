@@ -69,3 +69,7 @@ npm run dev
 ## 开发者模式与新图鉴
 
 本地服务器首页进入「开发者模式」即可上传录音添加实时关卡、逐字上传普通/变形SVG并关联模式文件夹。图鉴可按五十音或口音模式浏览；素材实际保存到public/uploads，正式配置在public/content/library.json，保存前自动备份。生产网站只读，编辑入口仅本机开发服务器提供。步骤和保存范围见 [AUTHORING.md](AUTHORING.md)。
+
+## Google Sheets数据收集（待账户授权部署）
+
+Apps Script源码位于apps-script，接入步骤见 [GOOGLE_SHEETS_SETUP.md](GOOGLE_SHEETS_SETUP.md)。默认collection.json禁用；授权部署后填入exec URL再启用。每词提交支持云端回执确认、失败队列及同参与者去重，公开只读汇总不含原始回答。构建会生成素材内容相关的关卡版本清单；修改关卡后需同步Apps Script的Levels.gs版本。

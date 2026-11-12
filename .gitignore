@@ -3,3 +3,7 @@ dist/
 .pnpm-store/
 # Backups stay on this computer; public/content and public/uploads are project source assets.
 authoring-backups/
+
+# Never commit local Google authorization state or private overrides.
+.clasprc.json
+.env*.local
