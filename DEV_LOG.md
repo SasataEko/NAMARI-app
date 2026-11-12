@@ -226,3 +226,9 @@
 - collection.json启用研究者提供的exec地址。该地址为公开接收接口，不含私密凭据；表格ID和SERVER_PEPPER仍只由研究者在Apps Script属性中管理。
 - 本地网页实际跨域POST → Google回执 → 最新汇总成功，source=google-sheets，统计人数0、低样本隐藏、待发队列0；诊断数据不纳入正式或试玩均值。
 - 15项测试及生产构建通过。继续发布GitHub Pages后验证实际网站来源；不把本地来源验证等同为Pages联调完成。
+
+## 2026-11-12 — GitHub Pages真实来源联调完成
+
+- 已推送e62bff4并由GitHub Actions完成网页发布。实际访问https://sasataeko.github.io/NAMARI-app/?collection-check=1，完成POST → JSONP回执 → 最新Google Sheets统计，source=google-sheets、统计人数0、低样本隐藏、待发队列0。
+- 本地与GitHub Pages分别仅提交diagnostic的test记录，不进入正式研究或试玩均值。匿名浏览器访问原始表格被转到Google登录，没有直接暴露原始数据；表格所有者仍应保持受限共享。
+- 在线成功截图存于本次聊天outputs/live-pages-sheets-success.png。未获取或写入任何OAuth凭据到仓库。

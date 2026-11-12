@@ -109,3 +109,7 @@ Raw列包含提交ID、服务端接收时间、匿名参与者、模式、录音
 ## 实际部署进展
 
 已由研究者提供Web App exec地址并启用网页配置。本地网页与真实Google Apps Script的POST、回执与最新汇总实测成功，诊断不纳入人数、队列为0。GitHub Pages实际来源验证结果见开发日志。表格ID与服务端凭据由研究者在Script Properties管理，不写在公开部署指南中。
+
+### 真实线上验收结果（2026-11-12）
+
+GitHub Pages实际地址的诊断页已验证成功：普通POST → Google Apps Script保存回执 → 最新Google Sheets汇总；source=google-sheets，待发送队列0。diagnostic记录被排除，纳入人数为0符合预期。原始表格的匿名访问跳转到登录，仍需由所有者维持受限共享，避免授予其他人原始数据权限。
