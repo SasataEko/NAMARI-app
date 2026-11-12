@@ -1,5 +1,5 @@
 {
-  "revision": 11,
+  "revision": 12,
   "groups": [
     {
       "id": "existing-ku",
@@ -23,7 +23,7 @@
           "title": "口が大きく開く発音",
           "description": "",
           "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
-          "svg": "uploads/glyphs/2cf3bd94-2117-4a03-b943-391e596384f9.svg"
+          "svg": "uploads/glyphs/bb7a4f30-2085-4924-96a8-29c05030b4b6.svg"
         }
       ],
       "normal": "assets/normal/a.svg"
@@ -280,5 +280,5 @@
       ]
     }
   ],
-  "updatedAt": "2026-11-11T15:35:03.347Z"
+  "updatedAt": "2026-11-12T04:05:24.007Z"
 }

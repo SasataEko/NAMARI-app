@@ -232,3 +232,9 @@
 - 已推送e62bff4并由GitHub Actions完成网页发布。实际访问https://sasataeko.github.io/NAMARI-app/?collection-check=1，完成POST → JSONP回执 → 最新Google Sheets统计，source=google-sheets、统计人数0、低样本隐藏、待发队列0。
 - 本地与GitHub Pages分别仅提交diagnostic的test记录，不进入正式研究或试玩均值。匿名浏览器访问原始表格被转到Google登录，没有直接暴露原始数据；表格所有者仍应保持受限共享。
 - 在线成功截图存于本次聊天outputs/live-pages-sheets-success.png。未获取或写入任何OAuth凭据到仓库。
+
+## 2026-11-12 — 更新「あ」Pattern与关卡版本清单
+
+- 收录研究者在图鉴保存的新版「あ」SVG Pattern（素材库版本12），保留两份未引用占位SVG的删除。
+- 同步前后端关卡清单：「あくび」素材版本从2d3a3f68f3bc13d2更新为b251e357936c914d；「くすり」版本不变，避免新旧素材回答混合统计。
+- 15项自动测试及生产构建通过。GitHub推送后，研究者需将新版apps-script/Levels.gs同步到Apps Script并部署新版本；同步前新版「あくび」回答可能被拒绝并保留本地待发队列。

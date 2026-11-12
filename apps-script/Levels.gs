@@ -53,6 +53,6 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "2d3a3f68f3bc13d2"
+    "levelVersion": "b251e357936c914d"
   }
 ];
