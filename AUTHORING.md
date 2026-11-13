@@ -47,3 +47,14 @@
 ## 普通字形批量导入
 
 已导入用户新版46个清音SVG（含ん），位于public/assets/normal并全部登记到library.json。くすり旧关卡的普通SVG已同步替换，Pattern保留。源文件未修改。浊音、半浊音和小字仍需另外提供素材。
+
+
+## GitHub Pagesから直接編集する（サーバー不要）
+
+パソコンのChromeまたはEdgeで公開ページを開き、「開発者モード」→「プロジェクトフォルダーを開く」を押します。package.jsonとpublicのあるプロジェクトのルートを選び、読み書きを許可してください。ページを開き直したときは、もう一度フォルダーを選択します。
+
+SVGと録音は選択したフォルダーのpublic/uploadsへ、設定はpublic/content/library.jsonへ保存します。設定保存前にauthoring-backupsへ旧設定を保存し、版が変わっている場合は上書きを拒否します。フォルダーを開いている間は、その内容で図鑑と新モードをプレビューできます。未公開の回答が正式集計に混ざらないよう、クラウド送信は停止します。「フォルダーを閉じる」で公開内容に戻ります。
+
+この操作だけでは公開サイトは更新されません。保存後にビルド（pnpm run build）、関連ファイルのcommit・push、GitHub Pagesの公開完了が必要です。Levels.gsが変わった場合は、Apps Scriptの関卡清单も差し替えて新バージョンをデプロイしてください。
+
+ブラウザーのフォルダーアクセスについて：[Chrome公式ドキュメント](https://developer.chrome.com/docs/capabilities/web-apis/file-system-access)。

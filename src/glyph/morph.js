@@ -3,20 +3,20 @@ import { interpolateAll } from 'flubber';
 /** 按素材中的 path 顺序建立多轮廓插值器。 */
 export function createMorph(from, to) {
   if (from.length !== to.length) {
-    throw new Error(`两份素材的 path 数量不同（普通字形 ${from.length} 个，自定义字形 ${to.length} 个）。请按相同顺序提供相同数量的轮廓。`);
+    throw new Error(`pathの数が異なります（通常字形 ${from.length}、変形後 ${to.length}）。同じ数・順序の輪郭を用意してください。`);
   }
   try {
     const interpolation = interpolateAll(from, to, { maxSegmentLength: 3 });
     // 预先在中点采样，避免素材在拖动滑块时才暴露插值错误。
     const midpoint = interpolation.map((interpolateShape) => interpolateShape(0.5));
     if (midpoint.some((shape) => typeof shape !== 'string' || !shape.includes('M'))) {
-      throw new Error('中间态没有生成有效的 SVG 路径数据');
+      throw new Error('変形途中のSVGパスを生成できませんでした。');
     }
     interpolation.from = [...from];
     interpolation.to = [...to];
     return interpolation;
   } catch (cause) {
-    throw new Error(`路径无法插值：${cause.message || cause}。请检查轮廓是否闭合、路径数据是否有效，以及轮廓/孔洞结构是否兼容。`);
+    throw new Error(`パスを補間できません：${cause.message || cause}。閉じた輪郭・パスデータ・穴の構造を確認してください。`);
   }
 }
 

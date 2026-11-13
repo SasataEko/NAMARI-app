@@ -160,7 +160,7 @@ function renderProfiles() {
 }
 
 function renderHome() {
-  app.innerHTML = `<main class="page-shell">${profileHeader()}<section class="cover-intro"><p class="cover-eyebrow">PHONETIC TYPO PLAY</p><h1>化ける言語</h1><p>発音のちがいを、かたちでみつける。</p></section><section class="floating-cover" aria-label="訛をテーマにしたゲームカバー"><span class="float-card float-card-yellow">高<br>低</span><span class="float-card float-card-blue">あ</span><span class="float-card float-card-pink">声</span><span class="float-card float-card-white">A</span><span class="cover-kanji">訛</span><span class="cover-spark spark-one">✳</span><span class="cover-spark spark-two">·</span></section><button class="primary-cta challenge-cta" data-action="challenge"><span>チャレンジする！</span><span aria-hidden="true">→</span></button><button class="explore-entry" data-nav="exploration">挑战新模式 · 新モードに挑戦　↗</button>${import.meta.env.DEV ? '<button class="explore-entry" data-nav="developer">开发者模式 · 项目素材与关卡　↗</button>' : ''}<section class="archive-section"><div class="section-heading"><div><p class="eyebrow">COLLECTION & MODE</p><h2>アーカイブ & モード</h2></div></div><div class="archive-circles"><button class="archive-circle circle-blue" data-nav="collection"><i>▣</i><b>図鑑</b><small>五十音・パターン</small></button><button class="archive-circle circle-lavender" data-nav="diy"><i>✳</i><b>DIYモード</b><small>字形をつくる</small></button><button class="archive-circle circle-neutral" data-nav="settings"><i>⚙</i><b>設定</b><small>音・振動</small></button></div></section>${bottomNav('')}</main>`;
+  app.innerHTML = `<main class="page-shell">${profileHeader()}<section class="cover-intro"><p class="cover-eyebrow">PHONETIC TYPO PLAY</p><h1>化ける言語</h1><p>発音のちがいを、かたちでみつける。</p></section><section class="floating-cover" aria-label="訛をテーマにしたゲームカバー"><span class="float-card float-card-yellow">高<br>低</span><span class="float-card float-card-blue">あ</span><span class="float-card float-card-pink">声</span><span class="float-card float-card-white">A</span><span class="cover-kanji">訛</span><span class="cover-spark spark-one">✳</span><span class="cover-spark spark-two">·</span></section><button class="primary-cta challenge-cta" data-action="challenge"><span>チャレンジする！</span><span aria-hidden="true">→</span></button><button class="explore-entry explore-entry-rose" data-nav="exploration">新モードに挑戦　↗</button><button class="explore-entry explore-entry-gray" data-nav="developer">開発者モード　↗</button><section class="archive-section"><div class="section-heading"><div><p class="eyebrow">COLLECTION & MODE</p><h2>アーカイブ & モード</h2></div></div><div class="archive-circles"><button class="archive-circle circle-blue" data-nav="collection"><i>▣</i><b>図鑑</b><small>五十音・パターン</small></button><button class="archive-circle circle-lavender" data-nav="diy"><i>✳</i><b>DIYモード</b><small>字形をつくる</small></button><button class="archive-circle circle-neutral" data-nav="settings"><i>⚙</i><b>設定</b><small>音・振動</small></button></div></section>${bottomNav('')}</main>`;
   bindNav('');
   app.querySelector('[data-action="challenge"]').addEventListener('click', () => navigate('challenges'));
 }
@@ -171,10 +171,12 @@ function renderDeveloper() {
 }
 async function renderExploration() {
   app.innerHTML = `<main class="page-shell">${profileHeader()}${titleReturn()}<div data-exploration></div>${bottomNav('')}</main>`;
-  bindNav('');const root=app.querySelector('[data-exploration]');root.textContent='関卡を読み込み中…';
+  bindNav('');const root=app.querySelector('[data-exploration]');root.textContent='問題を読み込み中…';
   try{const library=await readLibrary();if(!root.isConnected)return;const available=playableLevels(library);
     root.innerHTML='<section class="library-intro"><h1>聴くことばを選ぼう</h1><p>同じ録音から、自分の聴こえ方を描こう。</p></section><div class="author-levels"></div>';
-    available.forEach(l=>{const b=document.createElement('button');b.textContent=l.word;b.onclick=()=>{if(isAnimating)stopAnimation();mountExploration(root,{level:l,profileId:activeProfileId});};root.querySelector('.author-levels').append(b);});
+    const play=index=>{if(isAnimating)stopAnimation();mountExploration(root,{level:available[index],profileId:activeProfileId,nextLevel:available[index+1],onNext:mode=>playWithMode(index+1,mode),onLevelList:renderExploration});};
+    const playWithMode=(index,studyMode)=>mountExploration(root,{level:available[index],profileId:activeProfileId,studyMode,nextLevel:available[index+1],onNext:mode=>playWithMode(index+1,mode),onLevelList:renderExploration});
+    available.forEach((l,index)=>{const b=document.createElement('button');b.textContent=l.word;b.onclick=()=>play(index);root.querySelector('.author-levels').append(b);});
   }catch(e){root.textContent=e.message;}
 }
 

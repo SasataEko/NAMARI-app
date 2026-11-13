@@ -1,9 +1,11 @@
+import { directoryConnected } from './directoryProject.js';
 let configPromise;
 const base=()=>import.meta.env?.BASE_URL || '/NAMARI-app/';
 const QUEUE='kotoba-cloud-outbox-v1';
 export const readOutbox=()=>JSON.parse(localStorage.getItem(QUEUE)||'[]');
 function writeOutbox(rows){localStorage.setItem(QUEUE,JSON.stringify(rows));}
 export async function collectionConfig(){
+ if(directoryConnected())return {enabled:false,localProject:true};
  if(!configPromise)configPromise=fetch(`${base()}content/collection.json`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('収集設定を読み込めません');return r.json();}).catch(e=>{configPromise=null;throw e;});
  const c=await configPromise;if(c.enabled&&!validEndpoint(c.endpoint))throw new Error('Apps Scriptの /exec URLを確認してください');return c;
 }
@@ -19,9 +21,9 @@ export function jsonp(endpoint,params,timeoutMs=12000){
  });
 }
 export async function attachLevelVersion(record,level){
- const list=await fetch(`${base()}content/study-manifest.json`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('関卡バージョン未生成です');return r.json();});
+ const list=await fetch(`${base()}content/study-manifest.json`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('問題バージョン未生成です');return r.json();});
  const entry=list.find(l=>l.levelId===level.id&&l.recordingId===record.recordingId);
- if(!entry)throw new Error('新しい関卡はmanifestを生成してから公開してください');return {...record,levelVersion:entry.levelVersion};
+ if(!entry)throw new Error('新しい問題はmanifestを生成してから公開してください');return {...record,levelVersion:entry.levelVersion};
 }
 export async function sendPending(id){
  const config=await collectionConfig();if(!config.enabled)return {status:'local'};
@@ -33,7 +35,7 @@ export async function sendPending(id){
  let lastError;
  while(Date.now()<deadline){
    try{const receipt=await jsonp(config.endpoint,{action:'receipt',submissionId:id},Math.min(10000,Math.max(500,deadline-Date.now())));
-   if(receipt.rejected)throw Object.assign(new Error('回答を受け付けられませんでした。関卡バージョン・サーバー設定を管理者に確認してください。'),{rejected:true});
+   if(receipt.rejected)throw Object.assign(new Error('回答を受け付けられませんでした。問題バージョン・サーバー設定を管理者に確認してください。'),{rejected:true});
    if(receipt.ok&&receipt.received){writeOutbox(readOutbox().filter(r=>r.id!==id));return {status:'synced'};}
    }catch(e){lastError=e;if(e.rejected)throw e;}
    await new Promise(resolve=>setTimeout(resolve,1000));
@@ -45,7 +47,7 @@ export async function queueAndSend(record,level){
  let versioned;
  try{versioned=await attachLevelVersion(record,level);}catch(e){versioned={...record,levelVersion:null};}
  const queue=readOutbox();if(!queue.some(r=>r.id===record.id)){queue.push(versioned);writeOutbox(queue);}
- if(!versioned.levelVersion)throw new Error('回答は端末に保管済みです。管理者が関卡バージョンを設定した後に再送してください。');
+ if(!versioned.levelVersion)throw new Error('回答は端末に保管済みです。管理者が問題バージョンを設定した後に再送してください。');
  return sendPending(record.id);
 }
 export async function retryPending(record,level){

@@ -32,27 +32,133 @@
     "defaultAccent": [
       "low",
       "high",
-      "high"
+      "high",
+      "low",
+      "low"
     ],
     "characters": [
       {
-        "text": "あ",
-        "patterns": [
-          "22288605-1674-4ba8-9c3d-93d914bb427c"
-        ]
+        "text": "ゆ",
+        "patterns": []
       },
       {
-        "text": "く",
-        "patterns": [
-          "ku-custom"
-        ]
+        "text": "で",
+        "patterns": []
       },
       {
-        "text": "び",
+        "text": "た",
+        "patterns": []
+      },
+      {
+        "text": "ま",
+        "patterns": []
+      },
+      {
+        "text": "ご",
         "patterns": []
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "b251e357936c914d"
+    "levelVersion": "253bc23933531188"
+  },
+  {
+    "levelId": "130bfe9f-865c-4bf5-a2de-30e514330402",
+    "recordingId": "8d78a141-3435-4c45-a7eb-bccdfc9c64bc",
+    "defaultAccent": [
+      "low",
+      "high",
+      "high",
+      "low",
+      "low"
+    ],
+    "characters": [
+      {
+        "text": "カ",
+        "patterns": []
+      },
+      {
+        "text": "リ",
+        "patterns": []
+      },
+      {
+        "text": "キュ",
+        "patterns": []
+      },
+      {
+        "text": "ラ",
+        "patterns": []
+      },
+      {
+        "text": "ム",
+        "patterns": []
+      }
+    ],
+    "qualityCheck": null,
+    "levelVersion": "c149d0fdd1639be7"
+  },
+  {
+    "levelId": "ccb4f0b9-8e27-4cbf-9998-37ce23e56908",
+    "recordingId": "b9a07a4b-b5fa-4729-89e0-6e9f00ba9860",
+    "defaultAccent": [
+      "low",
+      "high",
+      "high",
+      "low",
+      "low"
+    ],
+    "characters": [
+      {
+        "text": "き",
+        "patterns": []
+      },
+      {
+        "text": "ん",
+        "patterns": []
+      },
+      {
+        "text": "め",
+        "patterns": []
+      },
+      {
+        "text": "だ",
+        "patterns": []
+      },
+      {
+        "text": "る",
+        "patterns": []
+      }
+    ],
+    "qualityCheck": null,
+    "levelVersion": "80654f5e34b20405"
+  },
+  {
+    "levelId": "0d3eb58f-7be3-4d09-aaf3-ecbb7f9e3254",
+    "recordingId": "ef39e724-ed27-4025-ac83-c09840827d93",
+    "defaultAccent": [
+      "low",
+      "high",
+      "high",
+      "high"
+    ],
+    "characters": [
+      {
+        "text": "しょ",
+        "patterns": []
+      },
+      {
+        "text": "う",
+        "patterns": []
+      },
+      {
+        "text": "し",
+        "patterns": []
+      },
+      {
+        "text": "ん",
+        "patterns": []
+      }
+    ],
+    "qualityCheck": null,
+    "levelVersion": "aa92fdfc97b71ba7"
   }
 ]

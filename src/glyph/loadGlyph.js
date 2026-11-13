@@ -1,21 +1,21 @@
 /** 加载 SVG，读取 viewBox 和有序轮廓；多笔画使用多个 path 元素。 */
 export async function loadGlyph(url) {
   const response = await fetch(url);
-  if (!response.ok) throw new Error(`素材读取失败：${url}（HTTP ${response.status}）`);
+  if (!response.ok) throw new Error(`素材を読み込めません：${url}（HTTP ${response.status}）`);
   const source = await response.text();
   const doc = new DOMParser().parseFromString(source, 'image/svg+xml');
-  if (doc.querySelector('parsererror')) throw new Error(`SVG 解析失败：${url}`);
+  if (doc.querySelector('parsererror')) throw new Error(`SVGを解析できません：${url}`);
   const svg = doc.documentElement;
   const viewBox = svg.getAttribute('viewBox');
-  if (!viewBox) throw new Error(`${url} 缺少 viewBox 属性。`);
-  if (svg.querySelector('[transform]')) throw new Error(`${url} 含有 transform 属性；当前插值器不会展平变换，请先在 Illustrator 中扩展外观/变换后导出。`);
-  if (svg.querySelector('mask, clipPath, filter, use, image')) throw new Error(`${url} 含有 mask、clipPath、filter、use 或 image 结构；当前 path 插值器无法可靠还原这些效果。`);
+  if (!viewBox) throw new Error(`${url} にviewBoxがありません。`);
+  if (svg.querySelector('[transform]')) throw new Error(`${url} にtransformがあります。Illustratorでアピアランス・変換を分割してから書き出してください。`);
+  if (svg.querySelector('mask, clipPath, filter, use, image')) throw new Error(`${url} に未対応の構造（mask・clipPath・filter・use・image）があります。輪郭のみで書き出してください。`);
   const classFills = readClassFills(doc);
   const paths = [...svg.querySelectorAll('path')];
-  if (!paths.length) throw new Error(`${url} 不包含任何 path 元素。请将字形转换为轮廓路径。`);
+  if (!paths.length) throw new Error(`${url} にpathがありません。字形を輪郭パスに変換してください。`);
   const shapes = paths.map((path, index) => {
     const d = path.getAttribute('d');
-    if (!d?.trim()) throw new Error(`${url} 的第 ${index + 1} 个 path 缺少 d 路径数据。`);
+    if (!d?.trim()) throw new Error(`${url} の${index + 1}番目のpathにdデータがありません。`);
     return {
       d,
       fill: readPathFill(path, classFills) || '#231815',
@@ -26,7 +26,7 @@ export async function loadGlyph(url) {
   });
   const [x, y, width, height] = viewBox.trim().split(/[ ,]+/).map(Number);
   if (![x, y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) {
-    throw new Error(`${url} 的 viewBox 格式无效：${viewBox}`);
+    throw new Error(`${url} のviewBoxが不正です：${viewBox}`);
   }
   return { url, viewBox, shapes };
 }
