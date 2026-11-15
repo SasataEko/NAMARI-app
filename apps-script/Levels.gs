@@ -94,7 +94,7 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "c149d0fdd1639be7"
+    "levelVersion": "7fdf2f03d8634db8"
   },
   {
     "levelId": "ccb4f0b9-8e27-4cbf-9998-37ce23e56908",
@@ -160,5 +160,84 @@ var LEVEL_MANIFEST = [
     ],
     "qualityCheck": null,
     "levelVersion": "aa92fdfc97b71ba7"
+  }
+];
+var MODE1_MANIFEST = [
+  {
+    "levelId": "kusuri",
+    "recordingId": "kusuri-recording-v1",
+    "levelVersion": "126f4af7200fc95a",
+    "definition": {
+      "scoring": "selection",
+      "targets": [
+        0
+      ],
+      "characters": [
+        {
+          "text": "く"
+        },
+        {
+          "text": "す"
+        },
+        {
+          "text": "り"
+        }
+      ],
+      "patternChoices": [
+        "ku-custom",
+        null,
+        null
+      ]
+    }
+  },
+  {
+    "levelId": "builtin-accent",
+    "recordingId": "builtin-accent-recording-v1",
+    "levelVersion": "unscored-v1",
+    "definition": {
+      "scoring": "none",
+      "characters": [
+        {
+          "text": "カ"
+        },
+        {
+          "text": "リ"
+        },
+        {
+          "text": "キュ"
+        },
+        {
+          "text": "ラ"
+        },
+        {
+          "text": "ム"
+        }
+      ]
+    }
+  },
+  {
+    "levelId": "builtin-mora",
+    "recordingId": "builtin-mora-recording-v1",
+    "levelVersion": "unscored-v1",
+    "definition": {
+      "scoring": "none",
+      "characters": [
+        {
+          "text": "カ"
+        },
+        {
+          "text": "リ"
+        },
+        {
+          "text": "キュ"
+        },
+        {
+          "text": "ラ"
+        },
+        {
+          "text": "ム"
+        }
+      ]
+    }
   }
 ];

@@ -18,3 +18,10 @@ test('local uploads persist, saves back up and reject stale or unsafe writes',as
  assert.equal((await call('/__author/save',JSON.stringify({...data,revision:2,glyphs:[{normal:'uploads/../../private',patterns:[]}]}))).code,400);
  assert.equal(JSON.parse(await fs.readFile(path.join(root,'public/content/library.json'),'utf8')).revision,2);
 });
+
+
+test('new Mode1 manifests are served as JSON even when created after the server starts',async()=>{
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'namari-manifest-'));await fs.mkdir(path.join(root,'public/content'),{recursive:true});let handle;localAuthoring().configureServer({config:{root,base:'/NAMARI-app/'},middlewares:{use:fn=>handle=fn}});
+ const expected=[{levelId:'kusuri',levelVersion:'v1'}];await fs.writeFile(path.join(root,'public/content/mode-one-manifest.json'),JSON.stringify(expected));
+ const req={method:'GET',url:'/NAMARI-app/content/mode-one-manifest.json'},headers={};let body,forwarded=false;const res={statusCode:200,setHeader:(k,v)=>headers[k]=v,end:v=>body=v};await handle(req,res,()=>forwarded=true);assert.equal(forwarded,false);assert.equal(res.statusCode,200);assert.match(headers['Content-Type'],/^application\/json/);assert.equal(headers['Cache-Control'],'no-store');assert.deepEqual(JSON.parse(body.toString()),expected);
+});

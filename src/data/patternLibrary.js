@@ -1,0 +1,9 @@
+export const hiragana=text=>String(text).replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));
+export function libraryGlyph(library,text){return library?.glyphs.find(g=>g.kana===text)||library?.glyphs.find(g=>g.kana===hiragana(text))||null;}
+export function libraryCards(library){return (library?.glyphs||[]).flatMap(g=>g.patterns.map(p=>({...p,kana:g.kana,normal:g.normal,group:library.groups.find(group=>group.id===p.groupId)})));}
+export function resolveModeOne(library,question){const reading=question.reading||question.morae||[];const targets=(question.targetIndexes||[question.targetIndex]).filter(i=>Number.isInteger(i)&&i>=0&&i<reading.length);return {...question,reading,targets,characters:reading.map((text,i)=>{const glyph=libraryGlyph(library,text);const id=question.patternChoices?.[i];const pattern=id?glyph?.patterns.find(p=>p.id===id):glyph?.patterns[0];return {text,normal:glyph?.normal,pattern:targets.includes(i)?pattern:null,group:library.groups.find(g=>g.id===pattern?.groupId)};})};}
+export function nextChapterItem(items,currentId){const index=items.findIndex(item=>item.id===currentId);return index<0?null:items[index+1]||null;}
+const FEEDBACK='kotoba-mode1-unclear-v1';
+export function feedbackRecords(storage){try{return JSON.parse(storage.getItem(FEEDBACK)||'[]');}catch{return [];}}
+export function hasUnclearFeedback(storage,profileId,levelId){return feedbackRecords(storage).some(r=>r.profileId===profileId&&r.levelId===levelId);}
+export function recordUnclearFeedback(storage,profileId,levelId,patterns){const rows=feedbackRecords(storage);if(rows.some(r=>r.profileId===profileId&&r.levelId===levelId))return false;rows.push({profileId,levelId,patterns,feedback:'unclear',createdAt:new Date().toISOString()});storage.setItem(FEEDBACK,JSON.stringify(rows));return true;}

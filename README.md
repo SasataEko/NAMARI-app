@@ -73,3 +73,12 @@ npm run dev
 ## Google Sheets数据收集（待账户授权部署）
 
 Apps Script源码位于apps-script，接入步骤见 [GOOGLE_SHEETS_SETUP.md](GOOGLE_SHEETS_SETUP.md)。默认collection.json禁用；授权部署后填入exec URL再启用。每词提交支持云端回执确认、失败队列及同参与者去重，公开只读汇总不含原始回答。构建会生成素材内容相关的关卡版本清单；修改关卡后需同步Apps Script的Levels.gs版本。
+
+
+## 研究数据查看与新聊天衔接
+
+日常查看和删除操作见「研究数据使用说明.txt」；另开聊天分析前先读「研究数据分析衔接.md」。原始导出放 .research-data/，分析输出放 .research-results/，均不提交Git。
+
+表格首页教程的私有安装脚本：apps-script/ResearchGuide.gs。若没有直接表格编辑连接，将该文件加入原绑定Apps Script并运行installResearchGuide_即可创建最左侧「00_使用说明」；无需重新部署游戏接口，不修改任何Raw/Audit数据。已有非空同名说明页会保留，不覆盖研究者的注释。
+
+2026-11-15已通过Google Drive连接直接完成表格最左侧「00_使用说明」，无需再次运行安装脚本。ResearchGuide.gs仅作为以后重建说明页的备用；实际数据表结构保持不变。

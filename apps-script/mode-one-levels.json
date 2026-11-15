@@ -1,0 +1,79 @@
+[
+  {
+    "levelId": "kusuri",
+    "recordingId": "kusuri-recording-v1",
+    "levelVersion": "126f4af7200fc95a",
+    "definition": {
+      "scoring": "selection",
+      "targets": [
+        0
+      ],
+      "characters": [
+        {
+          "text": "く"
+        },
+        {
+          "text": "す"
+        },
+        {
+          "text": "り"
+        }
+      ],
+      "patternChoices": [
+        "ku-custom",
+        null,
+        null
+      ]
+    }
+  },
+  {
+    "levelId": "builtin-accent",
+    "recordingId": "builtin-accent-recording-v1",
+    "levelVersion": "unscored-v1",
+    "definition": {
+      "scoring": "none",
+      "characters": [
+        {
+          "text": "カ"
+        },
+        {
+          "text": "リ"
+        },
+        {
+          "text": "キュ"
+        },
+        {
+          "text": "ラ"
+        },
+        {
+          "text": "ム"
+        }
+      ]
+    }
+  },
+  {
+    "levelId": "builtin-mora",
+    "recordingId": "builtin-mora-recording-v1",
+    "levelVersion": "unscored-v1",
+    "definition": {
+      "scoring": "none",
+      "characters": [
+        {
+          "text": "カ"
+        },
+        {
+          "text": "リ"
+        },
+        {
+          "text": "キュ"
+        },
+        {
+          "text": "ラ"
+        },
+        {
+          "text": "ム"
+        }
+      ]
+    }
+  }
+]

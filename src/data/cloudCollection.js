@@ -21,16 +21,16 @@ export function jsonp(endpoint,params,timeoutMs=12000){
  });
 }
 export async function attachLevelVersion(record,level){
- const list=await fetch(`${base()}content/study-manifest.json`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('問題バージョン未生成です');return r.json();});
+ const list=await fetch(`${base()}content/${record.gameMode==='mode1'?'mode-one-manifest.json':'study-manifest.json'}`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('問題バージョン未生成です');return r.json();});
  const entry=list.find(l=>l.levelId===level.id&&l.recordingId===record.recordingId);
- if(!entry)throw new Error('新しい問題はmanifestを生成してから公開してください');return {...record,levelVersion:entry.levelVersion};
+ if(!entry){if(record.gameMode==='mode1'&&record.mode1Definition){const bytes=new TextEncoder().encode(JSON.stringify({levelId:record.levelId,recordingId:record.recordingId,definition:record.mode1Definition}));const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(b=>b.toString(16).padStart(2,'0')).join('');return {...record,levelVersion:'local-'+hash.slice(0,16)};}throw new Error('新しい問題はmanifestを生成してから公開してください');}return {...record,levelVersion:entry.levelVersion};
 }
 export async function sendPending(id){
  const config=await collectionConfig();if(!config.enabled)return {status:'local'};
  const item=readOutbox().find(r=>r.id===id);if(!item)return {status:'synced'};
  const controller=new AbortController(),postTimer=setTimeout(()=>controller.abort(),12000);
  // A simple text/plain POST avoids a preflight. Opaque fetch success is NOT an acknowledgement.
- try{await fetch(config.endpoint,{method:'POST',mode:'no-cors',credentials:'omit',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify({action:'submit',participantKey:credential(),response:item}),signal:controller.signal});}catch{}finally{clearTimeout(postTimer);}
+ try{await fetch(config.endpoint,{method:'POST',mode:'no-cors',credentials:'omit',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify({action:item.gameMode==='mode1'?'submit_mode1':'submit',participantKey:credential(),response:item}),signal:controller.signal});}catch{}finally{clearTimeout(postTimer);}
  const deadline=Date.now()+Math.min(45000,Math.max(5000,config.timeoutMs||30000));
  let lastError;
  while(Date.now()<deadline){

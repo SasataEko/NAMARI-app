@@ -113,3 +113,8 @@ Raw列包含提交ID、服务端接收时间、匿名参与者、模式、录音
 ### 真实线上验收结果（2026-11-12）
 
 GitHub Pages实际地址的诊断页已验证成功：普通POST → Google Apps Script保存回执 → 最新Google Sheets汇总；source=google-sheets，待发送队列0。diagnostic记录被排除，纳入人数为0符合预期。原始表格的匿名访问跳转到登录，仍需由所有者维持受限共享，避免授予其他人原始数据权限。
+
+
+## 2026-11-15：Mode1统计与主动反馈
+
+Mode1、Mode2现在可共用同一份表格并独立统计。升级需要同步Code.gs、Mode1.gs与Levels.gs，运行setup_，再更新现有部署为新版本。请参阅[MODE1_SHEETS_UPDATE.md](MODE1_SHEETS_UPDATE.md)，其中列出新工作表、字段、正确率口径、DIY纳入规则及删除后汇总更新方式。

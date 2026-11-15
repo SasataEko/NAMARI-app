@@ -7,3 +7,7 @@ authoring-backups/
 # Never commit local Google authorization state or private overrides.
 .clasprc.json
 .env*.local
+
+# Private study exports, connection references, and participant analysis results.
+.research-data/
+.research-results/
