@@ -489,3 +489,5 @@ body, button, input { font-family: "Noto Sans JP", "Noto Sans", "Yu Gothic UI", 
 .home-mode-stack{grid-auto-rows:1fr}.home-mode-button{height:100%}
 
 .mode-one-audio audio{display:block;width:min(100%,420px)}
+
+.mode-one-pattern-card img,.diy-library-pattern img{filter:brightness(0)}

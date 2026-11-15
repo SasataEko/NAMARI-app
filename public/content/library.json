@@ -1,31 +1,25 @@
 {
-  "revision": 17,
+  "revision": 18,
   "groups": [
     {
       "id": "existing-ku",
       "title": "「う」列が丸い発音",
       "description": "中国語の母音「u」に影響された発音傾向。",
-      "color": "#ffe08b"
+      "color": "#ffe08b",
+      "folderName": "pattern-U"
     },
     {
       "id": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
       "title": "「あ」列が広い発音",
       "description": "/a/より/æ/，口が大きく開いた発音",
-      "color": "#f36868"
+      "color": "#f36868",
+      "folderName": "pattern-A"
     }
   ],
   "glyphs": [
     {
       "kana": "あ",
-      "patterns": [
-        {
-          "id": "22288605-1674-4ba8-9c3d-93d914bb427c",
-          "title": "口が大きく開く発音",
-          "description": "",
-          "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
-          "svg": "uploads/glyphs/bb7a4f30-2085-4924-96a8-29c05030b4b6.svg"
-        }
-      ],
+      "patterns": [],
       "normal": "assets/normal/a.svg"
     },
     {
@@ -35,7 +29,15 @@
     },
     {
       "kana": "う",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-u-u",
+          "groupId": "existing-ku",
+          "title": "丸くなった「う」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/u-NM.svg"
+        }
+      ],
       "normal": "assets/normal/u.svg"
     },
     {
@@ -67,7 +69,7 @@
           "groupId": "existing-ku",
           "title": "丸くなった「く」",
           "description": "「う」の発音が中国語のuになっているから、重く聞こえるよね",
-          "svg": "uploads/glyphs/fc491359-900c-47ce-a0d1-e701b16952ee.svg"
+          "svg": "assets/namari/pattern-U/ku-NM.svg"
         }
       ]
     },
@@ -94,7 +96,15 @@
     {
       "kana": "す",
       "normal": "assets/normal/su.svg",
-      "patterns": []
+      "patterns": [
+        {
+          "id": "pattern-u-su",
+          "groupId": "existing-ku",
+          "title": "丸くなった「す」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/su-NM.svg"
+        }
+      ]
     },
     {
       "kana": "せ",
@@ -118,7 +128,15 @@
     },
     {
       "kana": "つ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-u-tsu",
+          "groupId": "existing-ku",
+          "title": "丸くなった「つ」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/tsu-NM.svg"
+        }
+      ],
       "normal": "assets/normal/tsu.svg"
     },
     {
@@ -143,7 +161,15 @@
     },
     {
       "kana": "ぬ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-u-nu",
+          "groupId": "existing-ku",
+          "title": "丸くなった「ぬ」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/nu-NM.svg"
+        }
+      ],
       "normal": "assets/normal/nu.svg"
     },
     {
@@ -168,7 +194,15 @@
     },
     {
       "kana": "ふ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-u-fu",
+          "groupId": "existing-ku",
+          "title": "丸くなった「ふ」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/fu-NM.svg"
+        }
+      ],
       "normal": "assets/normal/hu.svg"
     },
     {
@@ -193,7 +227,15 @@
     },
     {
       "kana": "む",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-u-mu",
+          "groupId": "existing-ku",
+          "title": "丸くなった「む」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/mu-NM.svg"
+        }
+      ],
       "normal": "assets/normal/mu.svg"
     },
     {
@@ -213,7 +255,15 @@
     },
     {
       "kana": "ゆ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-u-yu",
+          "groupId": "existing-ku",
+          "title": "丸くなった「ゆ」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/yu-NM.svg"
+        }
+      ],
       "normal": "assets/normal/yu.svg"
     },
     {
@@ -233,7 +283,15 @@
     },
     {
       "kana": "る",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-u-ru",
+          "groupId": "existing-ku",
+          "title": "丸くなった「る」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/ru-NM.svg"
+        }
+      ],
       "normal": "assets/normal/ru.svg"
     },
     {
@@ -342,5 +400,5 @@
       ]
     }
   ],
-  "updatedAt": "2026-11-12T04:32:41.504Z"
+  "updatedAt": "2026-11-15T09:44:41.711Z"
 }

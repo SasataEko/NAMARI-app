@@ -10,9 +10,9 @@ export const levels = [
     instruction: '発音の特徴がある文字を選んでください。',
     audio: asset('kusuri-audio.mp3'),
     characters: [
-      { id: 'ku', text: 'く', normal: asset('ku-normal.svg'), custom: asset('ku-accented.svg'), isTarget: true },
-      { id: 'su', text: 'す', normal: asset('su-normal.svg'), isTarget: false },
-      { id: 'ri', text: 'り', normal: asset('ri-normal.svg'), isTarget: false },
+      { id: 'ku', text: 'く', normal: asset('normal/ku.svg'), custom: asset('namari/pattern-U/ku-NM.svg'), isTarget: true },
+      { id: 'su', text: 'す', normal: asset('normal/su.svg'), isTarget: false },
+      { id: 'ri', text: 'り', normal: asset('normal/ri.svg'), isTarget: false },
     ],
   },
 ];

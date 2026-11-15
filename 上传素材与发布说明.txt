@@ -1,105 +1,26 @@
-上传素材与网页发布说明
+SVG素材与发布说明（2026-11-15更新）
 
 项目根目录：
 C:\Users\hyz34\Documents\Codex\2026-10-15\codex-prompt-mvp-svg-svg-svg
 
-以下相对路径均以项目根目录为起点。
+1. 普通SVG：public\assets\normal\
+2. 变形SVG：public\assets\namari\<Pattern英文文件夹名>\
+   当前「う」列9个：public\assets\namari\pattern-U\
+   对应：う、く、す、つ、ぬ、ふ、む、ゆ、る。
+3. 录音：public\uploads\audio\
+4. 图鉴与关卡配置：public\content\library.json
+5. 历史素材与配置备份：authoring-backups\（只留在本机，不提交Git）
 
-一、网页上传的文件保存在哪里？
+网页选择SVG时先暂存用于预览；点击保存字形或保存分组后，系统归档到assets并更新配置。此前public/uploads/glyphs中的旧SVG已移至本地备份，不再作为正式素材位置。旧「あ」变形已移出图鉴，「す」使用新版pattern-U素材。
 
-1. 网页上传的普通字形和Pattern SVG：
-public\uploads\glyphs\
-完整路径：
-C:\Users\hyz34\Documents\Codex\2026-10-15\codex-prompt-mvp-svg-svg-svg\public\uploads\glyphs
+自定义英文目录名：开发者模式 → 発音パターンのグループ → 保存フォルダー名（英字）。例如pattern-U或pattern-A。英字开头，只用英数字、-和_，最多64字符，名称不能与其他分组重复。更改后保存，已有Pattern的路径也会同步更新。仅改变大小写时，先改成另一个名称保存，再改回所需大小写。
 
-文件仍为普通.svg文件，不是只存在浏览器中的图片。
-系统会生成随机文件名，避免覆盖已有素材，因此文件名通常不包含假名。
-例如本次更新的「あ」Pattern：
-bb7a4f30-2085-4924-96a8-29c05030b4b6.svg
+正常字形和变形字形需要相同画布与相同顺序/数量的闭合path。此次う/ふ/む多个同色path已合成复合path来匹配原有动画，画布、轮廓坐标和比例保持不变；原始文件已备份。
 
-2. 网页上传的录音：
-public\uploads\audio\
-同样使用随机文件名，保留上传文件的音频扩展名。
+从GitHub Pages直接编辑：电脑Chrome或Edge打开开发者模式，选择包含package.json和public的项目根目录并允许读写。无需启动本地服务器；重新打开页面时再次选择目录。
 
-3. 原有素材：
-public\assets\
-其中批量导入的普通假名字形位于：
-public\assets\normal\
-网页新上传的SVG不会自动放入assets文件夹。
+本地保存不会自动发布。发布流程：保存素材/配置 → pnpm run build（同步生成关卡清单）→ commit与push → 等待GitHub Pages部署成功。
 
-二、怎么确认某个假名对应哪个文件？
+SVG、录音或题目更新后，检查apps-script/Levels.gs。如果清单变化，需要复制到原Apps Script项目，保存并把现有Web App部署更新为新版本。沿用原/exec地址。同步前新版回答可能留在本地待发；部署完成后再重试。
 
-查看：public\content\library.json
-这里记录普通字形、Pattern SVG、Pattern名称与说明、分类和自建关卡录音等对应关系。
-例如：
-"normal": "assets/normal/a.svg"
-"svg": "uploads/glyphs/bb7a4f30-2085-4924-96a8-29c05030b4b6.svg"
-这些路径前面加public\，就是电脑中的对应位置。
-也可以通过网页开发者工作室查看、替换对应素材。
-
-上传成功代表文件已写入电脑；还需要在网页中完成保存，让素材库配置引用这个文件。
-编辑中的浏览器草稿不等于已经保存到项目。
-旧上传文件不会因为替换引用而自动删除。不要只凭随机文件名删除文件，应先确认没有配置引用。
-手动替换SVG时，保留对应路径与文件名；同时需要按下文重新生成关卡清单并发布。
-
-三、项目保存与备份
-
-网页保存图鉴或关卡配置后，配置写入：
-public\content\library.json
-保存前的配置备份放在：
-authoring-backups\
-该目录的历史配置不包含整套SVG和录音备份，也不会随Git推送。
-迁移或备份项目时，请一起保留public\uploads、public\assets及public\content，不能只复制library.json。
-网页编辑并写入电脑的功能仅限本机开发服务器。GitHub Pages是静态网站，远程玩家无法通过它写入你电脑里的项目文件。
-
-四、其他人什么时候能看到新修改？
-
-仅在本地网页上传并保存：只更新电脑中的项目，线上网站不会自动变化。
-发布流程：
-1. 本地网页上传素材，完成图鉴或关卡配置并保存。
-2. 运行pnpm run build。此步骤会重新生成关卡版本清单并构建网页。
-3. 将素材、配置、生成的清单等相关改动一起提交（commit），并推送（push）到GitHub main。
-4. 等待GitHub Actions中的Deploy to GitHub Pages执行成功。
-5. 其他人打开线上网页，就能看到这次发布的修改；旧页面必要时刷新。
-
-线上游戏：
-https://sasataeko.github.io/NAMARI-app/
-发布状态：
-https://github.com/SasataEko/NAMARI-app/actions
-
-GitHub仓库及发布网页中的SVG、录音和配置可被访问，上传前应确认素材可以公开。
-
-五、涉及关卡变更时，还要同步Apps Script
-
-用于研究数据收集的关卡版本与文字、默认值及引用的SVG/录音内容有关。
-即使手动覆盖同名素材，也可能改变关卡版本。
-本地构建后会同步生成：
-apps-script\Levels.gs
-apps-script\levels.json
-public\content\study-manifest.json
-
-如果生成的Levels.gs发生变化：
-1. 把项目中apps-script\Levels.gs的完整内容复制到Google Apps Script项目对应的Levels.gs。
-2. 在Apps Script中保存，再通过“部署”→“管理部署”编辑现有Web App部署，选择“新版本”并部署。
-3. 使用现有部署更新时，保持原来的/exec地址；若创建了新地址，还需更新项目的public\content\collection.json并重新发布网页。
-
-仅保存Apps Script代码，不等于已经更新对外运行的部署版本。
-新旧清单不一致时，受影响关卡的新版回答可能被拒绝，并保留在本地待上传队列；同步部署后可重试。
-不涉及已使用关卡的图鉴修改，不一定改变关卡清单，以生成结果为准。
-
-截至2026-11-12最近一次素材更新：
-「あ」Pattern已更换，「あくび」关卡版本变为b251e357936c914d。
-「くすり」版本未变。
-此次新版Levels.gs仍需由研究者同步到Apps Script并部署；本文不代表已完成该操作。
-
-详细Google Sheets部署、授权与排查说明请查看项目根目录：
-GOOGLE_SHEETS_SETUP.md
-开发者编辑功能说明请查看：
-AUTHORING.md
-
-
-2026-11-13追加：无需启动服务器的编辑方式
-
-现在GitHub Pages也显示“開発者モード”。在电脑Chrome或Edge中打开网站，点击“プロジェクトフォルダーを開く”，选择包含package.json与public的项目根目录并允许读写，即可编辑与保存。重新打开网页后，再次选择项目文件夹即可。
-SVG、录音、配置的保存位置和前文相同。打开本地项目文件夹期间，新模式和图鉴预览该项目内容，回答仅保存在本地，不发送到云端。点击“フォルダーを閉じる”恢复查看公开版本。
-这项功能随网页新版本发布后可用；本地保存仍不会自动更新GitHub。发布步骤与Apps Script同步要求仍按前文执行。
+数据部署详见GOOGLE_SHEETS_SETUP.md与MODE1_SHEETS_UPDATE.md。

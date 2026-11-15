@@ -1,3 +1,4 @@
+import { planAssetOrganization } from './assetOrganization.js';
 // Browser-authorized local project editing; no remote write endpoint or credentials.
 let active=null;
 const urls=new Map();
@@ -7,6 +8,7 @@ export const directoryAsset=p=>urls.get(p);
 export const directoryLibrary=()=>active?.storage.read();
 function parts(path){if(typeof path!=='string'||!path||path.split('/').some(p=>!p||p==='.'||p==='..')||!/^[a-zA-Z0-9_./-]+$/.test(path))throw new Error('ファイルの保存先が不正です。');return path.split('/');}
 async function fileAt(root,path,create=false){const names=parts(path);let dir=root;for(const name of names.slice(0,-1))dir=await dir.getDirectoryHandle(name,{create});return dir.getFileHandle(names.at(-1),{create});}
+async function removeAt(root,path){const names=parts(path);let dir=root;for(const name of names.slice(0,-1))dir=await dir.getDirectoryHandle(name);await dir.removeEntry(names.at(-1));}
 async function textAt(root,path){return (await (await fileAt(root,path)).getFile()).text();}
 async function put(root,path,data){const file=await fileAt(root,path,true);const stream=await file.createWritable();try{await stream.write(data);await stream.close();}catch(e){await stream.abort().catch(()=>{});throw e;}}
 const references=data=>[...data.glyphs.flatMap(g=>[g.normal,...g.patterns.map(p=>p.svg)]),...data.levels.map(l=>l.audio)].filter(Boolean);
@@ -19,7 +21,12 @@ export async function createDirectoryStorage(handle){
  const serial=fn=>{const result=queue.then(fn);queue=result.catch(()=>{});return result;};
  return {read,file:async path=>(await fileAt(handle,'public/'+path)).getFile(),
  upload:file=>serial(async()=>{const ext=validateUpload(file.name,file.name.toLowerCase().endsWith('.svg')?await file.text():'',file.size);const path='uploads/'+(ext==='.svg'?'glyphs':'audio')+'/'+crypto.randomUUID()+ext;await put(handle,'public/'+path,file);return path;}),
- save:data=>serial(async()=>{validateLibrary(data);const current=await read();if(current.revision!==data.revision)throw new Error('別の画面で更新されています。プロジェクトを開き直してください。');for(const path of references(data))await fileAt(handle,'public/'+path);await put(handle,'authoring-backups/library-'+current.revision+'-'+crypto.randomUUID()+'.json',JSON.stringify(current,null,2)+'\n');const saved={...data,revision:current.revision+1,updatedAt:new Date().toISOString()};await put(handle,'public/content/library.json',JSON.stringify(saved,null,2)+'\n');return saved;})};
+ save:data=>serial(async()=>{validateLibrary(data);const current=await read();if(current.revision!==data.revision)throw new Error('別の画面で更新されています。プロジェクトを開き直してください。');const plan=planAssetOrganization(data);for(const path of references(data))await fileAt(handle,'public/'+path);const snapshot=crypto.randomUUID();await put(handle,'authoring-backups/library-'+current.revision+'-'+snapshot+'.json',JSON.stringify(current,null,2)+'\n');const sources=new Map(await Promise.all(plan.copies.map(async move=>{const f=await (await fileAt(handle,'public/'+move.from)).getFile();return [move.from,new Blob([await f.arrayBuffer()],{type:f.type})];})));const written=[];
+ try{for(const move of plan.copies){let previous=null;try{const f=await (await fileAt(handle,'public/'+move.to)).getFile();previous=new Blob([await f.arrayBuffer()],{type:f.type});}catch(e){if(e.name!=='NotFoundError')throw e;}if(previous)await put(handle,'authoring-backups/assets/'+snapshot+'/overwritten/'+move.to,previous);const source=sources.get(move.from);written.push({path:move.to,previous});await put(handle,'public/'+move.to,source);}const saved={...plan.library,revision:current.revision+1,updatedAt:new Date().toISOString()};await put(handle,'public/content/library.json',JSON.stringify(saved,null,2)+'\n');
+ for(const source of plan.cleanup){try{const file=await (await fileAt(handle,'public/'+source)).getFile();await put(handle,'authoring-backups/assets/'+snapshot+'/originals/'+source,file);await removeAt(handle,'public/'+source);}catch{}}
+ return {...saved,assetMoves:plan.copies};
+ }catch(e){for(const item of written.reverse()){if(item.previous)await put(handle,'public/'+item.path,item.previous);else await removeAt(handle,'public/'+item.path).catch(()=>{});}throw e;}})};
+
 }
 async function previewAsset(storage,path){const file=await storage.file(path);urls.set(path,URL.createObjectURL(file));}
 export async function connectDirectory(){
@@ -33,4 +40,4 @@ export async function connectDirectory(){
 }
 export function disconnectDirectory(){active=null;for(const url of urls.values())URL.revokeObjectURL(url);urls.clear();}
 export async function directoryUpload(file){const path=await active.storage.upload(file);await previewAsset(active.storage,path);return path;}
-export const directorySave=data=>active.storage.save(data);
+export async function directorySave(data){const saved=await active.storage.save(data);for(const path of [...new Set(references(saved))])await previewAsset(active.storage,path);return saved;}

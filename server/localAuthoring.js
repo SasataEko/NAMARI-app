@@ -1,3 +1,4 @@
+import { planAssetOrganization } from '../src/data/assetOrganization.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -10,11 +11,11 @@ export function localAuthoring(){
  if(req.method==='GET'&&['library.json','collection.json','study-manifest.json','mode-one-manifest.json'].some(name=>url.pathname===`${server.config.base}content/${name}`)){
    try{const bytes=await fs.readFile(path.join(publicRoot,'content',path.basename(url.pathname)));res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.end(bytes);}catch{res.statusCode=404;res.end();}return;
  }
- const assetPrefix=`${server.config.base}uploads/`;
- if(req.method==='GET'&&url.pathname.startsWith(assetPrefix)){
-   const relative=url.pathname.slice(assetPrefix.length);
-   if(!/^(glyphs|audio)\/[a-f0-9-]+\.(svg|mp3|wav|ogg|m4a|webm)$/.test(relative)){res.statusCode=404;return res.end();}
-   try{const bytes=await fs.readFile(path.join(publicRoot,'uploads',relative));const ext=path.extname(relative);res.setHeader('Content-Type',({'.svg':'image/svg+xml','.mp3':'audio/mpeg','.wav':'audio/wav','.ogg':'audio/ogg','.m4a':'audio/mp4','.webm':'audio/webm'})[ext]);res.setHeader('Cache-Control','no-store');res.end(bytes);}catch{res.statusCode=404;res.end();}return;
+ const publicPrefix=server.config.base;
+ if(req.method==='GET'&&(url.pathname.startsWith(publicPrefix+'assets/')||url.pathname.startsWith(publicPrefix+'uploads/'))){
+ const relative=url.pathname.slice(publicPrefix.length),ext=path.extname(relative);const mime={'.svg':'image/svg+xml','.mp3':'audio/mpeg','.wav':'audio/wav','.ogg':'audio/ogg','.m4a':'audio/mp4','.webm':'audio/webm'}[ext];
+ if(!mime)return next();if(!/^(assets|uploads)\/[a-zA-Z0-9_./-]+$/.test(relative)||relative.split('/').some(p=>!p||p==='.'||p==='..')){res.statusCode=404;return res.end();}
+ try{const bytes=await fs.readFile(path.join(publicRoot,relative));res.setHeader('Content-Type',mime);res.setHeader('Cache-Control','no-store');res.end(bytes);}catch{res.statusCode=404;res.end();}return;
  }
  if(!url.pathname.startsWith('/__author/'))return next();
  const reply=(code,data)=>{res.statusCode=code;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.end(JSON.stringify(data));};
@@ -42,12 +43,20 @@ export function localAuthoring(){
  const data=JSON.parse(body.toString('utf8'));const current=JSON.parse((await fs.readFile(file,'utf8')).replace(/^\uFEFF/,''));
  if(data.revision!==current.revision)return reply(409,{error:'別の画面で更新されています。プロジェクトを開き直してください。'});
  if(!Array.isArray(data.glyphs)||!Array.isArray(data.groups)||!Array.isArray(data.levels))throw new Error('素材設定が不正です。');
- // Asset references must remain inside this project's public assets/uploads folders.
- const paths=[...data.glyphs.flatMap(g=>[g.normal,...g.patterns.map(p=>p.svg)]),...data.levels.map(l=>l.audio)].filter(Boolean);
- for(const value of paths){if(typeof value!=='string'||! /^(assets|uploads)\/[a-zA-Z0-9_./-]+$/.test(value)||value.split('/').includes('..'))throw new Error('素材の保存先が不正です。');await fs.access(path.join(publicRoot,value));}
- const backup=path.join(root,'authoring-backups');await fs.mkdir(backup,{recursive:true});await fs.copyFile(file,path.join(backup,`library-${current.revision}-${randomUUID()}.json`));
- const saved={...data,revision:current.revision+1,updatedAt:new Date().toISOString()};
- const temp=`${file}.${randomUUID()}.tmp`;await fs.writeFile(temp,JSON.stringify(saved,null,2)+'\n');await fs.rename(temp,file);return reply(200,saved);
+ const plan=planAssetOrganization(data);
+ // Check every source before writing or moving anything.
+ const original=[...data.glyphs.flatMap(g=>[g.normal,...g.patterns.map(p=>p.svg)]),...data.levels.map(l=>l.audio)].filter(Boolean);for(const value of original){if(typeof value!=='string'||!/^(assets|uploads)\/[a-zA-Z0-9_./-]+$/.test(value)||value.split('/').some(p=>!p||p==='.'||p==='..'))throw new Error('素材の保存先が不正です。');await fs.access(path.join(publicRoot,value));}
+ const backup=path.join(root,'authoring-backups'),snapshot=randomUUID(),assetBackup=path.join(backup,'assets',snapshot);await fs.mkdir(backup,{recursive:true});await fs.copyFile(file,path.join(backup,`library-${current.revision}-${snapshot}.json`));
+ const sources=new Map(await Promise.all(plan.copies.map(async move=>[move.from,await fs.readFile(path.join(publicRoot,move.from))])));
+ const written=[];
+ try{
+ for(const move of plan.copies){const target=path.join(publicRoot,move.to);let previous=null;try{previous=await fs.readFile(target);}catch(e){if(e.code!=='ENOENT')throw e;}if(previous){const saved=path.join(assetBackup,'overwritten',move.to);await fs.mkdir(path.dirname(saved),{recursive:true});await fs.writeFile(saved,previous);}await fs.mkdir(path.dirname(target),{recursive:true});written.push({target,previous});await fs.writeFile(target,sources.get(move.from));}
+ const saved={...plan.library,revision:current.revision+1,updatedAt:new Date().toISOString()};const temp=`${file}.${randomUUID()}.tmp`;await fs.writeFile(temp,JSON.stringify(saved,null,2)+'\n');await fs.rename(temp,file);
+ for(const source of plan.cleanup){try{const from=path.resolve(publicRoot,source),to=path.resolve(assetBackup,'originals',source);if(!from.startsWith(path.resolve(publicRoot)+path.sep)||!to.startsWith(path.resolve(backup)+path.sep))throw new Error('Invalid archive path');await fs.mkdir(path.dirname(to),{recursive:true});await fs.rename(from,to);}catch(e){console.warn('SVG archive retained:',source,e.message);}}
+ return reply(200,{...saved,assetMoves:plan.copies});
+ }catch(error){for(const {target,previous}of written.reverse()){if(previous)await fs.writeFile(target,previous);else await fs.unlink(target).catch(()=>{});}throw error;}
+
+
  }
  return reply(404,{error:'保存先が見つかりません。'});
  };

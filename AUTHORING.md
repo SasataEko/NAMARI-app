@@ -58,3 +58,14 @@ SVGと録音は選択したフォルダーのpublic/uploadsへ、設定はpublic
 この操作だけでは公開サイトは更新されません。保存後にビルド（pnpm run build）、関連ファイルのcommit・push、GitHub Pagesの公開完了が必要です。Levels.gsが変わった場合は、Apps Scriptの関卡清单も差し替えて新バージョンをデプロイしてください。
 
 ブラウザーのフォルダーアクセスについて：[Chrome公式ドキュメント](https://developer.chrome.com/docs/capabilities/web-apis/file-system-access)。
+
+
+## SVG素材の保存先（2026-11-15更新）
+
+通常字形はpublic/assets/normal、変形字形はpublic/assets/namari/<グループの保存フォルダー名>に統一します。今回の「う」列9字はpattern-Uです。録音は引き続きpublic/uploads/audioです。
+
+開発者モード → 発音パターンのグループ → 保存フォルダー名（英字）にpattern-Uなどを入力できます。英字で始め、英数字・ハイフン・アンダースコアのみ、64文字以内で、他のグループと重複しない名前にしてください。大文字・小文字だけの改名は、一度別の名前に変えて保存してから行ってください。
+
+ファイル選択時はプレビュー用に一時保存し、文字/グループを保存すると正式なassetsへ整理してlibrary.jsonの参照を更新します。フォルダー名の変更時も保存済みPatternを移行します。元ファイル・上書き前の素材・旧設定はauthoring-backupsに保管します。ローカルサーバーとブラウザーのプロジェクトフォルダー編集の両方で同じ規則です。保存に失敗した場合は置き換えた素材を復元します。
+
+今回のSVG変更で関卡清单も更新されます。公開時は新しいLevels.gsをApps Scriptに同期し、デプロイも更新してください。

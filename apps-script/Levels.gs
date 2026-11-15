@@ -16,7 +16,9 @@ var LEVEL_MANIFEST = [
       },
       {
         "text": "す",
-        "patterns": []
+        "patterns": [
+          "pattern-u-su"
+        ]
       },
       {
         "text": "り",
@@ -24,7 +26,7 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "1657a1d1ed9353c5"
+    "levelVersion": "4186c2ffed99bbca"
   },
   {
     "levelId": "9e584fe5-6873-4db1-9b09-d75c806d5bb4",
@@ -39,7 +41,9 @@ var LEVEL_MANIFEST = [
     "characters": [
       {
         "text": "ゆ",
-        "patterns": []
+        "patterns": [
+          "pattern-u-yu"
+        ]
       },
       {
         "text": "で",
@@ -59,7 +63,7 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "253bc23933531188"
+    "levelVersion": "5968e5e5dea0bf51"
   },
   {
     "levelId": "130bfe9f-865c-4bf5-a2de-30e514330402",
@@ -90,11 +94,13 @@ var LEVEL_MANIFEST = [
       },
       {
         "text": "ム",
-        "patterns": []
+        "patterns": [
+          "pattern-u-mu"
+        ]
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "7fdf2f03d8634db8"
+    "levelVersion": "889e6cb878e638b1"
   },
   {
     "levelId": "ccb4f0b9-8e27-4cbf-9998-37ce23e56908",
@@ -125,11 +131,13 @@ var LEVEL_MANIFEST = [
       },
       {
         "text": "る",
-        "patterns": []
+        "patterns": [
+          "pattern-u-ru"
+        ]
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "80654f5e34b20405"
+    "levelVersion": "4ce9347dc8274b5b"
   },
   {
     "levelId": "0d3eb58f-7be3-4d09-aaf3-ecbb7f9e3254",
@@ -147,7 +155,9 @@ var LEVEL_MANIFEST = [
       },
       {
         "text": "う",
-        "patterns": []
+        "patterns": [
+          "pattern-u-u"
+        ]
       },
       {
         "text": "し",
@@ -159,14 +169,14 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "aa92fdfc97b71ba7"
+    "levelVersion": "f280fbabcdda8271"
   }
 ];
 var MODE1_MANIFEST = [
   {
     "levelId": "kusuri",
     "recordingId": "kusuri-recording-v1",
-    "levelVersion": "126f4af7200fc95a",
+    "levelVersion": "f3afee8ae9e40f24",
     "definition": {
       "scoring": "selection",
       "targets": [
