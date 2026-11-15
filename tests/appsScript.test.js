@@ -18,10 +18,10 @@ test('Apps Script upserts one Raw row, preserves Audit, rejects a stolen partici
  const {c,sheets}=server(),p=record(c),key=crypto.randomUUID();c.save_({response:p,participantKey:key});c.save_({response:p,participantKey:key});assert.equal(sheets.get('Raw').data.length,2);assert.equal(sheets.get('Audit').data.length,2);
  const updated={...p,id:crypto.randomUUID(),noticed:p.noticed.map(()=>false),pattern:p.pattern.map(()=>null)};c.save_({response:updated,participantKey:key});assert.equal(sheets.get('Raw').data.length,2);assert.equal(sheets.get('Audit').data.length,3);assert.throws(()=>c.save_({response:{...updated,id:crypto.randomUUID()},participantKey:crypto.randomUUID()}),/IDENTITY_MISMATCH/);
 });
-test('aggregate is version/mode isolated; owner deletion immediately changes statistics; low sample values are hidden',()=>{
+test('Mode2 aggregate is version/mode isolated; one participant is visible and owner deletion updates means',()=>{
  const {c,sheets}=server();let query;
  for(let i=0;i<4;i++){const p=record(c);query=p;c.save_({response:p,participantKey:crypto.randomUUID()});}
- assert.equal(c.stats_(query).count,4);assert.equal(c.stats_(query).beats[0],2);sheets.get('Raw').data.splice(1,1);assert.equal(c.stats_(query).count,3);sheets.get('Raw').data.splice(1,1);assert.equal(c.stats_(query).suppressed,true);
+ assert.equal(c.stats_(query).count,4);assert.equal(c.stats_(query).beats[0],2);sheets.get('Raw').data.splice(1,1);assert.equal(c.stats_(query).count,3);sheets.get('Raw').data.splice(1,1);assert.equal(c.stats_(query).count,2);assert.equal(Boolean(c.stats_(query).suppressed),false);sheets.get('Raw').data.splice(1,1);assert.equal(c.stats_(query).count,1);assert.equal(Boolean(c.stats_(query).suppressed),false);sheets.get('Raw').data.splice(1,1);assert.equal(c.stats_(query).suppressed,true);
  assert.equal(c.stats_({...query,studyMode:'test'}).count,0);assert.throws(()=>c.stats_({...query,levelVersion:'wrong'}),/UNKNOWN_LEVEL_VERSION/);
 });
 test('only aggregate and opaque receipt are public; malformed callback and raw read/delete are refused',()=>{
@@ -53,4 +53,14 @@ test('Mode1 accepts unregistered DIY raw data with an exclusion flag and leaves 
 
 test('Mode1 endpoint returns opaque receipts and suppressed aggregates without exposing raw records',()=>{
  const {c}=server(),p=mode1Record(c),callback='namari_0123456789abcdef';const posted=c.doPost({postData:{contents:JSON.stringify({action:'submit_mode1',response:p,participantKey:crypto.randomUUID()})}});assert.equal(posted.text,'{"ok":true}');assert.ok(c.doGet({parameter:{action:'receipt',submissionId:p.id,callback}}).text.includes('"received":true'));const stats=c.doGet({parameter:{...p,action:'stats_mode1',callback}}).text;assert.ok(stats.includes('"gameMode":"mode1"'));assert.ok(stats.includes('"suppressed":true'));assert.ok(!stats.includes(p.participantId));assert.ok(!stats.includes('events'));assert.ok(c.doGet({parameter:{action:'mode1raw',callback}}).text.includes('INVALID_ACTION'));
+});
+
+test('tutorial definitions match the requested answers; Sheets validates rhythm arrays and recomputes retries',()=>{
+ const {c,sheets}=server();
+ const accent=c.MODE1_MANIFEST.find(l=>l.levelId==='tutorial-karada');assert.deepEqual(Array.from(accent.definition.pitch),['high','low','low']);
+ const vowel=c.MODE1_MANIFEST.find(l=>l.levelId==='tutorial-kusuri');assert.deepEqual(Array.from(vowel.definition.targets),[0]);
+ const level=c.MODE1_MANIFEST.find(l=>l.levelId==='tutorial-ranpu'),p={...mode1Record(c),studyMode:'test',levelId:level.levelId,levelVersion:level.levelVersion,recordingId:level.recordingId,mode1Definition:level.definition,chapter:'mora',events:[{kind:'rhythm',beats:[1,1,1],blanks:[false,false],atMs:2000},{kind:'rhythm',beats:[1,1,2],blanks:[false,false],atMs:5000}]};
+ c.saveMode1_({response:p,participantKey:crypto.randomUUID()});const saved=JSON.parse(sheets.get('Mode1Raw').data[1][19]);assert.equal(saved.completed,true);assert.equal(saved.accuracy,.5);assert.equal(saved.errorCount,1);assert.equal(saved.definitionVerified,true);assert.equal(saved.studyMode,'test');assert.equal(saved.feedbackUnclear,null);
+ assert.throws(()=>c.mode1Validate_({...p,events:[{kind:'rhythm',beats:[1,1,3],blanks:[false,false],atMs:2000}]},level.definition),/INVALID_EVENTS/);
+ assert.throws(()=>c.mode1Validate_({...p,events:[{kind:'rhythm',beats:[1,1,2],blanks:[false],atMs:2000}]},level.definition),/INVALID_EVENTS/);
 });

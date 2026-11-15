@@ -491,3 +491,24 @@ body, button, input { font-family: "Noto Sans JP", "Noto Sans", "Yu Gothic UI", 
 .mode-one-audio audio{display:block;width:min(100%,420px)}
 
 .mode-one-pattern-card img,.diy-library-pattern img{filter:brightness(0)}
+
+/* Guided practice reuses the existing flat cards and control colors. */
+.lesson-card{margin:28px 0;padding:clamp(18px,4vw,30px);border-radius:28px;background:var(--surface-lowest)}
+.lesson-card audio{width:100%;margin:16px 0}.lesson-cue{padding:16px 20px;border-radius:20px;background:var(--yellow-soft);color:var(--ink);font-size:15px;line-height:1.8}
+.lesson-card .pitch-builder{margin:34px auto}.lesson-card .pitch-columns{min-width:220px}
+.lesson-beat-stage{min-height:240px}.lesson-kana-text{display:block;font-size:72px;line-height:80px;transform-origin:center;color:#000}
+.lesson-card .judge-button{border-radius:9999px}.lesson-answer button:disabled{cursor:default;opacity:.45}
+.mode-one-card-overlay{background:rgba(25,25,25,.62);overflow:hidden}
+.mode-one-pattern-card{transition:box-shadow .4s ease;will-change:transform;max-height:calc(100dvh - 40px);overflow-y:auto}
+.mode-one-pattern-card.is-settled{box-shadow:0 0 44px 22px #ffe08b88,0 22px 65px #0005}
+@media(prefers-reduced-motion:reduce){.mode-one-pattern-card{transition:none}}
+
+.lesson-card [hidden]{display:none!important}
+
+.mode-one-pattern-card{transition:box-shadow .4s ease!important}
+
+.mode-intro-overlay{z-index:80}.mode-intro-card{width:min(100%,480px);padding:30px;border-radius:28px;background:var(--paper);color:var(--ink);box-shadow:0 20px 60px #0003}.mode-intro-card h2{font-size:26px;line-height:1.5}.mode-intro-card p{line-height:1.85}.mode-intro-card .judge-button{border-radius:9999px;width:100%}
+.mode-explanation{max-width:640px;font-size:15px!important;line-height:1.85}
+.mode2-level-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:14px;margin:22px 0 36px}
+.mode2-level-tile{aspect-ratio:1;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;padding:20px;border:0;border-radius:24px;background:var(--surface-high);color:var(--ink);cursor:pointer;text-align:left}.mode2-level-tile span{font-size:28px;font-weight:800;color:var(--rose-deep)}.mode2-level-tile b{font-size:17px;overflow-wrap:anywhere}
+.mode2-tutorial-entry{display:grid;gap:9px;width:100%;padding:23px;border:0;border-radius:24px;background:var(--yellow-soft);text-align:left;color:var(--ink);cursor:pointer}.mode2-tutorial-entry small{font-size:11px}.mode2-tutorial-entry b{font-size:23px}.mode2-tutorial-entry span{font-size:12px}

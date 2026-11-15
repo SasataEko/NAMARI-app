@@ -21,3 +21,12 @@ test('noticed color rate and pattern morph rate stay independent',()=>{
  const g=aggregateExplorations(rows,level,{studyMode:'research'});
  assert.equal(g.noticedRates[0],1);assert.equal(g.featureRates[0]['ku-custom'],.5);assert.equal(g.unspecifiedRates[0],.5);
 });
+
+test('one local response includes self by default; tutorial saves remain local and recording slots stay separate',async()=>{
+ const tutorialLevel={...level,id:'tutorial-mode2-curriculum',recordingId:'tutorial-mode2-curriculum-recording-v1',tutorial:true};
+ const saved=await saveExploration(response({studyMode:'test',levelId:tutorialLevel.id,recordingId:tutorialLevel.recordingId}),tutorialLevel);
+ assert.equal(saved.sync.status,'local');assert.equal(saved.sync.tutorial,true);
+ const group=aggregateExplorations([saved],tutorialLevel,{studyMode:'test'});assert.equal(group.count,1);assert.equal(group.noticedRates[1],1);
+ assert.equal(aggregateExplorations([saved],level,{studyMode:'test'}).count,0);
+ assert.equal(aggregateExplorations([response({levelId:'different-level'})],level,{studyMode:'research'}).count,0);
+});

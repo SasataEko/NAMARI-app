@@ -1,19 +1,26 @@
 {
-  "revision": 18,
+  "revision": 22,
   "groups": [
     {
       "id": "existing-ku",
       "title": "「う」列が丸い発音",
       "description": "中国語の母音「u」に影響された発音傾向。",
-      "color": "#ffe08b",
+      "color": "#feeb71",
       "folderName": "pattern-U"
     },
     {
       "id": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
       "title": "「あ」列が広い発音",
       "description": "/a/より/æ/，口が大きく開いた発音",
-      "color": "#f36868",
+      "color": "#fe9ab8",
       "folderName": "pattern-A"
+    },
+    {
+      "id": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+      "title": "送気音が現れる発音",
+      "folderName": "pattern-souki",
+      "description": "子音に送気音が強くなりがちの発音",
+      "color": "#94e6c6"
     }
   ],
   "glyphs": [
@@ -52,12 +59,28 @@
     },
     {
       "kana": "か",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-ka",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「か」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/ka-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/ka.svg"
     },
     {
       "kana": "き",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-ki",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「き」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/ki-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/ki.svg"
     },
     {
@@ -70,27 +93,66 @@
           "title": "丸くなった「く」",
           "description": "「う」の発音が中国語のuになっているから、重く聞こえるよね",
           "svg": "assets/namari/pattern-U/ku-NM.svg"
+        },
+        {
+          "id": "pattern-souki-ku",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「く」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/ku-NM2.svg"
         }
       ]
     },
     {
       "kana": "け",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-ke",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「け」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/ke-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/ke.svg"
     },
     {
       "kana": "こ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-ko",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「こ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/ko-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/ko.svg"
     },
     {
       "kana": "さ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-sa",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「さ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/sa-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/sa.svg"
     },
     {
       "kana": "し",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-shi",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「し」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/shi-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/shi.svg"
     },
     {
@@ -103,27 +165,66 @@
           "title": "丸くなった「す」",
           "description": "中国語の母音「u」に影響された発音傾向。",
           "svg": "assets/namari/pattern-U/su-NM.svg"
+        },
+        {
+          "id": "pattern-souki-su",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「す」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/su-NM2.svg"
         }
       ]
     },
     {
       "kana": "せ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-se",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「せ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/se-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/se.svg"
     },
     {
       "kana": "そ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-so",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「そ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/so-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/so.svg"
     },
     {
       "kana": "た",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-ta",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「た」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/ta-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/ta.svg"
     },
     {
       "kana": "ち",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-chi",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「ち」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/chi-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/chi.svg"
     },
     {
@@ -135,18 +236,41 @@
           "title": "丸くなった「つ」",
           "description": "中国語の母音「u」に影響された発音傾向。",
           "svg": "assets/namari/pattern-U/tsu-NM.svg"
+        },
+        {
+          "id": "pattern-souki-tsu",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「つ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/tsu-NM2.svg"
         }
       ],
       "normal": "assets/normal/tsu.svg"
     },
     {
       "kana": "て",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-te",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「て」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/te-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/te.svg"
     },
     {
       "kana": "と",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-to",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「と」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/to-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/to.svg"
     },
     {
@@ -184,12 +308,28 @@
     },
     {
       "kana": "は",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-ha",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「は」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/ha-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/ha.svg"
     },
     {
       "kana": "ひ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-hi",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「ひ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/hi-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/hi.svg"
     },
     {
@@ -201,18 +341,41 @@
           "title": "丸くなった「ふ」",
           "description": "中国語の母音「u」に影響された発音傾向。",
           "svg": "assets/namari/pattern-U/fu-NM.svg"
+        },
+        {
+          "id": "pattern-souki-fu",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「ふ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/fu-NM2.svg"
         }
       ],
       "normal": "assets/normal/hu.svg"
     },
     {
       "kana": "へ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-he",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「へ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/he-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/he.svg"
     },
     {
       "kana": "ほ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-souki-ho",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「ほ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "svg": "assets/namari/pattern-souki/ho-NM2.svg"
+        }
+      ],
       "normal": "assets/normal/ho.svg"
     },
     {
@@ -343,13 +506,13 @@
     },
     {
       "id": "130bfe9f-865c-4bf5-a2de-30e514330402",
-      "word": "カリキュラム",
+      "word": "かりきゅらむ",
       "morae": [
-        "カ",
-        "リ",
-        "キュ",
-        "ラ",
-        "ム"
+        "か",
+        "り",
+        "きゅ",
+        "ら",
+        "む"
       ],
       "audio": "uploads/audio/e1494519-3987-4966-86df-6f0f0184ba0d.wav",
       "recordingId": "8d78a141-3435-4c45-a7eb-bccdfc9c64bc",
@@ -400,5 +563,5 @@
       ]
     }
   ],
-  "updatedAt": "2026-11-15T09:44:41.711Z"
+  "updatedAt": "2026-11-15T15:40:21.935Z"
 }

@@ -28,3 +28,16 @@ test('generated study manifests match current playable pattern choices for every
  const actual=JSON.parse(await fs.readFile(new URL('../public/content/library.json',import.meta.url),'utf8'));const manifest=JSON.parse(await fs.readFile(new URL('../public/content/study-manifest.json',import.meta.url),'utf8'));
  for(const level of playableLevels(actual)){const entry=manifest.find(row=>row.levelId===level.id);assert.ok(entry,level.word);assert.deepEqual(entry.characters.map(c=>c.patterns),level.characters.map(c=>c.features.map(p=>p.id)),level.word);}
 });
+
+import {modeTwoTutorialSource} from '../src/data/modeTwoTutorial.js';
+import {answerPreviewAggregate} from '../src/data/answerPreview.js';
+test('Mode2 tutorial uses the existing curriculum recording and hiragana only, with a distinct identity',()=>{
+ const raw={id:'source',word:'カリキュラム',morae:['カ','リ','キュ','ラ','ム'],audio:'uploads/audio/source.wav',defaultAccent:['low','high','high','low','low']};
+ const source=modeTwoTutorialSource({...library,levels:[raw]});assert.equal(source.word,'かりきゅらむ');assert.deepEqual(source.morae,['か','り','きゅ','ら','む']);assert.equal(source.audio,raw.audio);assert.notEqual(source.id,raw.id);assert.equal(source.tutorial,true);
+ const playable=playableLevels({...library,levels:[source]}).find(l=>l.id===source.id);assert.equal(playable.characters.map(c=>c.text).join(''),'かりきゅらむ');assert.equal(raw.word,'カリキュラム');
+});
+test('a personal display example is labelled and keeps noticed and concrete Pattern rates independent',()=>{
+ const record={noticed:[true,false],pattern:[null,null],pitch:['low','high'],beats:[2,1],blanks:[true]};
+ const snapshot=structuredClone(record),level={characters:[{text:'く',features:[{id:'round-ku',svg:'p.svg'}]},{text:'す',features:[]}]};
+ const example=answerPreviewAggregate(record,level);assert.equal(example.source,'example');assert.equal(example.example,true);assert.equal(example.count,1);assert.equal(example.noticedRates[0],1);assert.equal(example.featureRates[0]['round-ku'],0);assert.equal(example.beats[0],2);assert.deepEqual(record,snapshot);
+});

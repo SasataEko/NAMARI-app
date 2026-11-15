@@ -13,7 +13,7 @@ export function localAuthoring(){
  }
  const publicPrefix=server.config.base;
  if(req.method==='GET'&&(url.pathname.startsWith(publicPrefix+'assets/')||url.pathname.startsWith(publicPrefix+'uploads/'))){
- const relative=url.pathname.slice(publicPrefix.length),ext=path.extname(relative);const mime={'.svg':'image/svg+xml','.mp3':'audio/mpeg','.wav':'audio/wav','.ogg':'audio/ogg','.m4a':'audio/mp4','.webm':'audio/webm'}[ext];
+ const relative=url.pathname.slice(publicPrefix.length),ext=path.extname(relative);const mime={'.png':'image/png','.svg':'image/svg+xml','.mp3':'audio/mpeg','.wav':'audio/wav','.ogg':'audio/ogg','.m4a':'audio/mp4','.webm':'audio/webm'}[ext];
  if(!mime)return next();if(!/^(assets|uploads)\/[a-zA-Z0-9_./-]+$/.test(relative)||relative.split('/').some(p=>!p||p==='.'||p==='..')){res.statusCode=404;return res.end();}
  try{const bytes=await fs.readFile(path.join(publicRoot,relative));res.setHeader('Content-Type',mime);res.setHeader('Cache-Control','no-store');res.end(bytes);}catch{res.statusCode=404;res.end();}return;
  }

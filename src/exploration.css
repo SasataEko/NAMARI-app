@@ -70,3 +70,12 @@
 .explore-tone-control b{grid-column:1/-1;font-size:13px}
 .explore-tone-control button{border:0;border-radius:9999px;background:var(--surface-high);color:var(--ink);padding:9px 13px;cursor:pointer}
 .explore-tone-control button[aria-pressed=true]{background:var(--yellow);font-weight:700}
+
+.mode2-guide-copy{margin:18px 0;padding:16px 20px;background:var(--yellow-soft);border-radius:20px}.mode2-guide-copy p{color:var(--ink);margin:0 0 8px}.mode2-guide-copy [hidden],.explore-results [hidden]{display:none!important}
+.explore-results [data-personal-region] h2{font-size:22px}.explore-results [data-personal-tour],.explore-results [data-group-tour]{padding:14px 18px;border-radius:18px;background:var(--yellow-soft);color:var(--ink)}
+.explore-results [data-tour-group],.explore-results [data-tour-done]{display:block;margin-top:8px}
+
+.explore-results .explore-stage{min-height:180px;padding-top:24px;padding-bottom:24px}
+.explore-results [data-personal-region],.explore-results .explore-group{scroll-margin-top:16px}
+
+.explore-results [data-personal-region] h2,.explore-results .explore-group h2{width:fit-content;max-width:calc(100% - 80px)}

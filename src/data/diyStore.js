@@ -1,3 +1,4 @@
+import { hiragana } from './patternLibrary.js';
 const DATABASE = 'kotoba-diy-questions';
 const STORE = 'questions';
 
@@ -25,7 +26,7 @@ export async function listDiyQuestions() {
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
     const request = db.transaction(STORE, 'readonly').objectStore(STORE).getAll();
-    request.onsuccess = () => { db.close(); resolve(request.result.sort((a, b) => b.createdAt.localeCompare(a.createdAt))); };
+    request.onsuccess = () => { db.close(); resolve(request.result.map(q=>({...q,word:hiragana(q.word),reading:q.reading.map(hiragana)})).sort((a, b) => b.createdAt.localeCompare(a.createdAt))); };
     request.onerror = () => { db.close(); reject(request.error); };
   });
 }

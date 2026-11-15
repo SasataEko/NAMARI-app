@@ -2,7 +2,7 @@
   {
     "levelId": "kusuri",
     "recordingId": "kusuri-recording-v1",
-    "levelVersion": "f3afee8ae9e40f24",
+    "levelVersion": "20c7b4803b8c8e0a",
     "definition": {
       "scoring": "selection",
       "targets": [
@@ -34,19 +34,19 @@
       "scoring": "none",
       "characters": [
         {
-          "text": "カ"
+          "text": "か"
         },
         {
-          "text": "リ"
+          "text": "り"
         },
         {
-          "text": "キュ"
+          "text": "きゅ"
         },
         {
-          "text": "ラ"
+          "text": "ら"
         },
         {
-          "text": "ム"
+          "text": "む"
         }
       ]
     }
@@ -59,20 +59,99 @@
       "scoring": "none",
       "characters": [
         {
-          "text": "カ"
+          "text": "か"
         },
         {
-          "text": "リ"
+          "text": "り"
         },
         {
-          "text": "キュ"
+          "text": "きゅ"
         },
         {
-          "text": "ラ"
+          "text": "ら"
         },
         {
-          "text": "ム"
+          "text": "む"
         }
+      ]
+    }
+  },
+  {
+    "levelId": "tutorial-kusuri",
+    "recordingId": "kusuri-recording-v1",
+    "levelVersion": "b2f0ee54342b75f8",
+    "definition": {
+      "scoring": "selection",
+      "characters": [
+        {
+          "text": "く"
+        },
+        {
+          "text": "す"
+        },
+        {
+          "text": "り"
+        }
+      ],
+      "targets": [
+        0
+      ],
+      "patternChoices": [
+        "ku-custom",
+        null,
+        null
+      ]
+    }
+  },
+  {
+    "levelId": "tutorial-karada",
+    "recordingId": "tutorial-karada-recording-v1",
+    "levelVersion": "570ed7d73d8e60cd",
+    "definition": {
+      "scoring": "pattern",
+      "characters": [
+        {
+          "text": "か"
+        },
+        {
+          "text": "ら"
+        },
+        {
+          "text": "だ"
+        }
+      ],
+      "pitch": [
+        "high",
+        "low",
+        "low"
+      ]
+    }
+  },
+  {
+    "levelId": "tutorial-ranpu",
+    "recordingId": "tutorial-ranpu-recording-v1",
+    "levelVersion": "d8de6e04addf6ce8",
+    "definition": {
+      "scoring": "rhythm",
+      "characters": [
+        {
+          "text": "ら"
+        },
+        {
+          "text": "ん"
+        },
+        {
+          "text": "ぷ"
+        }
+      ],
+      "beats": [
+        1,
+        1,
+        2
+      ],
+      "blanks": [
+        false,
+        false
       ]
     }
   }

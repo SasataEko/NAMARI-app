@@ -1,3 +1,8 @@
+import { showModeIntro } from './modeIntro.js';
+import { modeTwoTutorialSource } from './data/modeTwoTutorial.js';
+import { mountBeatEditor } from './beatEditor.js';
+import { tutorials } from './data/tutorials.js';
+import { mountModeOneLesson } from './modeOneLesson.js';
 import { createModeOneSession } from './data/modeOneStats.js';
 import { mountCollectionCheck } from './collectionCheck.js';
 import { mountLibrary, mountAuthor } from './libraryStudio.js';
@@ -16,6 +21,7 @@ import { loadProfiles, loadSettings, profiles, saveProfile, saveSettings } from 
 const app = document.querySelector('#app');
 const level = levels[0];
 let sharedLibrary=null;
+let activeTutorial=null;
 let disposeModeOne=null;
 let modeOneCurrentId=null;
 let legacyModeOneStats=null,legacyModeOneScreen=null;
@@ -95,6 +101,7 @@ function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
 function render() {
   const pages = {
+    tutorial: renderTutorial,
     profiles: renderProfiles,
     home: renderHome,
     exploration: renderExploration,
@@ -143,6 +150,7 @@ function bindNav(active) {
 
 function navigate(next) {
   if(legacyModeOneStats&&next!==legacyModeOneScreen){legacyModeOneStats.leave();legacyModeOneStats=null;legacyModeOneScreen=null;}
+  app.querySelector('[data-exploration]')?.explorationSession?.dispose?.();
   disposeModeOne?.();disposeModeOne=null;
   if (isAnimating && next !== 'vowelChallenge') stopAnimation();
   screen = next;
@@ -150,6 +158,8 @@ function navigate(next) {
   if (next === 'accent') { pitchPattern = Array(5).fill(null); answerChecked = false; }
   render();
   scrollTop();
+  if(next==='challenges')showModeIntro('mode1');
+  if(next==='exploration')showModeIntro('mode2');
 }
 
 function renderProfiles() {
@@ -183,24 +193,29 @@ function renderDeveloper() {
   bindNav('');mountAuthor(app.querySelector('[data-studio]'));
 }
 async function renderExploration() {
-  app.innerHTML = `<main class="page-shell">${profileHeader()}${titleReturn()}<div data-exploration></div>${bottomNav('')}</main>`;
+  app.querySelector('[data-exploration]')?.explorationSession?.dispose?.();
+  app.innerHTML=`<main class="page-shell">${profileHeader()}${titleReturn()}<div data-exploration></div>${bottomNav('')}</main>`;
   bindNav('');const root=app.querySelector('[data-exploration]');root.textContent='問題を読み込み中…';
-  try{const library=await readLibrary();if(!root.isConnected)return;const available=playableLevels(library);
-    root.innerHTML='<section class="library-intro"><h1>聴くことばを選ぼう</h1><p>同じ録音から、自分の聴こえ方を描こう。</p></section><div class="author-levels"></div>';
-    const play=index=>{if(isAnimating)stopAnimation();mountExploration(root,{level:available[index],profileId:activeProfileId,nextLevel:available[index+1],onNext:mode=>playWithMode(index+1,mode),onLevelList:renderExploration});};
-    const playWithMode=(index,studyMode)=>mountExploration(root,{level:available[index],profileId:activeProfileId,studyMode,nextLevel:available[index+1],onNext:mode=>playWithMode(index+1,mode),onLevelList:renderExploration});
-    available.forEach((l,index)=>{const b=document.createElement('button');b.textContent=l.word;b.onclick=()=>play(index);root.querySelector('.author-levels').append(b);});
+  try{const library=await readLibrary();if(!root.isConnected)return;
+    const available=playableLevels(library).sort((a,b)=>{const rank=l=>l.word==='くすり'?0:l.word==='かりきゅらむ'?1:2;return rank(a)-rank(b);});
+    const source=modeTwoTutorialSource(library),tutorial=source?playableLevels({...library,levels:[source]}).find(l=>l.id===source.id):null;
+    root.innerHTML='<section class="library-intro"><h1>聴くことばを選ぼう</h1><p class="mode-explanation">このモードでは、訛りについて感じたことを自由に表現し、みんなの選択と見比べられます。正解はありません。</p><button class="text-action" data-mode-info>モードの説明をもう一度見る</button></section>'+(tutorial?'<button class="mode2-tutorial-entry" data-mode2-tutorial><small>チュートリアル</small><b>かりきゅらむ</b><span>3つの操作を試してみよう →</span></button>':'')+'<div class="mode2-level-grid"></div>';
+    root.querySelector('[data-mode-info]').onclick=()=>showModeIntro('mode2',{force:true});
+    const play=(index,studyMode)=>{root.explorationSession?.dispose?.();mountExploration(root,{level:available[index],profileId:activeProfileId,studyMode,nextLevel:available[index+1],onNext:mode=>play(index+1,mode),onLevelList:renderExploration});};
+    if(tutorial)root.querySelector('[data-mode2-tutorial]').onclick=()=>mountExploration(root,{level:tutorial,profileId:activeProfileId,studyMode:'test',onLevelList:renderExploration});
+    available.forEach((l,index)=>{const button=document.createElement('button');button.className='mode2-level-tile';const number=document.createElement('span'),word=document.createElement('b');number.textContent=String(index+1).padStart(2,'0');word.textContent=l.word;button.append(number,word);button.onclick=()=>play(index);root.querySelector('.mode2-level-grid').append(button);});
   }catch(e){root.textContent=e.message;}
 }
 
 function renderChallengeSelect() {
   const categories = [
-    ['vowelChallenge', 'あ', '母音＆子音篇', '文字の音と形を見つけよう', '01　くすり'],
-    ['accent', '高低', 'アクセント篇', '音の高低を組み立てよう', '01　カリキュラム'],
-    ['mora', '拍', 'モーラ篇', 'ことばのリズムに注目しよう', '01　カリキュラム'],
+    ['vowelChallenge', 'あ', '母音＆子音篇', '文字の音と形を見つけよう', 'チュートリアル　くすり'],
+    ['accent', '高低', 'アクセント篇', '音の高低を組み立てよう', 'チュートリアル　からだ'],
+    ['mora', '拍', 'モーラ篇', 'ことばのリズムに注目しよう', 'チュートリアル　らんぷ'],
   ];
-  app.innerHTML = `<main class="page-shell challenge-select-page">${profileHeader()}<section class="category-intro"><button class="back-circle" data-back="home" aria-label="ホームへ戻る">←</button><div><p class="eyebrow">CHOOSE A CHALLENGE</p><h1>どの篇に挑戦しますか？</h1><p>気になるテーマを選んでください。</p></div></section><div class="challenge-categories">${categories.map(([route, icon, title, description, lesson]) => `<button class="challenge-category category-${route}" data-open-challenge="${route}"><span class="category-icon">${icon}</span><span class="category-copy"><small>CHALLENGE</small><b>${title}</b><span>${description}</span><em>${lesson}</em></span><span class="category-arrow">↗</span></button>`).join('')}</div>${bottomNav('')}</main>`;
+  app.innerHTML = `<main class="page-shell challenge-select-page">${profileHeader()}<section class="category-intro"><button class="back-circle" data-back="home" aria-label="ホームへ戻る">←</button><div><p class="eyebrow">CHOOSE A CHALLENGE</p><h1>どの篇に挑戦しますか？</h1><p>このモードでは、各問題にあらかじめ正解が設定されています。まずはチュートリアルで操作を試してみよう。</p><button class="text-action" data-mode1-info>モードの説明をもう一度見る</button></div></section><div class="challenge-categories">${categories.map(([route, icon, title, description, lesson]) => `<button class="challenge-category category-${route}" data-open-challenge="${route}"><span class="category-icon">${icon}</span><span class="category-copy"><small>CHALLENGE</small><b>${title}</b><span>${description}</span><em>${lesson}</em></span><span class="category-arrow">↗</span></button>`).join('')}</div>${bottomNav('')}</main>`;
   bindNav('');
+  app.querySelector('[data-mode1-info]').onclick=()=>showModeIntro('mode1',{force:true});
   app.querySelectorAll('[data-open-challenge]').forEach((button) => button.addEventListener('click', () => {
     challengeChapter = button.dataset.openChallenge;
     navigate('chapterLevels');
@@ -214,12 +229,14 @@ const chapterTitles = {
 };
 
 function chapterItems(chapter=challengeChapter){
- const built={vowelChallenge:[{id:'builtin-kusuri',word:'くすり',summary:'字形の変化を見つける',route:'vowelChallenge'}],accent:[{id:'builtin-accent',word:'カリキュラム',summary:'アクセントの高低を組み立てる',route:'accent'}],mora:[{id:'builtin-mora',word:'カリキュラム',summary:'拍を組み立てる',route:'mora'}]}[chapter]||[];
+ const tutorial=tutorials.find(q=>q.chapter===chapter);
+ const built=[{id:tutorial.id,word:tutorial.word,summary:'チュートリアル · 録音を聞いて操作を練習',tutorial},...(chapter==='vowelChallenge'?[{id:'builtin-kusuri',word:'くすり',summary:'字形の変化を見つける',route:'vowelChallenge'}]:[])];
  return [...built,...diyQuestions.filter(q=>q.chapter===chapter||(!q.chapter&&q.mode===({vowelChallenge:'diyVowel',accent:'diyAccent',mora:'diyMora'}[chapter]))).map(question=>({id:question.id,word:question.word,summary:'DIYで作成した問題',question}))];
 }
 function openChapterItem(item){
  if(legacyModeOneStats){legacyModeOneStats.leave();legacyModeOneStats=null;}
  modeOneCurrentId=item.id;
+ if(item.tutorial){activeTutorial=item.tutorial;navigate('tutorial');return;}
  if(item.route){moraFinished=false;if(item.route==='accent'||item.route==='mora')startLegacyModeOne({id:item.id,chapter:item.route==='mora'?'mora':'accent',word:item.word,reading:['カ','リ','キュ','ラ','ム']},item.route);navigate(item.route);return;}
  activeCustomLevel=item.question;activeDiyQuestion=item.question;customPlayReturnScreen='chapterLevels';
  if(diyPlaybackUrl)URL.revokeObjectURL(diyPlaybackUrl);diyPlaybackUrl=item.question.audioBlob?URL.createObjectURL(item.question.audioBlob):null;
@@ -227,6 +244,7 @@ function openChapterItem(item){
  diyPlayerPattern=Array(item.question.reading.length).fill(null);diyPlayerLongAfter=Array(item.question.reading.length).fill(false);diyPlayerBlankAfter=Array(item.question.reading.length).fill(false);diyPlayerFeedback='';startLegacyModeOne(item.question,'diyPlay');navigate('diyPlay');
 }
 function startLegacyModeOne(question,route){
+ if(question.mode==='diyMora')return;
  const scoringDefinition=question.pattern?.length?{scoring:'pattern',characters:question.reading.map(text=>({text})),pitch:question.pattern,...(question.mode==='diyMora'?{longAfter:question.longAfter,blankAfter:question.blankAfter}:{})}:{scoring:'none',characters:question.reading.map(text=>({text}))};
  legacyModeOneScreen=route;legacyModeOneStats=createModeOneSession({...question,scoringDefinition},{profileId:activeProfileId,studyMode:modeOneStudyMode});
 }
@@ -245,7 +263,7 @@ async function renderChapterLevels(){
  try{diyQuestions=await listDiyQuestions();if(!list.isConnected)return;const items=chapterItems();list.innerHTML=items.map((item,i)=>`<button class="diy-saved-question chapter-level-card" data-level-index="${i}"><span class="diy-saved-glyph">${String(i+1).padStart(2,'0')}</span><span><b>${escapeHtml(item.word)}</b><small>${escapeHtml(item.summary)}</small></span><i>挑戦 ↗</i></button>`).join('');list.querySelectorAll('[data-level-index]').forEach(b=>b.onclick=()=>openChapterItem(items[Number(b.dataset.levelIndex)]));}catch{list.textContent='問題を読み込めませんでした。もう一度開いてください。';}
 }
 
-const accentMorae = ['カ', 'リ', 'キュ', 'ラ', 'ム'];
+const accentMorae = ['か', 'り', 'きゅ', 'ら', 'む'];
 
 function pitchPath() {
   let path = '';
@@ -262,7 +280,7 @@ function renderAccentChallenge() {
   modeOneCurrentId||='builtin-accent';
   const picked = pitchPattern.filter(Boolean).length;
   const patternLabel = pitchPattern.map((pitch) => pitch === 'high' ? '高' : pitch === 'low' ? '低' : '・').join('　');
-  app.innerHTML = `<main class="page-shell challenge-page">${profileHeader()}<div class="challenge-title-row"><button class="back-circle" data-back="challenges" aria-label="チャレンジ選択へ戻る">←</button><div><p class="eyebrow">ACCENT CHALLENGE / 01</p><h1>アクセントを組み立てる</h1></div></div><div class="challenge-kicker"><span>WORD</span><b>「カリキュラム」</b></div><section class="mission-card"><span class="mission-icon">♧</span><div><p class="blue-label">アクセント・チャレンジ</p><h2>サンプルを聴いて、<br>一拍ずつ高さを選んでください</h2></div></section><section class="pitch-card accent-builder-card"><button class="audio-pill sample-pending" disabled>◖))　サンプル音声（準備中）</button><p class="audio-caption">録音素材を受け取り次第、ここから再生できます</p><div class="pitch-builder"><div class="pitch-row-labels"><span>高</span><span>低</span></div><div class="pitch-columns"><svg class="pitch-path" viewBox="0 0 500 76" preserveAspectRatio="none" aria-hidden="true"><path class="pitch-guide" d="M50 19 H450 M50 57 H450"/><path class="pitch-line-path" d="${pitchPath()}"/></svg>${accentMorae.map((mora, index) => `<div class="pitch-column"><button class="pitch-choice pitch-high ${pitchPattern[index] === 'high' ? 'selected' : ''}" data-mora="${index}" data-pitch="high" aria-label="${mora}を高くする">●</button><button class="pitch-choice pitch-low ${pitchPattern[index] === 'low' ? 'selected' : ''}" data-mora="${index}" data-pitch="low" aria-label="${mora}を低くする">●</button><b>${mora}</b><small>第${index + 1}拍</small></div>`).join('')}</div></div><p class="pitch-note">タップして高低を設定　${picked} / ${accentMorae.length} 拍</p><div class="pattern-readout" aria-live="polite">${patternLabel}</div></section>${answerChecked ? '<p class="answer-feedback recorded" role="status">回答を記録しました。正解データを受け取り次第、判定結果を表示します。</p>' : ''}<button class="judge-button" data-action="judge" ${(picked !== accentMorae.length || answerChecked) ? 'disabled' : ''}>このアクセントで判定する　 ✓</button><p class="judge-hint">選んだ高低パターンをプロフィールに保存します。</p>${bottomNav('')}</main>`;
+  app.innerHTML = `<main class="page-shell challenge-page">${profileHeader()}<div class="challenge-title-row"><button class="back-circle" data-back="challenges" aria-label="チャレンジ選択へ戻る">←</button><div><p class="eyebrow">ACCENT CHALLENGE / 01</p><h1>アクセントを組み立てる</h1></div></div><div class="challenge-kicker"><span>WORD</span><b>「かりきゅらむ」</b></div><section class="mission-card"><span class="mission-icon">♧</span><div><p class="blue-label">アクセント・チャレンジ</p><h2>サンプルを聴いて、<br>一拍ずつ高さを選んでください</h2></div></section><section class="pitch-card accent-builder-card"><button class="audio-pill sample-pending" disabled>◖))　サンプル音声（準備中）</button><p class="audio-caption">録音素材を受け取り次第、ここから再生できます</p><div class="pitch-builder"><div class="pitch-row-labels"><span>高</span><span>低</span></div><div class="pitch-columns"><svg class="pitch-path" viewBox="0 0 500 76" preserveAspectRatio="none" aria-hidden="true"><path class="pitch-guide" d="M50 19 H450 M50 57 H450"/><path class="pitch-line-path" d="${pitchPath()}"/></svg>${accentMorae.map((mora, index) => `<div class="pitch-column"><button class="pitch-choice pitch-high ${pitchPattern[index] === 'high' ? 'selected' : ''}" data-mora="${index}" data-pitch="high" aria-label="${mora}を高くする">●</button><button class="pitch-choice pitch-low ${pitchPattern[index] === 'low' ? 'selected' : ''}" data-mora="${index}" data-pitch="low" aria-label="${mora}を低くする">●</button><b>${mora}</b><small>第${index + 1}拍</small></div>`).join('')}</div></div><p class="pitch-note">タップして高低を設定　${picked} / ${accentMorae.length} 拍</p><div class="pattern-readout" aria-live="polite">${patternLabel}</div></section>${answerChecked ? '<p class="answer-feedback recorded" role="status">回答を記録しました。正解データを受け取り次第、判定結果を表示します。</p>' : ''}<button class="judge-button" data-action="judge" ${(picked !== accentMorae.length || answerChecked) ? 'disabled' : ''}>このアクセントで判定する　 ✓</button><p class="judge-hint">選んだ高低パターンをプロフィールに保存します。</p>${bottomNav('')}</main>`;
   bindNav('');
   appendModeOneNext(answerChecked);
   app.querySelectorAll('[data-mora]').forEach((button) => button.addEventListener('click', () => {
@@ -273,7 +291,7 @@ function renderAccentChallenge() {
   app.querySelector('[data-action="judge"]').addEventListener('click', () => {
     if (pitchPattern.some((pitch) => !pitch)) return;
     profileData.accentSubmissions ||= [];
-    profileData.accentSubmissions.push({ word: 'カリキュラム', pattern: [...pitchPattern], createdAt: new Date().toISOString() });
+    profileData.accentSubmissions.push({ word: 'かりきゅらむ', pattern: [...pitchPattern], createdAt: new Date().toISOString() });
     persistProfile();
     legacyModeOneStats?.answer({kind:'answer',pitch:[...pitchPattern]});legacyModeOneStats?.complete();
     answerChecked = true;
@@ -314,7 +332,7 @@ function splitMorae(text) {
   // 小假名は直前の仮名にまとめ、促音・撥音・長音符はそれぞれ一拍に数えます。
   const smallKana = new Set(Array.from('ゃゅょぁぃぅぇぉゎゕゖャュョァィゥェォヮヵヶ'));
   const normalized = Array.from(String(text || '').normalize('NFKC'))
-    .map((char) => char >= 'ぁ' && char <= 'ゖ' ? String.fromCharCode(char.charCodeAt(0) + 0x60) : char)
+    .map((char) => char >= 'ァ' && char <= 'ヶ' ? String.fromCharCode(char.charCodeAt(0) - 0x60) : char)
     .filter((char) => !/[\s・･·,、]/.test(char));
   const morae = [];
   normalized.forEach((char) => {
@@ -378,11 +396,11 @@ function renderDiyAccentEditor() {
 
 function renderDiyMoraEditor() {
   diyMode = 'diyMora';
-  renderDiyEditorShell('モーラ篇', '拍を自動分割し、隣り合う拍の長音リンクと追加の空白拍を設定します。', '<p class="diy-material-note">「長音」ボタンでこの拍と次の拍を連結。「空白拍」ボタンでこの拍の後に休符を追加します。</p>', 'diy-mora');
+  renderDiyEditorShell('モーラ篇', '文字を2拍にのばしたり、文字の間に空白拍を加えて正解を設定します。', '<p class="diy-material-note">「→ 2拍」で文字を横にのばし、「＋」で文字の間に「ッ」を加えます。</p>', 'diy-mora');
 }
 
 function renderDiyEditorShell(title, description, extra = '', editorClass = '') {
-  app.innerHTML = `<main class="page-shell diy-page ${editorClass}">${profileHeader()}<div class="challenge-title-row"><button class="back-circle" data-back="diy" aria-label="DIYの篇選択へ戻る">←</button><div><p class="eyebrow">DIY MODE / CREATE</p><h1>${title}</h1></div></div><p class="diy-description">${description}</p><section class="diy-form"><label>表示する単語<input id="diy-word" class="design-input" type="text" maxlength="40" placeholder="例：カリキュラム"></label><label>読み（文字をそのまま入力）<input id="diy-reading" class="design-input" type="text" maxlength="80" placeholder="例：カリキュラム"></label><p id="diy-mora-preview" class="diy-mora-preview">読みを入力すると、拍を自動で区切ります。</p>${extra}<label class="audio-upload">録音ファイルを読み込む<input id="diy-audio-file" type="file" accept="audio/*"><span id="diy-audio-name">音声ファイルを選択</span></label><audio id="diy-audio-preview" class="diy-audio-preview" controls hidden></audio>${['diyAccent', 'diyMora'].includes(diyMode) ? `<div class="diy-editor-heading"><b>アクセントパターン</b><small>各拍の高低を選んでください</small></div><div id="diy-pitch-editor" class="diy-pitch-editor"><p class="diy-empty-hint">読みを入力すると拍が自動表示されます。</p></div>` : ''}<button id="diy-save" class="judge-button" disabled>問題を保存する</button><p id="diy-error" class="diy-message" role="status"></p></section>${bottomNav('diy')}</main>`;
+  app.innerHTML = `<main class="page-shell diy-page ${editorClass}">${profileHeader()}<div class="challenge-title-row"><button class="back-circle" data-back="diy" aria-label="DIYの篇選択へ戻る">←</button><div><p class="eyebrow">DIY MODE / CREATE</p><h1>${title}</h1></div></div><p class="diy-description">${description}</p><section class="diy-form"><label>表示する単語<input id="diy-word" class="design-input" type="text" maxlength="40" placeholder="例：かりきゅらむ"></label><label>読み（文字をそのまま入力）<input id="diy-reading" class="design-input" type="text" maxlength="80" placeholder="例：かりきゅらむ"></label><p id="diy-mora-preview" class="diy-mora-preview">読みを入力すると、拍を自動で区切ります。</p>${extra}<label class="audio-upload">録音ファイルを読み込む<input id="diy-audio-file" type="file" accept="audio/*"><span id="diy-audio-name">音声ファイルを選択</span></label><audio id="diy-audio-preview" class="diy-audio-preview" controls hidden></audio>${['diyAccent', 'diyMora'].includes(diyMode) ? `<div class="diy-editor-heading"><b>${diyMode==='diyMora'?'拍の正解':'アクセントパターン'}</b><small>${diyMode==='diyMora'?'2拍と空白拍を設定してください':'各拍の高低を選んでください'}</small></div><div id="diy-pitch-editor" class="diy-pitch-editor"><p class="diy-empty-hint">読みを入力すると拍が自動表示されます。</p></div>` : ''}<button id="diy-save" class="judge-button" disabled>問題を保存する</button><p id="diy-error" class="diy-message" role="status"></p></section>${bottomNav('diy')}</main>`;
   bindNav('diy');
   const wordInput = app.querySelector('#diy-word');
   const readingInput = app.querySelector('#diy-reading');
@@ -415,9 +433,9 @@ function renderDiyEditorShell(title, description, extra = '', editorClass = '') 
   app.querySelector('#diy-save').addEventListener('click', async () => {
     const word = wordInput.value.trim();
     const modeValid = diyMode !== 'diyVowel' || diyVowelValid();
-    if (!word || !diyAudioFile || !diyBuilderMorae.length || !modeValid || (diyMode !== 'diyVowel' && diyBuilderPattern.some((pitch) => !pitch))) return;
+    if (!word || !diyAudioFile || !diyBuilderMorae.length || !modeValid || (diyMode === 'diyAccent' && diyBuilderPattern.some((pitch) => !pitch))) return;
     const chapter = { diyVowel: 'vowelChallenge', diyAccent: 'accent', diyMora: 'mora' }[diyMode];
-    const question = { id: crypto.randomUUID(), mode: diyMode, chapter, word, reading: [...diyBuilderMorae], pattern: [...diyBuilderPattern], targetIndexes: [...diyTargetIndexes], targetIndex: diyTargetIndexes[0] ?? null, patternChoices:[...diyPatternChoices], librarySource:'shared', glyphAssets: [], longAfter: [...diyLongAfter], blankAfter: [...diyBlankAfter], audioBlob: diyAudioFile, audioName: diyAudioFile.name, createdAt: new Date().toISOString() };
+    const question = { id: crypto.randomUUID(), mode: diyMode, chapter, word, reading: [...diyBuilderMorae], pattern: [...diyBuilderPattern], targetIndexes: [...diyTargetIndexes], targetIndex: diyTargetIndexes[0] ?? null, patternChoices:[...diyPatternChoices], librarySource:'shared', glyphAssets: [], longAfter: [...diyLongAfter], blankAfter: [...diyBlankAfter], ...(diyMode==='diyMora'?{beats:diyLongAfter.map(v=>v?2:1),blanks:diyBlankAfter.slice(0,-1)}:{}), audioBlob: diyAudioFile, audioName: diyAudioFile.name, createdAt: new Date().toISOString() };
     try {
       await saveDiyQuestion(question);
       diyQuestions.unshift(question);
@@ -449,6 +467,12 @@ function renderDiyPitchEditor() {
     updateDiySaveButton();
     return;
   }
+  if(diyMode==='diyMora'){
+    const beats=diyLongAfter.map(v=>v?2:1),blanks=diyBlankAfter.slice(0,-1);
+    editor.classList.add('explore-scroll');
+    const draw=async()=>{try{const library=sharedLibrary||await refreshLibrary();if(!editor.isConnected)return;await mountBeatEditor(editor,{library,reading:diyBuilderMorae,beats,blanks,onChange:()=>{diyLongAfter=beats.map(v=>v===2);diyBlankAfter=[...blanks,false];updateDiySaveButton();}});}catch(e){if(editor.isConnected)editor.textContent=e.message;}};
+    draw();updateDiySaveButton();return;
+  }
   editor.innerHTML = diyBuilderMorae.map((mora, index) => `<div class="diy-pitch-row"><b>${escapeHtml(mora)}</b><button class="diy-pitch-option ${diyBuilderPattern[index] === 'high' ? 'selected' : ''}" data-builder-index="${index}" data-builder-pitch="high">高</button><button class="diy-pitch-option ${diyBuilderPattern[index] === 'low' ? 'selected' : ''}" data-builder-index="${index}" data-builder-pitch="low">低</button>${diyMode === 'diyMora' && index < diyBuilderMorae.length - 1 ? `<button class="mora-config-option ${diyLongAfter[index] ? 'enabled' : ''}" data-long-after="${index}">長音</button>` : ''}${diyMode === 'diyMora' ? `<button class="mora-config-option ${diyBlankAfter[index] ? 'enabled' : ''}" data-blank-after="${index}">空白拍</button>` : ''}</div>`).join('');
   editor.querySelectorAll('[data-builder-index]').forEach((button) => button.addEventListener('click', () => {
     diyBuilderPattern[Number(button.dataset.builderIndex)] = button.dataset.builderPitch;
@@ -476,7 +500,7 @@ function updateDiySaveButton() {
   if (!button) return;
   const word = app.querySelector('#diy-word')?.value.trim();
   const modeValid = diyMode !== 'diyVowel' || diyVowelValid();
-  const patternValid = diyMode === 'diyVowel' || (diyBuilderPattern.length === diyBuilderMorae.length && diyBuilderPattern.every(Boolean));
+  const patternValid = diyMode !== 'diyAccent' || (diyBuilderPattern.length === diyBuilderMorae.length && diyBuilderPattern.every(Boolean));
   button.disabled = !word || !diyAudioFile || !diyBuilderMorae.length || !modeValid || !patternValid;
 }
 
@@ -514,6 +538,7 @@ async function renderCustomVowelChallenge(){
 function renderDiyPlayer() {
   if (!activeDiyQuestion) { navigate('diy'); return; }
   const question = activeDiyQuestion;
+  if(question.mode==='diyMora'){renderRhythmQuestion(question,diyPlaybackUrl,customPlayReturnScreen);return;}
   const isVowelQuestion = question.mode === 'diyVowel';
   const isMoraQuestion = question.mode === 'diyMora';
   const picked = isVowelQuestion ? diyPlayerTargetIndex !== null : diyPlayerPattern.filter(Boolean).length === question.reading.length;
@@ -562,50 +587,34 @@ function renderDiyPlayer() {
   });
 }
 
-const moraLesson = ['カ', 'リ', 'キュ', 'ラ', 'ム'];
-
-function clearMoraState(index) {
-  if (moraStates[index] === 'long-start' && index + 1 < moraStates.length) moraStates[index + 1] = 'off';
-  if (moraStates[index] === 'long-end' && index > 0) moraStates[index - 1] = 'off';
-  moraStates[index] = 'off';
+function tutorialContinuation(){
+ const next=nextChapterItem(chapterItems(),modeOneCurrentId);
+ if(next)return {label:'次の問題へ：'+next.word+' →',go:()=>openChapterItem(next)};
+ const order=['vowelChallenge','accent','mora'],following=order[order.indexOf(challengeChapter)+1];
+ return following?{label:'次の篇へ：'+chapterTitles[following][0]+' →',go:()=>{challengeChapter=following;navigate('chapterLevels');}}:{label:'おめでとう、チュートリアル完了！ホームへ',go:()=>navigate('home')};
 }
-
-function renderMoraChallenge() {
-  modeOneCurrentId||='builtin-mora';
-  app.innerHTML = `<main class="page-shell mora-page">${profileHeader()}<section class="mora-heading"><button class="back-circle" data-back="challenges" aria-label="チャレンジ選択へ戻る">←</button><div><p class="eyebrow">MORA CHALLENGE / 01</p><h1>モーラを組み立てる</h1></div></section><p class="mora-instruction">一拍をタップして選択。長押しで半拍または長音を設定します。</p><section class="mora-word-card"><div class="mora-unit-list">${moraLesson.map((mora, index) => `<div class="mora-unit ${moraStates[index].startsWith('long') ? 'is-linked' : ''}"><button class="mora-dot ${moraStates[index]}" data-mora-unit="${index}" aria-label="${mora} ${moraStates[index]}">${moraStates[index] === 'half' ? '½' : moraStates[index].startsWith('long') ? '↔' : ''}</button><b>${mora}</b>${moraStates[index] === 'long-start' ? '<span class="mora-link-line"></span>' : ''}</div>`).join('')}</div><p class="mora-readout">${moraStates.map((state) => ({ off: '・', beat: '●', half: '½', 'long-start': '長', 'long-end': '音' })[state]).join('　')}</p>${moraMenuIndex !== null ? `<div class="mora-longpress-menu"><b>${moraLesson[moraMenuIndex]} の設定</b><button data-mora-choice="half">半拍にする</button><button data-mora-choice="long" ${moraMenuIndex === moraLesson.length - 1 ? 'disabled' : ''}>次の拍とつないで長音にする</button><button data-mora-choice="close">キャンセル</button></div>` : ''}</section><p class="mora-state-note">灰色の丸をタップすると一拍になります。もう一度タップすると解除します。</p>${bottomNav('')}</main>`;
-  bindNav('');
-  const finish=document.createElement('button');finish.className='outline-button';finish.textContent=moraFinished?'拍の設定を記録しました':'この拍で進む';finish.disabled=moraFinished||moraStates.every(s=>s==='off');finish.onclick=()=>{legacyModeOneStats?.complete({moraStates:[...moraStates]});moraFinished=true;renderMoraChallenge();};app.querySelector('main').append(finish);appendModeOneNext(moraFinished);
-  app.querySelectorAll('[data-mora-unit]').forEach((button) => {
-    const index = Number(button.dataset.moraUnit);
-    button.addEventListener('pointerdown', () => {
-      moraHoldTriggered = false;
-      moraHoldTimer = window.setTimeout(() => { moraHoldTriggered = true; moraMenuIndex = index; renderMoraChallenge(); }, 520);
-    });
-    button.addEventListener('pointerup', () => window.clearTimeout(moraHoldTimer));
-    button.addEventListener('pointerleave', () => window.clearTimeout(moraHoldTimer));
-    button.addEventListener('click', () => {
-      if (moraHoldTriggered) { moraHoldTriggered = false; return; }
-      moraMenuIndex = null;
-      if (moraStates[index] === 'off') moraStates[index] = 'beat'; else clearMoraState(index);
-      renderMoraChallenge();
-    });
-  });
-  app.querySelectorAll('[data-mora-choice]').forEach((button) => button.addEventListener('click', () => {
-    const index = moraMenuIndex;
-    const choice = button.dataset.moraChoice;moraFinished=false;
-    moraMenuIndex = null;
-    if (choice === 'half') { clearMoraState(index); moraStates[index] = 'half'; }
-    if (choice === 'long' && index < moraLesson.length - 1) { clearMoraState(index); clearMoraState(index + 1); moraStates[index] = 'long-start'; moraStates[index + 1] = 'long-end'; }
-    renderMoraChallenge();
-  }));
+async function renderTutorial(){
+ if(!activeTutorial){navigate('chapterLevels');return;}
+ const question={...activeTutorial,audio:assetUrl(activeTutorial.audio)};
+ if(question.mode==='diyVowel'){await renderModeOneQuestion(question,'chapterLevels');return;}
+ await renderRhythmQuestion(question,question.audio,'chapterLevels');
 }
+async function renderRhythmQuestion(question,audio,backTarget){
+ app.innerHTML=`<main class="page-shell"><div data-lesson-header>${profileHeader()}</div><button class="title-return" data-back="${backTarget}">← 問題一覧へ戻る</button><div data-lesson-root></div>${bottomNav('')}</main>`;bindNav('');
+ const root=app.querySelector('[data-lesson-root]');
+ try{const library=await refreshLibrary();if(!root.isConnected)return;const next=nextChapterItem(chapterItems(),modeOneCurrentId),continuation=question.tutorial?tutorialContinuation():{label:next?'次の問題へ：'+next.word+' →':'おめでとう、全問クリア！ホームへ',go:backTarget==='chapterLevels'?advanceModeOne:()=>navigate('diy')};
+ const dispose=await mountModeOneLesson(root,{question:{...question,audio},library,profileId:activeProfileId,studyMode:modeOneStudyMode,onNext:continuation.go,nextLabel:continuation.label,onCorrect:()=>{if(settings.sfx)playCorrectFeedback();}});
+ if(root.isConnected)disposeModeOne=dispose;else dispose?.();
+ }catch(e){if(root.isConnected)root.textContent='問題を読み込めません：'+e.message;}
+}
+function renderMoraChallenge(){activeTutorial=tutorials.find(q=>q.chapter==='mora');renderTutorial();}
 
 async function renderMorphGame(){
  modeOneCurrentId||='builtin-kusuri';await renderModeOneQuestion({id:'builtin-kusuri',statsLevelId:level.id,recordingId:level.recordingId,word:level.word,reading:level.characters.map(c=>c.text),targetIndexes:level.characters.flatMap((c,i)=>c.isTarget?[i]:[]),audio:level.audio},'chapterLevels');
 }
 async function renderModeOneQuestion(question,backTarget){
- app.innerHTML=`<main class="page-shell morph-page">${profileHeader()}<section class="morph-heading"><button class="back-circle" data-back="${backTarget}" aria-label="問題一覧へ戻る">←</button><div><p class="eyebrow">MODE 1 / 母音＆子音篇</p><h1>発音の特徴を見つけよう</h1></div></section><p class="mode-one-study-label">Mode1 · ${modeOneStudyMode==='research'?'研究参加':'お試し'}</p><div data-mode-one>図鑑を読み込んでいます…</div>${bottomNav(backTarget==='diy'?'diy':'')}</main>`;bindNav(backTarget==='diy'?'diy':'');const target=app.querySelector('[data-mode-one]');
- try{const library=await refreshLibrary();if(!target.isConnected)return;const next=backTarget==='chapterLevels'?nextChapterItem(chapterItems(),modeOneCurrentId):null;disposeModeOne=mountModeOne(target,{library,question,profileId:activeProfileId,studyMode:modeOneStudyMode,nextWord:next?.word,onNext:backTarget==='chapterLevels'?advanceModeOne:()=>navigate('home'),onSolved:patternId=>{profileData.morphComplete=true;unlockCards([patternId]);persistProfile();},onCorrect:()=>{if(settings.sfx)playCorrectFeedback();},onWrong:()=>{if(settings.vibration&&navigator.vibrate)navigator.vibrate(65);if(settings.sfx)playWrongFeedback();}});}catch{if(target.isConnected)target.textContent='図鑑を読み込めませんでした。もう一度開いてください。';}
+ app.innerHTML=`<main class="page-shell morph-page">${profileHeader()}<section class="morph-heading"><button class="back-circle" data-back="${backTarget}" aria-label="問題一覧へ戻る">←</button><div><p class="eyebrow">MODE 1 / 母音＆子音篇</p><h1>発音の特徴を見つけよう</h1></div></section><p class="mode-one-study-label">${question.tutorial?'チュートリアル · 練習データ':'Mode1 · '+(modeOneStudyMode==='research'?'研究参加':'お試し')}</p><div data-mode-one>図鑑を読み込んでいます…</div>${bottomNav(backTarget==='diy'?'diy':'')}</main>`;bindNav(backTarget==='diy'?'diy':'');const target=app.querySelector('[data-mode-one]');
+ try{const library=await refreshLibrary();if(!target.isConnected)return;const next=backTarget==='chapterLevels'?nextChapterItem(chapterItems(),modeOneCurrentId):null;disposeModeOne=mountModeOne(target,{library,question,profileId:activeProfileId,studyMode:modeOneStudyMode,nextWord:next?.word,nextLabel:question.tutorial?tutorialContinuation().label:null,onNext:question.tutorial?tutorialContinuation().go:backTarget==='chapterLevels'?advanceModeOne:()=>navigate('home'),onSolved:patternId=>{profileData.morphComplete=true;unlockCards([patternId]);persistProfile();},onCorrect:()=>{if(settings.sfx)playCorrectFeedback();},onWrong:()=>{if(settings.vibration&&navigator.vibrate)navigator.vibrate(65);if(settings.sfx)playWrongFeedback();}});}catch{if(target.isConnected)target.textContent='図鑑を読み込めませんでした。もう一度開いてください。';}
 }
 
 function playCorrectFeedback() {

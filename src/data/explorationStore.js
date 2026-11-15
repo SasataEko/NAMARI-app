@@ -54,13 +54,14 @@ export async function saveExploration(record, level) {
   }
   rows.push(saved); // Append-only revisions preserve original answers, including flagged ones.
   localStorage.setItem(RAW_KEY,JSON.stringify(rows));
+  if(level.tutorial){saved.sync={status:'local',tutorial:true};return saved;}
   try{saved.sync=await queueAndSend(saved,level);}catch(e){saved.sync={status:'pending',error:e.message};}
   return saved;
 }
 export function includedResponses(records, level, { studyMode = 'test', excludeParticipantId = null, rules = studyConfig.qualityRules } = {}) {
   const latest = new Map();
   for (const r of records) {
-    if (r.schemaVersion !== 3 || r.studyMode !== studyMode || r.recordingId !== recordingIdFor(level) || r.participantId === excludeParticipantId) continue;
+    if (r.schemaVersion !== 3 || r.studyMode !== studyMode || r.recordingId !== recordingIdFor(level) || r.levelId !== level.id || r.participantId === excludeParticipantId) continue;
     // Repeat controls have their own slot so they cannot overwrite the main recording response.
     const slot = `${r.participantId}:${r.qualityCheck ? r.levelId : 'main'}`;
     latest.set(slot,r);
@@ -89,6 +90,6 @@ export function aggregateExplorations(records, level, options = {}) {
   }); return result;
 }
 export async function getExplorationAggregate(level, options = {}) {
-  const config=await collectionConfig();if(config.enabled)return cloudAggregate(level,options);
+  const config=await collectionConfig();if(config.enabled&&!level.tutorial)return cloudAggregate(level,options);
   return { ...aggregateExplorations(readRawResponses(),level,options), source:'local', studyMode:options.studyMode || 'test', qualityRulesVersion:studyConfig.qualityRules.version };
 }

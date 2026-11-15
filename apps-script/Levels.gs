@@ -11,13 +11,15 @@ var LEVEL_MANIFEST = [
       {
         "text": "く",
         "patterns": [
-          "ku-custom"
+          "ku-custom",
+          "pattern-souki-ku"
         ]
       },
       {
         "text": "す",
         "patterns": [
-          "pattern-u-su"
+          "pattern-u-su",
+          "pattern-souki-su"
         ]
       },
       {
@@ -26,7 +28,7 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "4186c2ffed99bbca"
+    "levelVersion": "58e5266ff46f319c"
   },
   {
     "levelId": "9e584fe5-6873-4db1-9b09-d75c806d5bb4",
@@ -51,7 +53,9 @@ var LEVEL_MANIFEST = [
       },
       {
         "text": "た",
-        "patterns": []
+        "patterns": [
+          "pattern-souki-ta"
+        ]
       },
       {
         "text": "ま",
@@ -63,7 +67,7 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "5968e5e5dea0bf51"
+    "levelVersion": "f5de53e7600479f4"
   },
   {
     "levelId": "130bfe9f-865c-4bf5-a2de-30e514330402",
@@ -77,30 +81,32 @@ var LEVEL_MANIFEST = [
     ],
     "characters": [
       {
-        "text": "カ",
+        "text": "か",
+        "patterns": [
+          "pattern-souki-ka"
+        ]
+      },
+      {
+        "text": "り",
         "patterns": []
       },
       {
-        "text": "リ",
+        "text": "きゅ",
         "patterns": []
       },
       {
-        "text": "キュ",
+        "text": "ら",
         "patterns": []
       },
       {
-        "text": "ラ",
-        "patterns": []
-      },
-      {
-        "text": "ム",
+        "text": "む",
         "patterns": [
           "pattern-u-mu"
         ]
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "889e6cb878e638b1"
+    "levelVersion": "cffd87b4f4fda820"
   },
   {
     "levelId": "ccb4f0b9-8e27-4cbf-9998-37ce23e56908",
@@ -115,7 +121,9 @@ var LEVEL_MANIFEST = [
     "characters": [
       {
         "text": "き",
-        "patterns": []
+        "patterns": [
+          "pattern-souki-ki"
+        ]
       },
       {
         "text": "ん",
@@ -137,7 +145,7 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "4ce9347dc8274b5b"
+    "levelVersion": "3881d03b31f99ed0"
   },
   {
     "levelId": "0d3eb58f-7be3-4d09-aaf3-ecbb7f9e3254",
@@ -161,7 +169,9 @@ var LEVEL_MANIFEST = [
       },
       {
         "text": "し",
-        "patterns": []
+        "patterns": [
+          "pattern-souki-shi"
+        ]
       },
       {
         "text": "ん",
@@ -169,14 +179,53 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "f280fbabcdda8271"
+    "levelVersion": "906f182dfcf0f1b5"
+  },
+  {
+    "levelId": "tutorial-mode2-curriculum",
+    "recordingId": "tutorial-mode2-curriculum-recording-v1",
+    "defaultAccent": [
+      "low",
+      "high",
+      "high",
+      "low",
+      "low"
+    ],
+    "characters": [
+      {
+        "text": "か",
+        "patterns": [
+          "pattern-souki-ka"
+        ]
+      },
+      {
+        "text": "り",
+        "patterns": []
+      },
+      {
+        "text": "きゅ",
+        "patterns": []
+      },
+      {
+        "text": "ら",
+        "patterns": []
+      },
+      {
+        "text": "む",
+        "patterns": [
+          "pattern-u-mu"
+        ]
+      }
+    ],
+    "qualityCheck": null,
+    "levelVersion": "58e2dbfb3d666b9f"
   }
 ];
 var MODE1_MANIFEST = [
   {
     "levelId": "kusuri",
     "recordingId": "kusuri-recording-v1",
-    "levelVersion": "f3afee8ae9e40f24",
+    "levelVersion": "20c7b4803b8c8e0a",
     "definition": {
       "scoring": "selection",
       "targets": [
@@ -208,19 +257,19 @@ var MODE1_MANIFEST = [
       "scoring": "none",
       "characters": [
         {
-          "text": "カ"
+          "text": "か"
         },
         {
-          "text": "リ"
+          "text": "り"
         },
         {
-          "text": "キュ"
+          "text": "きゅ"
         },
         {
-          "text": "ラ"
+          "text": "ら"
         },
         {
-          "text": "ム"
+          "text": "む"
         }
       ]
     }
@@ -233,20 +282,99 @@ var MODE1_MANIFEST = [
       "scoring": "none",
       "characters": [
         {
-          "text": "カ"
+          "text": "か"
         },
         {
-          "text": "リ"
+          "text": "り"
         },
         {
-          "text": "キュ"
+          "text": "きゅ"
         },
         {
-          "text": "ラ"
+          "text": "ら"
         },
         {
-          "text": "ム"
+          "text": "む"
         }
+      ]
+    }
+  },
+  {
+    "levelId": "tutorial-kusuri",
+    "recordingId": "kusuri-recording-v1",
+    "levelVersion": "b2f0ee54342b75f8",
+    "definition": {
+      "scoring": "selection",
+      "characters": [
+        {
+          "text": "く"
+        },
+        {
+          "text": "す"
+        },
+        {
+          "text": "り"
+        }
+      ],
+      "targets": [
+        0
+      ],
+      "patternChoices": [
+        "ku-custom",
+        null,
+        null
+      ]
+    }
+  },
+  {
+    "levelId": "tutorial-karada",
+    "recordingId": "tutorial-karada-recording-v1",
+    "levelVersion": "570ed7d73d8e60cd",
+    "definition": {
+      "scoring": "pattern",
+      "characters": [
+        {
+          "text": "か"
+        },
+        {
+          "text": "ら"
+        },
+        {
+          "text": "だ"
+        }
+      ],
+      "pitch": [
+        "high",
+        "low",
+        "low"
+      ]
+    }
+  },
+  {
+    "levelId": "tutorial-ranpu",
+    "recordingId": "tutorial-ranpu-recording-v1",
+    "levelVersion": "d8de6e04addf6ce8",
+    "definition": {
+      "scoring": "rhythm",
+      "characters": [
+        {
+          "text": "ら"
+        },
+        {
+          "text": "ん"
+        },
+        {
+          "text": "ぷ"
+        }
+      ],
+      "beats": [
+        1,
+        1,
+        2
+      ],
+      "blanks": [
+        false,
+        false
       ]
     }
   }
