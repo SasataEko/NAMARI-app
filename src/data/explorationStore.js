@@ -1,3 +1,6 @@
+import {participantId} from './participantIdentity.js';
+export {participantId} from './participantIdentity.js';
+import {studyMetadata} from './researchState.js';
 import { collectionConfig, queueAndSend, cloudAggregate } from './cloudCollection.js';
 import { featuresFor } from './explorationFeatures.js';
 import { studyConfig, recordingIdFor, qualityCheckFor } from './studyConfig.js';
@@ -6,12 +9,8 @@ export function defaultAccent(level) {
   return [...level.defaultAccent];
 }
 export const pitchValue = p => typeof p === 'number' ? p : p === 'high' ? 1 : 0;
-const RAW_KEY = 'kotoba-exploration-raw-v3';
-export function participantId() {
-  let id = localStorage.getItem('kotoba-anonymous-participant-v1');
-  if (!id) { id = crypto.randomUUID(); localStorage.setItem('kotoba-anonymous-participant-v1', id); }
-  return id;
-}
+const experimentRules={...studyConfig.qualityRules,version:'2026-11-16-visual-experiment-v1',excludeFlags:['invalid_response']};
+const RAW_KEY= 'kotoba-exploration-raw-v3';
 export function readRawResponses() {
   const rows = JSON.parse(localStorage.getItem(RAW_KEY) || '[]');
   if (!Array.isArray(rows)) throw new Error('保存データを読み込めません。');
@@ -43,8 +42,8 @@ export function qualityFlags(r, level, rules) {
   return flags;
 }
 export async function saveExploration(record, level) {
-  const rows = readRawResponses(), rules = structuredClone(studyConfig.qualityRules);
-  const saved = { ...structuredClone(record), schemaVersion:3, recordingId:recordingIdFor(level), qualityCheck:qualityCheckFor(level), qualityRulesVersion:rules.version, qualityRulesSnapshot:rules, quality_flag:qualityFlags({...record,qualityCheck:qualityCheckFor(level)},level,rules) };
+  const rows = readRawResponses(), rules = structuredClone(level.visualExperiment?experimentRules:studyConfig.qualityRules);
+  const saved = { ...studyMetadata(record.studyMode,'mode2','exploration'),...structuredClone(record), visualExperiment:!!level.visualExperiment,studyMode:level.visualExperiment?'test':record.studyMode,schemaVersion:3, recordingId:recordingIdFor(level), qualityCheck:qualityCheckFor(level), qualityRulesVersion:rules.version, qualityRulesSnapshot:rules, quality_flag:qualityFlags({...record,qualityCheck:qualityCheckFor(level)},level,rules) };
   const check=saved.qualityCheck;
   if(check?.type==='repeat'){
     const reference=[...rows].reverse().find(r=>r.participantId===saved.participantId&&r.studyMode===saved.studyMode&&r.recordingId===check.referenceRecordingId&&!r.qualityCheck);
@@ -54,6 +53,7 @@ export async function saveExploration(record, level) {
   }
   rows.push(saved); // Append-only revisions preserve original answers, including flagged ones.
   localStorage.setItem(RAW_KEY,JSON.stringify(rows));
+  if(level.visualExperiment){saved.visualExperiment=true;saved.sync={status:'local',visualExperiment:true};return saved;}
   if(level.tutorial){saved.sync={status:'local',tutorial:true};return saved;}
   try{saved.sync=await queueAndSend(saved,level);}catch(e){saved.sync={status:'pending',error:e.message};}
   return saved;
@@ -67,6 +67,7 @@ export function includedResponses(records, level, { studyMode = 'test', excludeP
     latest.set(slot,r);
   }
   const eligible=[...latest.values()].filter(r => {
+    if(studyMode==='research'&&(!r.consent_version||!r.app_version||!Number.isFinite(Date.parse(r.consented_at))||!Number.isFinite(Date.parse(r.startedAt))||Date.parse(r.startedAt)<Date.parse(r.consented_at)))return false;
     if (!validResponse(r,level) || r.qualityRulesVersion !== rules.version || JSON.stringify(r.qualityRulesSnapshot) !== JSON.stringify(rules)) return false;
     const flags = qualityFlags(r,level,rules);
     return !flags.some(f => rules.excludeFlags.includes(f)) && (rules.includeSkipped || !r.skipped) && (rules.includeUncertain || r.answerStatus !== 'uncertain');
@@ -90,6 +91,7 @@ export function aggregateExplorations(records, level, options = {}) {
   }); return result;
 }
 export async function getExplorationAggregate(level, options = {}) {
+  if(level.visualExperiment)return {...aggregateExplorations(readRawResponses(),level,{...options,studyMode:'test',rules:experimentRules}),source:'local-experiment'};
   const config=await collectionConfig();if(config.enabled&&!level.tutorial)return cloudAggregate(level,options);
   return { ...aggregateExplorations(readRawResponses(),level,options), source:'local', studyMode:options.studyMode || 'test', qualityRulesVersion:studyConfig.qualityRules.version };
 }

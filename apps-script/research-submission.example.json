@@ -1,0 +1,21 @@
+{
+  "action": "submit_study_event",
+  "participantKey": "端末内部で付与・公開しない",
+  "response": {
+    "schemaType": "study_event",
+    "schemaVersion": 1,
+    "id": "11111111-1111-4111-8111-111111111111",
+    "participantId": "22222222-2222-4222-8222-222222222222",
+    "studyMode": "test",
+    "gameMode": "mode1",
+    "chapter": "vowelChallenge",
+    "event_type": "chapter_rating",
+    "scope_id": "33333333-3333-4333-8333-333333333333",
+    "response_status": "answered",
+    "visual_helpfulness": 4,
+    "submitted_at": "2026-11-16T06:00:00.000Z",
+    "app_version": "2026.11.16-research-extension-v1",
+    "consent_version": null,
+    "consented_at": null
+  }
+}

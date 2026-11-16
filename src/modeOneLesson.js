@@ -1,3 +1,4 @@
+import {mountReferenceAudio} from './audioComparison.js';
 import { createTutorialGuide } from './tutorialGuide.js';
 import { createModeOneSession } from './data/modeOneStats.js';
 import { rhythmAnswer, tutorialDefinition } from './data/tutorials.js';
@@ -12,7 +13,7 @@ export async function mountModeOneLesson(root,{question,library,profileId,studyM
   root.innerHTML='<section class="lesson-card"><p class="eyebrow">'+(guided?'チュートリアル · 練習データ':'MODE 1 · モーラ篇')+'</p><h1></h1><p class="lesson-cue" role="status"></p><audio controls preload="metadata" aria-label="問題の録音"></audio><p class="explore-headphone-note">※イヤホン推奨します</p><div class="lesson-answer"></div><button class="judge-button" data-judge>この答えで判定する</button><p data-feedback role="status"></p><button class="judge-button" data-next hidden></button><p data-sync role="status"></p><button class="text-action" data-retry hidden>未送信の記録を再送</button></section>';
   root.querySelector('h1').textContent=question.word;
   const guide=guided?createTutorialGuide():null;
-  const audio=root.querySelector('audio');audio.src=question.audio;session.attachAudio(audio);
+  const audio=root.querySelector('audio');audio.src=question.audio;session.attachAudio(audio);mountReferenceAudio(audio,question.referenceAudio,()=>session.referencePlayed());
   const cue=root.querySelector('.lesson-cue'),judge=root.querySelector('[data-judge]'),next=root.querySelector('[data-next]'),answer=root.querySelector('.lesson-answer'),feedback=root.querySelector('[data-feedback]'),retry=root.querySelector('[data-retry]');
   next.textContent=nextLabel;next.onclick=()=>{if(solved)onNext();};retry.onclick=()=>session.retry();session.setListener(s=>{if(active&&root.isConnected){root.querySelector('[data-sync]').textContent=s.text;retry.hidden=s.status!=='pending';}});
   function update(){
@@ -39,12 +40,12 @@ export async function mountModeOneLesson(root,{question,library,profileId,studyM
     const columns=answer.querySelector('.pitch-columns');columns.style.gridTemplateColumns='repeat('+n+',1fr)';
     let d='';pitch.forEach((p,i)=>{if(p)d+=(i&&pitch[i-1]?'L':'M')+(50+i*100)+' '+(p==='high'?19:57)+' ';});
     columns.innerHTML='<svg class="pitch-path" viewBox="0 0 '+n*100+' 76" preserveAspectRatio="none" aria-hidden="true"><path class="pitch-guide" d="M50 19 H'+(n*100-50)+' M50 57 H'+(n*100-50)+'"/><path class="pitch-line-path" d="'+d+'"/></svg>';
-    question.reading.forEach((text,i)=>{const col=document.createElement('div');col.className='pitch-column';['high','low'].forEach(p=>{const b=document.createElement('button');b.className='pitch-choice '+(pitch[i]===p?'selected':'');b.setAttribute('aria-label',text+'を'+(p==='high'?'高':'低')+'くする');b.setAttribute('aria-pressed',String(pitch[i]===p));b.textContent='●';b.onclick=()=>{pitch[i]=p;feedback.textContent='';drawPitch();update();};col.append(b);});const label=document.createElement('b');label.textContent=text;col.append(label);columns.append(col);});
+    question.reading.forEach((text,i)=>{const col=document.createElement('div');col.className='pitch-column';['high','low'].forEach(p=>{const b=document.createElement('button');b.className='pitch-choice '+(pitch[i]===p?'selected':'');b.setAttribute('aria-label',text+'を'+(p==='high'?'高':'低')+'くする');b.setAttribute('aria-pressed',String(pitch[i]===p));b.textContent='●';b.onclick=()=>{session.markVisualization();pitch[i]=p;feedback.textContent='';drawPitch();update();};col.append(b);});const label=document.createElement('b');label.textContent=text;col.append(label);columns.append(col);});
   }
   audio.addEventListener('play',()=>{if(!heard){cue.textContent='録音を聞いてみよう。聞き終わったら操作できます。';guide?.set(audio,{text:'聞き終わるまで、そのまま聞いてみよう。',step:'STEP 1 / 録音を聞く',point:false});}});
   audio.addEventListener('pause',()=>{if(!heard)update();});
   audio.addEventListener('ended',()=>{if(!active)return;heard=true;beatEditor?.setDisabled(false);update();});
-  if(rhythm){answer.classList.add('explore-scroll');try{beatEditor=await mountBeatEditor(answer,{library,reading:question.reading,beats,blanks,disabled:!heard,onChange:()=>{feedback.textContent='';update();}});}catch(e){if(active){feedback.textContent='字形を読み込めません：'+e.message;judge.hidden=true;}return ()=>{active=false;guide?.dispose();session.leave();};}}
+  if(rhythm){answer.classList.add('explore-scroll');try{beatEditor=await mountBeatEditor(answer,{library,reading:question.reading,beats,blanks,disabled:!heard,onChange:()=>{session.markVisualization();feedback.textContent='';update();}});}catch(e){if(active){feedback.textContent='字形を読み込めません：'+e.message;judge.hidden=true;}return ()=>{active=false;guide?.dispose();session.leave();};}}
   else drawPitch();
   if(!root.isConnected){guide?.dispose();session.leave();return ()=>{};}update();
   judge.onclick=()=>{

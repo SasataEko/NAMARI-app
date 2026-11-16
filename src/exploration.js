@@ -1,3 +1,7 @@
+import {isSymbolSwitch,paintWholeGlyph,animateWholeGlyphSwitch,symbolDistribution} from './glyph/symbolSwitch.js';
+import {ensureParticipation,chapterRating} from './studyUI.js';
+import {studyMetadata} from './data/researchState.js';
+import {createComparisonMetrics,mountReferenceAudio} from './audioComparison.js';
 import { createModeTwoGuide } from './modeTwoGuide.js';
 import { createTutorialGuide } from './tutorialGuide.js';
 import { answerPreviewAggregate } from './data/answerPreview.js';
@@ -13,9 +17,10 @@ const ns = 'http://www.w3.org/2000/svg';
 const labels = { segment: '母音/子音', pitch: 'アクセント', duration: '拍' };
 const ease = t => t * t * (3 - 2 * t);
 export function mountExploration(root, { level, profileId, studyMode = studyConfig.defaultMode, nextLevel = null, onNext, onLevelList }) {
-  if(level.tutorial)studyMode='test';
+  if(level.tutorial||level.visualExperiment)studyMode='test';
   if(!['test','research'].includes(studyMode))studyMode='test';
   const anonymousId=participantId(), startedAt=new Date().toISOString(), started=performance.now();
+  const comparison=createComparisonMetrics();
   const audioMetrics={audioPlayed:false,audioCompleted:false,audioPlayCount:0,listenedMs:0};
   let lastAudioTime=null;
   const accountAudio=()=>{const audio=root.querySelector('audio');if(!audio)return;if(lastAudioTime!==null){const delta=audio.currentTime-lastAudioTime;if(delta>0&&delta<1)audioMetrics.listenedMs+=delta*1000;}lastAudioTime=audio.currentTime;};
@@ -39,7 +44,16 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
   function paint(svg,i,feature,intensity,animate=false) {
     if(glyphs[i].normal.text){fitGlyph(svg,i);return;}
     const previous=animations.get(svg);
-    if(previous)cancelAnimationFrame(previous.frame);
+    if(previous){cancelAnimationFrame(previous.frame);previous.cancel?.();}svg.style.opacity='1';
+    const variant=glyphs[i].variants.find(v=>v.id===feature);
+    if(isSymbolSwitch(variant)){
+      const from=svg.dataset.symbolFeature===feature?glyphs[i].normal:{viewBox:svg.dataset.glyphViewBox||glyphs[i].normal.viewBox,shapes:[...svg.querySelectorAll('path')].map(p=>({d:p.getAttribute('d'),fillRule:p.getAttribute('fill-rule')||''}))};
+      svg.dataset.symbolFeature=feature;svg.dataset.symbolSwitch='true';
+      const apply=()=>{paintWholeGlyph(svg,intensity?variant.custom:glyphs[i].normal);fitGlyph(svg,i);};
+      if(animate&&intensity){const token={};animations.set(svg,token);token.cancel=animateWholeGlyphSwitch(svg,from,variant.custom,{onFrame:()=>fitGlyph(svg,i),onDone:()=>animations.delete(svg)});}else{apply();animations.delete(svg);}return;
+    }
+    if(svg.dataset.symbolSwitch==='true')paintWholeGlyph(svg,glyphs[i].normal);
+    svg.dataset.symbolSwitch='false';svg.dataset.symbolFeature='';svg.dataset.glyphViewBox=glyphs[i].normal.viewBox;
     const morph=glyphs[i].variants.find(v=>v.id===feature)?.morph;
     const target=morph?intensity:0;
     const apply=value=>{
@@ -62,8 +76,9 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
   }
   function paintAverage(svg,i,rates) {
     if(glyphs[i].normal.text)return;
-    let current=glyphs[i].normal.shapes.map(s=>s.d),weight=Math.max(0,1-Object.values(rates).reduce((a,b)=>a+b,0));
-    for(const variant of glyphs[i].variants){const rate=rates[variant.id]||0;if(!rate)continue;const total=weight+rate;current=weight===0?variant.morph.to:createMorph(current,variant.morph.to).map(f=>f(rate/total));weight=total;}
+    const morphVariants=glyphs[i].variants.filter(v=>!isSymbolSwitch(v));
+    let current=glyphs[i].normal.shapes.map(s=>s.d),weight=Math.max(0,1-morphVariants.reduce((sum,v)=>sum+(rates[v.id]||0),0));
+    for(const variant of morphVariants){const rate=rates[variant.id]||0;if(!rate)continue;const total=weight+rate;current=weight===0?variant.morph.to:createMorph(current,variant.morph.to).map(f=>f(rate/total));weight=total;}
     [...svg.children].forEach((path,j)=>path.setAttribute('d',current[j]));
     svg.setAttribute('aria-label',`${level.characters[i].text} 変形選択率 ${Math.round(Object.values(rates).reduce((a,b)=>a+b,0)*100)}%`);
   }
@@ -71,7 +86,7 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
     if(!svg.isConnected)return;
     const ink=svg.getBBox();
     if(!ink.width)return;
-    const [,y,,height]=glyphs[i].normal.viewBox.trim().split(/[ ,]+/).map(Number);
+    const [,y,,height]=(svg.dataset.glyphViewBox||glyphs[i].normal.viewBox).trim().split(/[ ,]+/).map(Number);
     const width=ink.width*80/height+80*Math.max(0,Number(svg.dataset.beats)-1);
     // Remove SVG canvas side bearings, then keep the same 16px ink-to-ink gap.
     svg.setAttribute('viewBox',`${ink.x} ${y} ${ink.width} ${height}`);
@@ -89,7 +104,7 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
         const button=document.createElement('button');button.textContent=p==='high'?'高':'低';
         button.setAttribute('aria-label',c.text+'を'+(p==='high'?'高':'低')+'くする');
         button.setAttribute('aria-pressed',String(data.pitch[i]===p));
-        button.onclick=()=>{state.pitch[i]=p;state.touched.pitch=true;renderEditor();tutorialTour?.notify('pitch');};col.append(button);
+        button.onclick=()=>{comparison.markVisual();state.pitch[i]=p;state.touched.pitch=true;renderEditor();tutorialTour?.notify('pitch');};col.append(button);
       });box.append(col);
     });return box;
   }
@@ -124,13 +139,13 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
       kana.dataset.noticedRate=String(rate);
       svg.querySelectorAll('path').forEach(path=>path.style.fill='currentColor');
       svg.setAttribute('aria-label',`${c.text} ・マーク ${Math.round(noticedRate*100)}%${data.featureRates?` ・Pattern ${Math.round(Object.values(data.featureRates[i]).reduce((a,b)=>a+b,0)*100)}%`:''}`);
-      if(editing){kana.dataset.kana=i;kana.setAttribute('aria-label',`${c.text}を${selected===i?'選択解除':'選ぶ'}`);kana.setAttribute('aria-pressed',String(state.noticed[i]));kana.onclick=()=>{if(mode!=='segment')return;if(selected===i){state.noticed[i]=false;state.pattern[i]=null;state.markingReason[i]=null;state.features[i]=null;state.intensity[i]=0;selected=null;}else{selected=i;state.noticed[i]=true;state.markingReason[i]||='noticed_only';state.answerStatus='explored';}state.touched.segment=state.noticed.some(Boolean);renderEditor();tutorialTour?.notify('kana');};}
+      if(editing){kana.dataset.kana=i;kana.setAttribute('aria-label',`${c.text}を${selected===i?'選択解除':'選ぶ'}`);kana.setAttribute('aria-pressed',String(state.noticed[i]));kana.onclick=()=>{if(mode!=='segment')return;if(selected===i){state.noticed[i]=false;state.pattern[i]=null;state.markingReason[i]=null;state.features[i]=null;state.intensity[i]=0;selected=null;}else{comparison.markVisual();selected=i;state.noticed[i]=true;state.markingReason[i]||='noticed_only';state.answerStatus='explored';}state.touched.segment=state.noticed.some(Boolean);renderEditor();tutorialTour?.notify('kana');};}
       unit.append(kana);
-      if(editing&&mode==='duration') {const toggle=document.createElement('button');toggle.className='explore-beat-toggle';toggle.textContent=data.beats[i]===2?'→ 1拍':'→ 2拍';toggle.setAttribute('aria-label',`${c.text}を${data.beats[i]===2?'1':'2'}拍にする`);toggle.onclick=()=>{state.beats[i]=state.beats[i]===1?2:1;state.touched.duration=true;renderEditor();tutorialTour?.notify('stretch');};unit.append(toggle);}
+      if(editing&&mode==='duration') {const toggle=document.createElement('button');toggle.className='explore-beat-toggle';toggle.textContent=data.beats[i]===2?'→ 1拍':'→ 2拍';toggle.setAttribute('aria-label',`${c.text}を${data.beats[i]===2?'1':'2'}拍にする`);toggle.onclick=()=>{comparison.markVisual();state.beats[i]=state.beats[i]===1?2:1;state.touched.duration=true;renderEditor();tutorialTour?.notify('stretch');};unit.append(toggle);}
       stage.append(unit);
       if(i<n-1){const gap=document.createElement('div');gap.className=`explore-gap ${data.blanks[i]?'has-blank':''}`;
         if(data.blanks[i]){gap.style.width=`${data.aggregation==='mean'?80:80*Number(data.blanks[i])}px`;const blank=document.createElement('div');blank.className='explore-blank-cell';blank.setAttribute('role','img');blank.setAttribute('aria-label',`追加拍 ${Number(data.blanks[i]).toFixed(2)}拍`);blank.innerHTML='<span aria-hidden="true">ッ</span>';if(data.aggregation==='mean')blank.querySelector('span').style.fontSize=`${14+16*Number(data.blanks[i])}px`;gap.append(blank);}
-        if(editing&&mode==='duration'){const button=document.createElement('button');button.textContent=data.blanks[i]?'−':'＋';button.setAttribute('aria-label',`${c.text}の後の空白拍を${data.blanks[i]?'削除':'追加'}`);button.onclick=()=>{state.blanks[i]=!state.blanks[i];state.touched.duration=true;renderEditor();tutorialTour?.notify('gap');};gap.append(button);}stage.append(gap);}
+        if(editing&&mode==='duration'){const button=document.createElement('button');button.textContent=data.blanks[i]?'−':'＋';button.setAttribute('aria-label',`${c.text}の後の空白拍を${data.blanks[i]?'削除':'追加'}`);button.onclick=()=>{comparison.markVisual();state.blanks[i]=!state.blanks[i];state.touched.duration=true;renderEditor();tutorialTour?.notify('gap');};gap.append(button);}stage.append(gap);}
      });
     // Measure the completed row offscreen in this task, before it can be painted.
     // Rebuilding for a selection must never expose the provisional 90px cells.
@@ -153,20 +168,21 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
     return stage;
   }
   // Keep audio outside the editing area so changing tools never interrupts playback.
-  root.innerHTML=`<section class="explore-card"><p class="eyebrow">REALTIME EXPLORATION / 01</p><h1>これ、訛ってる？</h1><audio controls preload="metadata" src="${level.audio}" aria-label="研究録音"></audio><p class="explore-listen-copy">発音を聞いてみよう</p><p class="explore-headphone-note">※イヤホン推奨します</p><div class="explore-study-mode"><label>データモード <select aria-label="データモード"><option value="test">お試し</option><option value="research">研究参加</option></select></label><small data-mode-hint></small></div><p data-pending-queue></p><button class="text-action" data-retry-all hidden>未送信の回答を再送</button>${level.tutorial?'<aside class="mode2-guide-copy"><p data-mode2-cue role="status"></p><button class="text-action" data-guide-end>操作ガイドを終了</button></aside>':''}<div data-editor></div><p data-status role="status">字形を読み込んでいます…</p></section>`;
+  root.innerHTML=`<section class="explore-card"><p class="eyebrow">REALTIME EXPLORATION / 01</p><h1>これ、訛ってる？</h1>${level.visualExperiment?'<p class="visual-experiment-note">音声なしの字形実験です。正式研究データには含めません。</p>':`<audio controls preload="metadata" src="${level.audio}" aria-label="研究録音"></audio><p class="explore-listen-copy">発音を聞いてみよう</p><p class="explore-headphone-note">※イヤホン推奨します</p>`}<div class="explore-study-mode"><label>データモード <select aria-label="データモード"><option value="test">お試し</option><option value="research">研究参加</option></select></label><small data-mode-hint></small></div><p data-pending-queue></p><button class="text-action" data-retry-all hidden>未送信の回答を再送</button>${level.tutorial?'<aside class="mode2-guide-copy"><p data-mode2-cue role="status"></p><button class="text-action" data-guide-end>操作ガイドを終了</button></aside>':''}<div data-editor></div><p data-status role="status">字形を読み込んでいます…</p></section>`;
   const editor=root.querySelector('[data-editor]'), status=root.querySelector('[data-status]');
-  const modeSelect=root.querySelector('.explore-study-mode select');modeSelect.value=studyMode;if(level.tutorial)modeSelect.disabled=true;
+  const modeSelect=root.querySelector('.explore-study-mode select');modeSelect.value=studyMode;if(level.tutorial||level.visualExperiment)modeSelect.disabled=true;
   const modeHint=root.querySelector('[data-mode-hint]');modeHint.textContent=studyMode==='research'?'研究参加の回答として記録します。お試しとは分けて集計します。':'お試しデータのみ。研究集計には含めません。';
+  if(level.visualExperiment)modeHint.textContent='表示実験 · このブラウザーだけに保存します。';
   collectionConfig().then(c=>{if(alive()&&(c.localProject||level.tutorial))modeHint.textContent=level.tutorial?'チュートリアルの練習回答です。この端末だけに保存し、正式研究には含めません。':'編集中のプロジェクトです。回答は端末に保存し、クラウドには送信しません。';}).catch(()=>{});
-  modeSelect.onchange=()=>mountExploration(root,{level,profileId,studyMode:modeSelect.value,nextLevel,onNext,onLevelList});
-  const pendingCount=readOutbox().length,pending=root.querySelector('[data-pending-queue]'),retryAll=root.querySelector('[data-retry-all]');
+  modeSelect.onchange=async()=>{const intended=modeSelect.value;if(intended==='research'&&!await ensureParticipation('research')){modeSelect.value=studyMode;return;}localStorage.setItem('kotoba-last-study-mode',intended);mountExploration(root,{level,profileId,studyMode:intended,nextLevel,onNext,onLevelList});};
+  const pendingCount=level.visualExperiment?0:readOutbox().length,pending=root.querySelector('[data-pending-queue]'),retryAll=root.querySelector('[data-retry-all]');
   pending.textContent=pendingCount?`${pendingCount}件の回答が端末で送信待ちです。`:'';retryAll.hidden=!pendingCount;
   retryAll.onclick=async()=>{retryAll.disabled=true;pending.textContent='送信を確認しています…';try{const n=await retryAllPending();pending.textContent=`${n}件の保存を確認しました。`;retryAll.hidden=!readOutbox().length;}catch(e){pending.textContent=e.message;}finally{retryAll.disabled=false;}};
-  const audio=root.querySelector('audio');
-  audio.addEventListener('play',()=>{audioMetrics.audioPlayed=true;audioMetrics.audioPlayCount++;lastAudioTime=audio.currentTime;tutorialTour?.playing();});
+  const audio=root.querySelector('audio');if(audio){mountReferenceAudio(audio,level.referenceAudio,()=>comparison.referencePlayed());
+  audio.addEventListener('play',()=>{audioMetrics.audioPlayed=true;audioMetrics.audioPlayCount++;comparison.learnerPlayed();lastAudioTime=audio.currentTime;tutorialTour?.playing();});
   audio.addEventListener('timeupdate',accountAudio);audio.addEventListener('pause',()=>{accountAudio();lastAudioTime=null;});
   audio.addEventListener('ended',()=>{accountAudio();audioMetrics.audioCompleted=true;lastAudioTime=null;tutorialTour?.notify('listened');});
-  audio.addEventListener('seeking',()=>{lastAudioTime=null;});audio.addEventListener('seeked',()=>{lastAudioTime=audio.currentTime;});
+  audio.addEventListener('seeking',()=>{lastAudioTime=null;});audio.addEventListener('seeked',()=>{lastAudioTime=audio.currentTime;});}
 
   if(level.tutorial){tutorialTour=createModeTwoGuide(root,{level,state,getMode:()=>mode,getSelected:()=>selected});tutorialTour.refresh();}
   function hasChanges(){
@@ -188,18 +204,18 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
     panel.innerHTML=`<section class="explore-features"><h2>「${c.text}」の聴こえ方</h2><p>${variants.length?'カードを選ぶと、字形の変化をプレビューします。':'この文字のパターンは未登録です。マークだけで記録できます。'}</p><p class="explore-cancel-hint">同じ文字をもう一度押すと、選択と回答を取り消せます。</p><div class="explore-feature-list"></div></section>`;
     const list=panel.querySelector('.explore-feature-list');
     [...variants,{id:'unclear',title:'違いは感じるけれど、うまく言えない',description:'マークだけを残し、字形は変えません。'}].forEach(v=>{
-      const b=document.createElement('button');b.className='explore-feature';b.setAttribute('aria-pressed',String(state.pattern[i]===v.id||(v.id==='unclear'&&state.markingReason[i]==='unclear')));const title=document.createElement('b'),desc=document.createElement('small');title.textContent=v.title;desc.textContent=v.description;b.append(title,desc);b.onclick=()=>{state.noticed[i]=true;state.pattern[i]=v.id==='unclear'?null:v.id;state.features[i]=state.pattern[i];state.markingReason[i]=v.id==='unclear'?'unclear':'pattern';state.intensity[i]=state.pattern[i]?1:0;state.touched.segment=true;state.answerStatus='explored';const svg=editor.querySelector(`[data-kana="${i}"] svg`);paint(svg,i,v.id,state.intensity[i],true);updateSubmitLabel();renderCards();tutorialTour?.notify('pattern');};list.append(b);
+      const b=document.createElement('button');b.className='explore-feature';b.setAttribute('aria-pressed',String(state.pattern[i]===v.id||(v.id==='unclear'&&state.markingReason[i]==='unclear')));const title=document.createElement('b'),desc=document.createElement('small');title.textContent=v.title;desc.textContent=v.description;b.append(title,desc);b.onclick=()=>{comparison.markVisual();state.noticed[i]=true;state.pattern[i]=v.id==='unclear'?null:v.id;state.features[i]=state.pattern[i];state.markingReason[i]=v.id==='unclear'?'unclear':'pattern';state.intensity[i]=state.pattern[i]?1:0;state.touched.segment=true;state.answerStatus='explored';const svg=editor.querySelector(`[data-kana="${i}"] svg`);paint(svg,i,v.id,state.intensity[i],true);updateSubmitLabel();renderCards();tutorialTour?.notify('pattern');};list.append(b);
     });
 
   }
   async function submit(skipped){
     if(busy||!ready)return;tutorialTour?.dispose();state.answerStatus=hasChanges()?'explored':'no_difference';accountAudio();busy=true;status.textContent='回答を保存・送信しています…';editor.querySelectorAll('button,input').forEach(b=>b.disabled=true);
-    try{const record={id:crypto.randomUUID(),schemaVersion:3,gameMode:'mode2',completed:!skipped,accuracy:null,errorCount:null,levelId:level.id,profileId,participantId:anonymousId,studyMode,startedAt,responseDurationMs:Math.round(performance.now()-started),...audioMetrics,createdAt:new Date().toISOString(),skipped,...structuredClone(state)};const saved=await saveExploration(record,level);if(alive())renderResult(saved);}catch{busy=false;status.textContent='保存できませんでした。もう一度お試しください。';renderEditor();}
+    try{const record={visualExperiment:!!level.visualExperiment,...studyMetadata(studyMode,'mode2','exploration'),...comparison.snapshot(audioMetrics.audioPlayCount),id:crypto.randomUUID(),schemaVersion:3,gameMode:'mode2',completed:!skipped,accuracy:null,errorCount:null,levelId:level.id,profileId,participantId:anonymousId,studyMode,startedAt,responseDurationMs:Math.round(performance.now()-started),...audioMetrics,createdAt:new Date().toISOString(),skipped,...structuredClone(state)};const saved=await saveExploration(record,level);if(alive())renderResult(saved);}catch{busy=false;status.textContent='保存できませんでした。もう一度お試しください。';renderEditor();}
   }
   async function renderResult(record){
     clearStageObservers();resultGuide?.dispose();
-    root.innerHTML=`<section class="explore-results"><p class="eyebrow">YOUR PREVIEW</p><h1>あなたの聞こえ方</h1><p role="status">${record.skipped?'スキップを保存しました。下書きのプレビューです。':'このブラウザーに保存しました。再回答しても正式集計の人数は増えません。'}</p><p data-cloud-status role="status"></p><button class="outline-button" data-cloud-retry hidden>保存を確認・再送</button><section data-personal-region><h2>あなたの答え</h2><p data-personal-tour hidden>この図形は、あなたがつくった聞こえ方です。</p><div class="explore-scroll" data-personal></div></section><section class="explore-group"><h2>みんなの答えと見比べる</h2><p data-group-tour hidden>ここでは参加者の回答の平均を表示します。正解ではありません。表示例の場合は、あなたの回答を使っています。</p><p class="explore-simulation">${studyMode==='research'?'正式テスト':'お試し'} · このブラウザーの他の参加者のローカル集計（クラウド未接続）</p><div class="explore-scroll" data-group></div><p data-group-note>読み込み中…</p></section><div class="explore-actions"><button class="judge-button" data-next>${nextLevel?`次のことばへ：${nextLevel.word} →`:'ことばの一覧へ戻る'}</button><button class="outline-button" data-again>もう一度つくる</button></div></section>`;
-    const next=root.querySelector('[data-next]');next.hidden=!(nextLevel&&onNext)&&!onLevelList;next.onclick=()=>{if(nextLevel&&onNext)onNext(studyMode);else onLevelList?.();};
+    root.innerHTML=`<section class="explore-results"><p class="eyebrow">YOUR PREVIEW</p><h1>あなたの聞こえ方</h1><p role="status">${level.visualExperiment?'表示実験の回答をこのブラウザーに保存しました。正式研究データには含めません。':record.skipped?'スキップを保存しました。下書きのプレビューです。':'このブラウザーに保存しました。再回答しても正式集計の人数は増えません。'}</p><p data-cloud-status role="status"></p><button class="outline-button" data-cloud-retry hidden>保存を確認・再送</button><section data-personal-region><h2>あなたの答え</h2><p data-personal-tour hidden>この図形は、あなたがつくった聞こえ方です。</p><div class="explore-scroll" data-personal></div></section><section class="explore-group"><h2>みんなの答えと見比べる</h2><p data-group-tour hidden>ここでは参加者の回答の平均を表示します。正解ではありません。表示例の場合は、あなたの回答を使っています。</p><p class="explore-simulation">${studyMode==='research'?'正式テスト':'お試し'} · このブラウザーの他の参加者のローカル集計（クラウド未接続）</p><div class="explore-scroll" data-group></div><p data-group-note>読み込み中…</p></section><div class="explore-actions"><button class="judge-button" data-next>${nextLevel?`次のことばへ：${nextLevel.word} →`:'ことばの一覧へ戻る'}</button><button class="outline-button" data-again>もう一度つくる</button></div></section>`;
+    const next=root.querySelector('[data-next]');next.hidden=!(nextLevel&&onNext)&&!onLevelList;next.onclick=async()=>{if(nextLevel&&onNext)onNext(studyMode);else{if(!level.tutorial&&!level.visualExperiment)await chapterRating({gameMode:'mode2',chapter:'exploration',studyMode});onLevelList?.();}};
     const cloudStatus=root.querySelector('[data-cloud-status]'),retry=root.querySelector('[data-cloud-retry]');
     cloudStatus.textContent=record.sync?.status==='synced'?'Google Sheetsへの保存を確認しました。':record.sync?.status==='pending'?`端末には保存済み・Google Sheetsへの保存未確認。${record.sync.error}`:'ローカル保存モード';
     retry.hidden=record.sync?.status!=='pending';retry.onclick=async()=>{retry.disabled=true;cloudStatus.textContent='保存を確認・再送しています…';try{record.sync=await retryPending(record,level);if(alive())renderResult(record);}catch(e){cloudStatus.textContent=e.message;retry.disabled=false;}};
@@ -208,7 +224,12 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
     root.querySelector('[data-personal]').append(makeStage(record));root.querySelector('[data-again]').onclick=()=>mountExploration(root,{level,profileId,studyMode,nextLevel,onNext,onLevelList});window.scrollTo({top:0,behavior:'smooth'});
     const groupArea=root.querySelector('[data-group]'),groupNote=root.querySelector('[data-group-note]'),simulation=root.querySelector('.explore-simulation');
     let refreshResultGuide=null;
-    function displayGroup(group){groupArea.replaceChildren(makeStage(group));groupNote.textContent=group.example?'自分の回答を使った表示例です。ほかの参加者の統計としては数えません。':group.count+'人の平均（自分を含む）。同じデータモード・録音・問題バージョンの回答だけを集計します。';simulation.textContent=group.example?'表示例 · あなたの回答':level.tutorial?'練習データ · このブラウザーの平均':group.source==='google-sheets'?(studyMode==='research'?'正式研究':'お試し')+' · Google Sheets集計':(studyMode==='research'?'正式研究':'お試し')+' · このブラウザーの平均';refreshResultGuide?.();}
+    function displayGroup(group){groupArea.replaceChildren(makeStage(group));
+      level.characters.forEach((c,i)=>{if(!glyphs[i].variants.some(isSymbolSwitch))return;
+        const panel=document.createElement('section');panel.className='symbol-distribution';const heading=document.createElement('h3');heading.textContent='「'+c.text+'」変化の方向と選択率';panel.append(heading);
+        const note=document.createElement('p');note.textContent='上の文字に記号の割合は重ねません。変化の方向ごとに比率を示します。';panel.append(note);
+        for(const choice of symbolDistribution(c.text,glyphs[i].variants,group.featureRates[i])){const row=document.createElement('div');row.className='symbol-distribution-row';const preview=svgFor(i);paintWholeGlyph(preview,choice.variant?.custom||glyphs[i].normal);preview.setAttribute('viewBox',(choice.variant?.custom||glyphs[i].normal).viewBox);preview.setAttribute('aria-label',choice.label+'の字形');const label=document.createElement('span');label.textContent=choice.label;const percent=document.createElement('b');percent.textContent=(choice.rate*100).toFixed(1)+'%';row.append(preview,label,percent);panel.append(row);}groupArea.append(panel);
+      });groupNote.textContent=group.example?'自分の回答を使った表示例です。ほかの参加者の統計としては数えません。':level.visualExperiment?'このブラウザーの'+group.count+'人分の表示実験です。正式研究データではありません。':group.count+'人の平均（自分を含む）。同じデータモード・録音・問題バージョンの回答だけを集計します。';simulation.textContent=group.example?'表示例 · あなたの回答':level.tutorial?'練習データ · このブラウザーの平均':level.visualExperiment?'表示実験 · このブラウザーだけの集計':group.source==='google-sheets'?(studyMode==='research'?'正式研究':'お試し')+' · Google Sheets集計':(studyMode==='research'?'正式研究':'お試し')+' · このブラウザーの平均';refreshResultGuide?.();}
     displayGroup(answerPreviewAggregate(record,level));
     if(level.tutorial){
       resultGuide=createTutorialGuide();const personal=root.querySelector('[data-personal-region]'),group=root.querySelector('.explore-group'),personalNote=root.querySelector('[data-personal-tour]'),groupTour=root.querySelector('[data-group-tour]');
@@ -242,5 +263,5 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
     catch{if(alive())groupNote.textContent+=' クラウドの比較データは現在読み込めません。';}
 
   }
-  Promise.all(level.characters.map(async c=>{const normal=c.normal?await loadGlyph(c.normal):{text:c.text,viewBox:'0 0 170.08 170.08',shapes:[]};const variants=await Promise.all(featuresFor(c).map(async v=>{const custom=await loadGlyph(v.svg);return {...v,morph:createMorph(normal.shapes.map(s=>s.d),custom.shapes.map(s=>s.d))};}));return {normal,variants};})).then(data=>{if(!alive())return;glyphs=data;ready=true;status.textContent='どの操作も任意です。何も選ばず送信・スキップもできます。';renderEditor();}).catch(e=>{if(alive())status.textContent=`字形を読み込めませんでした：${e.message}`;});
+  Promise.all(level.characters.map(async c=>{const normal=c.normal?await loadGlyph(c.normal):{text:c.text,viewBox:'0 0 170.08 170.08',shapes:[]};const variants=await Promise.all(featuresFor(c).map(async v=>{const custom=await loadGlyph(v.svg);if(isSymbolSwitch(v))return {...v,custom};return {...v,morph:createMorph(normal.shapes.map(s=>s.d),custom.shapes.map(s=>s.d))};}));return {normal,variants};})).then(data=>{if(!alive())return;glyphs=data;ready=true;status.textContent='どの操作も任意です。何も選ばず送信・スキップもできます。';renderEditor();}).catch(e=>{if(alive())status.textContent=`字形を読み込めませんでした：${e.message}`;});
 }

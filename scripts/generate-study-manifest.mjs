@@ -10,7 +10,7 @@ const definitions=[...levels,...library.levels,...(mode2Tutorial?[mode2Tutorial]
 const manifests=await Promise.all(definitions.map(async l=>{
  const chars=l.characters?l.characters.map(c=>c.text):l.morae;
  const descriptor={levelId:l.id,recordingId:l.recordingId||`${l.id}-recording-v1`,defaultAccent:l.defaultAccent,characters:chars.map(k=>({text:k,patterns:(libraryGlyph(library,k)?.patterns||[]).map(p=>p.id)})),qualityCheck:l.qualityCheck||null};
- const assets=[l.audio,...chars.flatMap(k=>{const g=libraryGlyph(library,k);return g?[g.normal,...g.patterns.map(p=>p.svg)]:[];})].filter(Boolean);
+ const assets=[l.audio,l.referenceAudio,...chars.flatMap(k=>{const g=libraryGlyph(library,k);return g?[g.normal,...g.patterns.map(p=>p.svg)]:[];})].filter(Boolean);
  const assetHashes=await Promise.all(assets.map(async p=>createHash('sha256').update(await fs.readFile('public/'+p.replace(/^\/NAMARI-app\//,''))).digest('hex')));
  descriptor.levelVersion=createHash('sha256').update(JSON.stringify(descriptor)+JSON.stringify(chars.map(k=>libraryGlyph(library,k)||null))+JSON.stringify(assetHashes)).digest('hex').slice(0,16);return descriptor;
 }));

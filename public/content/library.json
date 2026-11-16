@@ -1,5 +1,5 @@
 {
-  "revision": 22,
+  "revision": 25,
   "groups": [
     {
       "id": "existing-ku",
@@ -21,6 +21,13 @@
       "folderName": "pattern-souki",
       "description": "子音に送気音が強くなりがちの発音",
       "color": "#94e6c6"
+    },
+    {
+      "id": "pattern-seidaku",
+      "title": "清濁の混同",
+      "folderName": "pattern-seidaku",
+      "description": "清音・濁音・半濁音の間で、別のかなのように聞こえる変化。",
+      "color": "#fe9ab8"
     }
   ],
   "glyphs": [
@@ -66,6 +73,15 @@
           "title": "送気の強い「か」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/ka-NM2.svg"
+        },
+        {
+          "id": "seidaku-ka-to-ga",
+          "groupId": "pattern-seidaku",
+          "title": "「か」が「が」に聞こえる",
+          "description": "「が」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ka-to-ga.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "が"
         }
       ],
       "normal": "assets/normal/ka.svg"
@@ -79,6 +95,15 @@
           "title": "送気の強い「き」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/ki-NM2.svg"
+        },
+        {
+          "id": "seidaku-ki-to-gi",
+          "groupId": "pattern-seidaku",
+          "title": "「き」が「ぎ」に聞こえる",
+          "description": "「ぎ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ki-to-gi.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぎ"
         }
       ],
       "normal": "assets/normal/ki.svg"
@@ -100,6 +125,15 @@
           "title": "送気の強い「く」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/ku-NM2.svg"
+        },
+        {
+          "id": "seidaku-ku-to-gu",
+          "groupId": "pattern-seidaku",
+          "title": "「く」が「ぐ」に聞こえる",
+          "description": "「ぐ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ku-to-gu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぐ"
         }
       ]
     },
@@ -112,6 +146,15 @@
           "title": "送気の強い「け」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/ke-NM2.svg"
+        },
+        {
+          "id": "seidaku-ke-to-ge",
+          "groupId": "pattern-seidaku",
+          "title": "「け」が「げ」に聞こえる",
+          "description": "「げ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ke-to-ge.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "げ"
         }
       ],
       "normal": "assets/normal/ke.svg"
@@ -125,6 +168,15 @@
           "title": "送気の強い「こ」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/ko-NM2.svg"
+        },
+        {
+          "id": "seidaku-ko-to-go",
+          "groupId": "pattern-seidaku",
+          "title": "「こ」が「ご」に聞こえる",
+          "description": "「ご」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ko-to-go.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ご"
         }
       ],
       "normal": "assets/normal/ko.svg"
@@ -138,6 +190,15 @@
           "title": "送気の強い「さ」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/sa-NM2.svg"
+        },
+        {
+          "id": "seidaku-sa-to-za",
+          "groupId": "pattern-seidaku",
+          "title": "「さ」が「ざ」に聞こえる",
+          "description": "「ざ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/sa-to-za.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ざ"
         }
       ],
       "normal": "assets/normal/sa.svg"
@@ -151,6 +212,15 @@
           "title": "送気の強い「し」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/shi-NM2.svg"
+        },
+        {
+          "id": "seidaku-shi-to-ji",
+          "groupId": "pattern-seidaku",
+          "title": "「し」が「じ」に聞こえる",
+          "description": "「じ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/shi-to-ji.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "じ"
         }
       ],
       "normal": "assets/normal/shi.svg"
@@ -172,6 +242,15 @@
           "title": "送気の強い「す」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/su-NM2.svg"
+        },
+        {
+          "id": "seidaku-su-to-zu",
+          "groupId": "pattern-seidaku",
+          "title": "「す」が「ず」に聞こえる",
+          "description": "「ず」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/su-to-zu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ず"
         }
       ]
     },
@@ -184,6 +263,15 @@
           "title": "送気の強い「せ」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/se-NM2.svg"
+        },
+        {
+          "id": "seidaku-se-to-ze",
+          "groupId": "pattern-seidaku",
+          "title": "「せ」が「ぜ」に聞こえる",
+          "description": "「ぜ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/se-to-ze.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぜ"
         }
       ],
       "normal": "assets/normal/se.svg"
@@ -197,6 +285,15 @@
           "title": "送気の強い「そ」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/so-NM2.svg"
+        },
+        {
+          "id": "seidaku-so-to-zo",
+          "groupId": "pattern-seidaku",
+          "title": "「そ」が「ぞ」に聞こえる",
+          "description": "「ぞ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/so-to-zo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぞ"
         }
       ],
       "normal": "assets/normal/so.svg"
@@ -210,6 +307,15 @@
           "title": "送気の強い「た」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/ta-NM2.svg"
+        },
+        {
+          "id": "seidaku-ta-to-da",
+          "groupId": "pattern-seidaku",
+          "title": "「た」が「だ」に聞こえる",
+          "description": "「だ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ta-to-da.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "だ"
         }
       ],
       "normal": "assets/normal/ta.svg"
@@ -223,6 +329,15 @@
           "title": "送気の強い「ち」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/chi-NM2.svg"
+        },
+        {
+          "id": "seidaku-chi-to-di",
+          "groupId": "pattern-seidaku",
+          "title": "「ち」が「ぢ」に聞こえる",
+          "description": "「ぢ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/chi-to-di.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぢ"
         }
       ],
       "normal": "assets/normal/chi.svg"
@@ -243,6 +358,15 @@
           "title": "送気の強い「つ」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/tsu-NM2.svg"
+        },
+        {
+          "id": "seidaku-tsu-to-du",
+          "groupId": "pattern-seidaku",
+          "title": "「つ」が「づ」に聞こえる",
+          "description": "「づ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/tsu-to-du.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "づ"
         }
       ],
       "normal": "assets/normal/tsu.svg"
@@ -256,6 +380,15 @@
           "title": "送気の強い「て」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/te-NM2.svg"
+        },
+        {
+          "id": "seidaku-te-to-de",
+          "groupId": "pattern-seidaku",
+          "title": "「て」が「で」に聞こえる",
+          "description": "「で」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/te-to-de.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "で"
         }
       ],
       "normal": "assets/normal/te.svg"
@@ -269,6 +402,15 @@
           "title": "送気の強い「と」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/to-NM2.svg"
+        },
+        {
+          "id": "seidaku-to-to-do",
+          "groupId": "pattern-seidaku",
+          "title": "「と」が「ど」に聞こえる",
+          "description": "「ど」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/to-to-do.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ど"
         }
       ],
       "normal": "assets/normal/to.svg"
@@ -315,6 +457,24 @@
           "title": "送気の強い「は」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/ha-NM2.svg"
+        },
+        {
+          "id": "seidaku-ha-to-ba",
+          "groupId": "pattern-seidaku",
+          "title": "「は」が「ば」に聞こえる",
+          "description": "「ば」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ha-to-ba.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ば"
+        },
+        {
+          "id": "seidaku-ha-to-pa",
+          "groupId": "pattern-seidaku",
+          "title": "「は」が「ぱ」に聞こえる",
+          "description": "「ぱ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ha-to-pa.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぱ"
         }
       ],
       "normal": "assets/normal/ha.svg"
@@ -328,6 +488,24 @@
           "title": "送気の強い「ひ」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/hi-NM2.svg"
+        },
+        {
+          "id": "seidaku-hi-to-bi",
+          "groupId": "pattern-seidaku",
+          "title": "「ひ」が「び」に聞こえる",
+          "description": "「び」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/hi-to-bi.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "び"
+        },
+        {
+          "id": "seidaku-hi-to-pi",
+          "groupId": "pattern-seidaku",
+          "title": "「ひ」が「ぴ」に聞こえる",
+          "description": "「ぴ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/hi-to-pi.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぴ"
         }
       ],
       "normal": "assets/normal/hi.svg"
@@ -348,6 +526,24 @@
           "title": "送気の強い「ふ」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/fu-NM2.svg"
+        },
+        {
+          "id": "seidaku-hu-to-bu",
+          "groupId": "pattern-seidaku",
+          "title": "「ふ」が「ぶ」に聞こえる",
+          "description": "「ぶ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/hu-to-bu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぶ"
+        },
+        {
+          "id": "seidaku-hu-to-pu",
+          "groupId": "pattern-seidaku",
+          "title": "「ふ」が「ぷ」に聞こえる",
+          "description": "「ぷ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/hu-to-pu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぷ"
         }
       ],
       "normal": "assets/normal/hu.svg"
@@ -361,6 +557,24 @@
           "title": "送気の強い「へ」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/he-NM2.svg"
+        },
+        {
+          "id": "seidaku-he-to-be",
+          "groupId": "pattern-seidaku",
+          "title": "「へ」が「べ」に聞こえる",
+          "description": "「べ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/he-to-be.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "べ"
+        },
+        {
+          "id": "seidaku-he-to-pe",
+          "groupId": "pattern-seidaku",
+          "title": "「へ」が「ぺ」に聞こえる",
+          "description": "「ぺ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/he-to-pe.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぺ"
         }
       ],
       "normal": "assets/normal/he.svg"
@@ -374,6 +588,24 @@
           "title": "送気の強い「ほ」",
           "description": "子音に送気音が強くなりがちの発音",
           "svg": "assets/namari/pattern-souki/ho-NM2.svg"
+        },
+        {
+          "id": "seidaku-ho-to-bo",
+          "groupId": "pattern-seidaku",
+          "title": "「ほ」が「ぼ」に聞こえる",
+          "description": "「ぼ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ho-to-bo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぼ"
+        },
+        {
+          "id": "seidaku-ho-to-po",
+          "groupId": "pattern-seidaku",
+          "title": "「ほ」が「ぽ」に聞こえる",
+          "description": "「ぽ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ho-to-po.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぽ"
         }
       ],
       "normal": "assets/normal/ho.svg"
@@ -481,6 +713,1002 @@
       "kana": "ん",
       "patterns": [],
       "normal": "assets/normal/n.svg"
+    },
+    {
+      "kana": "が",
+      "patterns": [
+        {
+          "id": "seidaku-ga-to-ka",
+          "groupId": "pattern-seidaku",
+          "title": "「が」が「か」に聞こえる",
+          "description": "「か」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ga-to-ka.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "か"
+        }
+      ],
+      "normal": "assets/normal/ga.svg"
+    },
+    {
+      "kana": "ぎ",
+      "patterns": [
+        {
+          "id": "seidaku-gi-to-ki",
+          "groupId": "pattern-seidaku",
+          "title": "「ぎ」が「き」に聞こえる",
+          "description": "「き」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/gi-to-ki.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "き"
+        }
+      ],
+      "normal": "assets/normal/gi.svg"
+    },
+    {
+      "kana": "ぐ",
+      "patterns": [
+        {
+          "id": "seidaku-gu-to-ku",
+          "groupId": "pattern-seidaku",
+          "title": "「ぐ」が「く」に聞こえる",
+          "description": "「く」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/gu-to-ku.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "く"
+        }
+      ],
+      "normal": "assets/normal/gu.svg"
+    },
+    {
+      "kana": "げ",
+      "patterns": [
+        {
+          "id": "seidaku-ge-to-ke",
+          "groupId": "pattern-seidaku",
+          "title": "「げ」が「け」に聞こえる",
+          "description": "「け」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ge-to-ke.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "け"
+        }
+      ],
+      "normal": "assets/normal/ge.svg"
+    },
+    {
+      "kana": "ご",
+      "patterns": [
+        {
+          "id": "seidaku-go-to-ko",
+          "groupId": "pattern-seidaku",
+          "title": "「ご」が「こ」に聞こえる",
+          "description": "「こ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/go-to-ko.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "こ"
+        }
+      ],
+      "normal": "assets/normal/go.svg"
+    },
+    {
+      "kana": "ざ",
+      "patterns": [
+        {
+          "id": "seidaku-za-to-sa",
+          "groupId": "pattern-seidaku",
+          "title": "「ざ」が「さ」に聞こえる",
+          "description": "「さ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/za-to-sa.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "さ"
+        }
+      ],
+      "normal": "assets/normal/za.svg"
+    },
+    {
+      "kana": "じ",
+      "patterns": [
+        {
+          "id": "seidaku-ji-to-shi",
+          "groupId": "pattern-seidaku",
+          "title": "「じ」が「し」に聞こえる",
+          "description": "「し」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ji-to-shi.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "し"
+        }
+      ],
+      "normal": "assets/normal/ji.svg"
+    },
+    {
+      "kana": "ず",
+      "patterns": [
+        {
+          "id": "seidaku-zu-to-su",
+          "groupId": "pattern-seidaku",
+          "title": "「ず」が「す」に聞こえる",
+          "description": "「す」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/zu-to-su.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "す"
+        }
+      ],
+      "normal": "assets/normal/zu.svg"
+    },
+    {
+      "kana": "ぜ",
+      "patterns": [
+        {
+          "id": "seidaku-ze-to-se",
+          "groupId": "pattern-seidaku",
+          "title": "「ぜ」が「せ」に聞こえる",
+          "description": "「せ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ze-to-se.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "せ"
+        }
+      ],
+      "normal": "assets/normal/ze.svg"
+    },
+    {
+      "kana": "ぞ",
+      "patterns": [
+        {
+          "id": "seidaku-zo-to-so",
+          "groupId": "pattern-seidaku",
+          "title": "「ぞ」が「そ」に聞こえる",
+          "description": "「そ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/zo-to-so.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "そ"
+        }
+      ],
+      "normal": "assets/normal/zo.svg"
+    },
+    {
+      "kana": "だ",
+      "patterns": [
+        {
+          "id": "seidaku-da-to-ta",
+          "groupId": "pattern-seidaku",
+          "title": "「だ」が「た」に聞こえる",
+          "description": "「た」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/da-to-ta.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "た"
+        }
+      ],
+      "normal": "assets/normal/da.svg"
+    },
+    {
+      "kana": "ぢ",
+      "patterns": [
+        {
+          "id": "seidaku-di-to-chi",
+          "groupId": "pattern-seidaku",
+          "title": "「ぢ」が「ち」に聞こえる",
+          "description": "「ち」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/di-to-chi.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ち"
+        }
+      ],
+      "normal": "assets/normal/di.svg"
+    },
+    {
+      "kana": "づ",
+      "patterns": [
+        {
+          "id": "seidaku-du-to-tsu",
+          "groupId": "pattern-seidaku",
+          "title": "「づ」が「つ」に聞こえる",
+          "description": "「つ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/du-to-tsu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "つ"
+        }
+      ],
+      "normal": "assets/normal/du.svg"
+    },
+    {
+      "kana": "で",
+      "patterns": [
+        {
+          "id": "seidaku-de-to-te",
+          "groupId": "pattern-seidaku",
+          "title": "「で」が「て」に聞こえる",
+          "description": "「て」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/de-to-te.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "て"
+        }
+      ],
+      "normal": "assets/normal/de.svg"
+    },
+    {
+      "kana": "ど",
+      "patterns": [
+        {
+          "id": "seidaku-do-to-to",
+          "groupId": "pattern-seidaku",
+          "title": "「ど」が「と」に聞こえる",
+          "description": "「と」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/do-to-to.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "と"
+        }
+      ],
+      "normal": "assets/normal/do.svg"
+    },
+    {
+      "kana": "ば",
+      "patterns": [
+        {
+          "id": "seidaku-ba-to-ha",
+          "groupId": "pattern-seidaku",
+          "title": "「ば」が「は」に聞こえる",
+          "description": "「は」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ba-to-ha.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "は"
+        },
+        {
+          "id": "seidaku-ba-to-pa",
+          "groupId": "pattern-seidaku",
+          "title": "「ば」が「ぱ」に聞こえる",
+          "description": "「ぱ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/ba-to-pa.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぱ"
+        }
+      ],
+      "normal": "assets/normal/ba.svg"
+    },
+    {
+      "kana": "び",
+      "patterns": [
+        {
+          "id": "seidaku-bi-to-hi",
+          "groupId": "pattern-seidaku",
+          "title": "「び」が「ひ」に聞こえる",
+          "description": "「ひ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/bi-to-hi.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ひ"
+        },
+        {
+          "id": "seidaku-bi-to-pi",
+          "groupId": "pattern-seidaku",
+          "title": "「び」が「ぴ」に聞こえる",
+          "description": "「ぴ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/bi-to-pi.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぴ"
+        }
+      ],
+      "normal": "assets/normal/bi.svg"
+    },
+    {
+      "kana": "ぶ",
+      "patterns": [
+        {
+          "id": "seidaku-bu-to-hu",
+          "groupId": "pattern-seidaku",
+          "title": "「ぶ」が「ふ」に聞こえる",
+          "description": "「ふ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/bu-to-hu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ふ"
+        },
+        {
+          "id": "seidaku-bu-to-pu",
+          "groupId": "pattern-seidaku",
+          "title": "「ぶ」が「ぷ」に聞こえる",
+          "description": "「ぷ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/bu-to-pu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぷ"
+        }
+      ],
+      "normal": "assets/normal/bu.svg"
+    },
+    {
+      "kana": "べ",
+      "patterns": [
+        {
+          "id": "seidaku-be-to-pe",
+          "groupId": "pattern-seidaku",
+          "title": "「べ」が「ぺ」に聞こえる",
+          "description": "半濁点のある「ぺ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/be-to-pe.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぺ"
+        },
+        {
+          "id": "seidaku-be-to-he",
+          "groupId": "pattern-seidaku",
+          "title": "「べ」が「へ」に聞こえる",
+          "description": "「へ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/be-to-he.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "へ"
+        }
+      ],
+      "normal": "assets/normal/be.svg"
+    },
+    {
+      "kana": "ぼ",
+      "patterns": [
+        {
+          "id": "seidaku-bo-to-ho",
+          "groupId": "pattern-seidaku",
+          "title": "「ぼ」が「ほ」に聞こえる",
+          "description": "「ほ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/bo-to-ho.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ほ"
+        },
+        {
+          "id": "seidaku-bo-to-po",
+          "groupId": "pattern-seidaku",
+          "title": "「ぼ」が「ぽ」に聞こえる",
+          "description": "「ぽ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/bo-to-po.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぽ"
+        }
+      ],
+      "normal": "assets/normal/ba_1.svg"
+    },
+    {
+      "kana": "ぱ",
+      "patterns": [
+        {
+          "id": "seidaku-pa-to-ha",
+          "groupId": "pattern-seidaku",
+          "title": "「ぱ」が「は」に聞こえる",
+          "description": "「は」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pa-to-ha.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "は"
+        },
+        {
+          "id": "seidaku-pa-to-ba",
+          "groupId": "pattern-seidaku",
+          "title": "「ぱ」が「ば」に聞こえる",
+          "description": "「ば」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pa-to-ba.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ば"
+        }
+      ],
+      "normal": "assets/normal/pa.svg"
+    },
+    {
+      "kana": "ぴ",
+      "patterns": [
+        {
+          "id": "seidaku-pi-to-hi",
+          "groupId": "pattern-seidaku",
+          "title": "「ぴ」が「ひ」に聞こえる",
+          "description": "「ひ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pi-to-hi.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ひ"
+        },
+        {
+          "id": "seidaku-pi-to-bi",
+          "groupId": "pattern-seidaku",
+          "title": "「ぴ」が「び」に聞こえる",
+          "description": "「び」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pi-to-bi.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "び"
+        }
+      ],
+      "normal": "assets/normal/pi.svg"
+    },
+    {
+      "kana": "ぷ",
+      "patterns": [
+        {
+          "id": "seidaku-pu-to-hu",
+          "groupId": "pattern-seidaku",
+          "title": "「ぷ」が「ふ」に聞こえる",
+          "description": "「ふ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pu-to-hu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ふ"
+        },
+        {
+          "id": "seidaku-pu-to-bu",
+          "groupId": "pattern-seidaku",
+          "title": "「ぷ」が「ぶ」に聞こえる",
+          "description": "「ぶ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pu-to-bu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぶ"
+        }
+      ],
+      "normal": "assets/normal/pu.svg"
+    },
+    {
+      "kana": "ぺ",
+      "patterns": [
+        {
+          "id": "seidaku-pe-to-he",
+          "groupId": "pattern-seidaku",
+          "title": "「ぺ」が「へ」に聞こえる",
+          "description": "「へ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pe-to-he.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "へ"
+        },
+        {
+          "id": "seidaku-pe-to-be",
+          "groupId": "pattern-seidaku",
+          "title": "「ぺ」が「べ」に聞こえる",
+          "description": "「べ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pe-to-be.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "べ"
+        }
+      ],
+      "normal": "assets/normal/pe.svg"
+    },
+    {
+      "kana": "ぽ",
+      "patterns": [
+        {
+          "id": "seidaku-po-to-ho",
+          "groupId": "pattern-seidaku",
+          "title": "「ぽ」が「ほ」に聞こえる",
+          "description": "「ほ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/po-to-ho.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ほ"
+        },
+        {
+          "id": "seidaku-po-to-bo",
+          "groupId": "pattern-seidaku",
+          "title": "「ぽ」が「ぼ」に聞こえる",
+          "description": "「ぼ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/po-to-bo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぼ"
+        }
+      ],
+      "normal": "assets/normal/po.svg"
+    },
+    {
+      "kana": "きゃ",
+      "patterns": [
+        {
+          "id": "seidaku-kya-to-gya",
+          "groupId": "pattern-seidaku",
+          "title": "「きゃ」が「ぎゃ」に聞こえる",
+          "description": "「ぎゃ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/kya-to-gya.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぎゃ"
+        }
+      ],
+      "normal": "assets/normal/kya.svg"
+    },
+    {
+      "kana": "きゅ",
+      "patterns": [
+        {
+          "id": "seidaku-kyu-to-gyu",
+          "groupId": "pattern-seidaku",
+          "title": "「きゅ」が「ぎゅ」に聞こえる",
+          "description": "「ぎゅ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/kyu-to-gyu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぎゅ"
+        }
+      ],
+      "normal": "assets/normal/kyu.svg"
+    },
+    {
+      "kana": "きょ",
+      "patterns": [
+        {
+          "id": "seidaku-kyo-to-gyo",
+          "groupId": "pattern-seidaku",
+          "title": "「きょ」が「ぎょ」に聞こえる",
+          "description": "「ぎょ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/kyo-to-gyo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぎょ"
+        }
+      ],
+      "normal": "assets/normal/kyo.svg"
+    },
+    {
+      "kana": "しゃ",
+      "patterns": [
+        {
+          "id": "seidaku-sha-to-jya",
+          "groupId": "pattern-seidaku",
+          "title": "「しゃ」が「じゃ」に聞こえる",
+          "description": "「じゃ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/sha-to-jya.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "じゃ"
+        }
+      ],
+      "normal": "assets/normal/sha.svg"
+    },
+    {
+      "kana": "しゅ",
+      "patterns": [
+        {
+          "id": "seidaku-shu-to-jyu",
+          "groupId": "pattern-seidaku",
+          "title": "「しゅ」が「じゅ」に聞こえる",
+          "description": "「じゅ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/shu-to-jyu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "じゅ"
+        }
+      ],
+      "normal": "assets/normal/shu.svg"
+    },
+    {
+      "kana": "しょ",
+      "patterns": [
+        {
+          "id": "seidaku-sho-to-jyo",
+          "groupId": "pattern-seidaku",
+          "title": "「しょ」が「じょ」に聞こえる",
+          "description": "「じょ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/sho-to-jyo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "じょ"
+        }
+      ],
+      "normal": "assets/normal/sho.svg"
+    },
+    {
+      "kana": "ちゃ",
+      "patterns": [
+        {
+          "id": "seidaku-cha-to-dya",
+          "groupId": "pattern-seidaku",
+          "title": "「ちゃ」が「ぢゃ」に聞こえる",
+          "description": "「ぢゃ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/cha-to-dya.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぢゃ"
+        }
+      ],
+      "normal": "assets/normal/cha.svg"
+    },
+    {
+      "kana": "ちゅ",
+      "patterns": [
+        {
+          "id": "seidaku-chu-to-dyu",
+          "groupId": "pattern-seidaku",
+          "title": "「ちゅ」が「ぢゅ」に聞こえる",
+          "description": "「ぢゅ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/chu-to-dyu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぢゅ"
+        }
+      ],
+      "normal": "assets/normal/chu.svg"
+    },
+    {
+      "kana": "ちょ",
+      "patterns": [
+        {
+          "id": "seidaku-cho-to-dyo",
+          "groupId": "pattern-seidaku",
+          "title": "「ちょ」が「ぢょ」に聞こえる",
+          "description": "「ぢょ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/cho-to-dyo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぢょ"
+        }
+      ],
+      "normal": "assets/normal/cho.svg"
+    },
+    {
+      "kana": "にゃ",
+      "patterns": [],
+      "normal": "assets/normal/nya.svg"
+    },
+    {
+      "kana": "にゅ",
+      "patterns": [],
+      "normal": "assets/normal/nyu.svg"
+    },
+    {
+      "kana": "にょ",
+      "patterns": [],
+      "normal": "assets/normal/nyo.svg"
+    },
+    {
+      "kana": "ひゃ",
+      "patterns": [
+        {
+          "id": "seidaku-hya-to-bya",
+          "groupId": "pattern-seidaku",
+          "title": "「ひゃ」が「びゃ」に聞こえる",
+          "description": "「びゃ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/hya-to-bya.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "びゃ"
+        },
+        {
+          "id": "seidaku-hya-to-pya",
+          "groupId": "pattern-seidaku",
+          "title": "「ひゃ」が「ぴゃ」に聞こえる",
+          "description": "「ぴゃ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/hya-to-pya.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぴゃ"
+        }
+      ],
+      "normal": "assets/normal/hya.svg"
+    },
+    {
+      "kana": "ひゅ",
+      "patterns": [
+        {
+          "id": "seidaku-hyu-to-byu",
+          "groupId": "pattern-seidaku",
+          "title": "「ひゅ」が「びゅ」に聞こえる",
+          "description": "「びゅ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/hyu-to-byu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "びゅ"
+        },
+        {
+          "id": "seidaku-hyu-to-pyu",
+          "groupId": "pattern-seidaku",
+          "title": "「ひゅ」が「ぴゅ」に聞こえる",
+          "description": "「ぴゅ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/hyu-to-pyu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぴゅ"
+        }
+      ],
+      "normal": "assets/normal/hyu.svg"
+    },
+    {
+      "kana": "ひょ",
+      "patterns": [
+        {
+          "id": "seidaku-hyo-to-byo",
+          "groupId": "pattern-seidaku",
+          "title": "「ひょ」が「びょ」に聞こえる",
+          "description": "「びょ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/hyo-to-byo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "びょ"
+        },
+        {
+          "id": "seidaku-hyo-to-pyo",
+          "groupId": "pattern-seidaku",
+          "title": "「ひょ」が「ぴょ」に聞こえる",
+          "description": "「ぴょ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/hyo-to-pyo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぴょ"
+        }
+      ],
+      "normal": "assets/normal/hyo.svg"
+    },
+    {
+      "kana": "みゃ",
+      "patterns": [],
+      "normal": "assets/normal/mya.svg"
+    },
+    {
+      "kana": "みゅ",
+      "patterns": [],
+      "normal": "assets/normal/myu.svg"
+    },
+    {
+      "kana": "みょ",
+      "patterns": [],
+      "normal": "assets/normal/myo.svg"
+    },
+    {
+      "kana": "りゃ",
+      "patterns": [],
+      "normal": "assets/normal/rya.svg"
+    },
+    {
+      "kana": "りゅ",
+      "patterns": [],
+      "normal": "assets/normal/ryu.svg"
+    },
+    {
+      "kana": "りょ",
+      "patterns": [],
+      "normal": "assets/normal/ryo.svg"
+    },
+    {
+      "kana": "ぎゃ",
+      "patterns": [
+        {
+          "id": "seidaku-gya-to-kya",
+          "groupId": "pattern-seidaku",
+          "title": "「ぎゃ」が「きゃ」に聞こえる",
+          "description": "「きゃ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/gya-to-kya.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "きゃ"
+        }
+      ],
+      "normal": "assets/normal/gya.svg"
+    },
+    {
+      "kana": "ぎゅ",
+      "patterns": [
+        {
+          "id": "seidaku-gyu-to-kyu",
+          "groupId": "pattern-seidaku",
+          "title": "「ぎゅ」が「きゅ」に聞こえる",
+          "description": "「きゅ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/gyu-to-kyu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "きゅ"
+        }
+      ],
+      "normal": "assets/normal/gyu.svg"
+    },
+    {
+      "kana": "ぎょ",
+      "patterns": [
+        {
+          "id": "seidaku-gyo-to-kyo",
+          "groupId": "pattern-seidaku",
+          "title": "「ぎょ」が「きょ」に聞こえる",
+          "description": "「きょ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/gyo-to-kyo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "きょ"
+        }
+      ],
+      "normal": "assets/normal/gyo.svg"
+    },
+    {
+      "kana": "じゃ",
+      "patterns": [
+        {
+          "id": "seidaku-jya-to-sha",
+          "groupId": "pattern-seidaku",
+          "title": "「じゃ」が「しゃ」に聞こえる",
+          "description": "「しゃ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/jya-to-sha.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "しゃ"
+        }
+      ],
+      "normal": "assets/normal/jya.svg"
+    },
+    {
+      "kana": "じゅ",
+      "patterns": [
+        {
+          "id": "seidaku-jyu-to-shu",
+          "groupId": "pattern-seidaku",
+          "title": "「じゅ」が「しゅ」に聞こえる",
+          "description": "「しゅ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/jyu-to-shu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "しゅ"
+        }
+      ],
+      "normal": "assets/normal/jyu.svg"
+    },
+    {
+      "kana": "じょ",
+      "patterns": [
+        {
+          "id": "seidaku-jyo-to-sho",
+          "groupId": "pattern-seidaku",
+          "title": "「じょ」が「しょ」に聞こえる",
+          "description": "「しょ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/jyo-to-sho.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "しょ"
+        }
+      ],
+      "normal": "assets/normal/jyo.svg"
+    },
+    {
+      "kana": "ぢゃ",
+      "patterns": [
+        {
+          "id": "seidaku-dya-to-cha",
+          "groupId": "pattern-seidaku",
+          "title": "「ぢゃ」が「ちゃ」に聞こえる",
+          "description": "「ちゃ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/dya-to-cha.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ちゃ"
+        }
+      ],
+      "normal": "assets/normal/dya.svg"
+    },
+    {
+      "kana": "ぢゅ",
+      "patterns": [
+        {
+          "id": "seidaku-dyu-to-chu",
+          "groupId": "pattern-seidaku",
+          "title": "「ぢゅ」が「ちゅ」に聞こえる",
+          "description": "「ちゅ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/dyu-to-chu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ちゅ"
+        }
+      ],
+      "normal": "assets/normal/dyu.svg"
+    },
+    {
+      "kana": "ぢょ",
+      "patterns": [
+        {
+          "id": "seidaku-dyo-to-cho",
+          "groupId": "pattern-seidaku",
+          "title": "「ぢょ」が「ちょ」に聞こえる",
+          "description": "「ちょ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/dyo-to-cho.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ちょ"
+        }
+      ],
+      "normal": "assets/normal/dyo.svg"
+    },
+    {
+      "kana": "びゃ",
+      "patterns": [
+        {
+          "id": "seidaku-bya-to-hya",
+          "groupId": "pattern-seidaku",
+          "title": "「びゃ」が「ひゃ」に聞こえる",
+          "description": "「ひゃ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/bya-to-hya.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ひゃ"
+        },
+        {
+          "id": "seidaku-bya-to-pya",
+          "groupId": "pattern-seidaku",
+          "title": "「びゃ」が「ぴゃ」に聞こえる",
+          "description": "「ぴゃ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/bya-to-pya.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぴゃ"
+        }
+      ],
+      "normal": "assets/normal/bya.svg"
+    },
+    {
+      "kana": "びゅ",
+      "patterns": [
+        {
+          "id": "seidaku-byu-to-hyu",
+          "groupId": "pattern-seidaku",
+          "title": "「びゅ」が「ひゅ」に聞こえる",
+          "description": "「ひゅ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/byu-to-hyu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ひゅ"
+        },
+        {
+          "id": "seidaku-byu-to-pyu",
+          "groupId": "pattern-seidaku",
+          "title": "「びゅ」が「ぴゅ」に聞こえる",
+          "description": "「ぴゅ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/byu-to-pyu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぴゅ"
+        }
+      ],
+      "normal": "assets/normal/byu.svg"
+    },
+    {
+      "kana": "びょ",
+      "patterns": [
+        {
+          "id": "seidaku-byo-to-hyo",
+          "groupId": "pattern-seidaku",
+          "title": "「びょ」が「ひょ」に聞こえる",
+          "description": "「ひょ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/byo-to-hyo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ひょ"
+        },
+        {
+          "id": "seidaku-byo-to-pyo",
+          "groupId": "pattern-seidaku",
+          "title": "「びょ」が「ぴょ」に聞こえる",
+          "description": "「ぴょ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/byo-to-pyo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ぴょ"
+        }
+      ],
+      "normal": "assets/normal/byo.svg"
+    },
+    {
+      "kana": "ぴゃ",
+      "patterns": [
+        {
+          "id": "seidaku-pya-to-hya",
+          "groupId": "pattern-seidaku",
+          "title": "「ぴゃ」が「ひゃ」に聞こえる",
+          "description": "「ひゃ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pya-to-hya.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ひゃ"
+        },
+        {
+          "id": "seidaku-pya-to-bya",
+          "groupId": "pattern-seidaku",
+          "title": "「ぴゃ」が「びゃ」に聞こえる",
+          "description": "「びゃ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pya-to-bya.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "びゃ"
+        }
+      ],
+      "normal": "assets/normal/pya.svg"
+    },
+    {
+      "kana": "ぴゅ",
+      "patterns": [
+        {
+          "id": "seidaku-pyu-to-hyu",
+          "groupId": "pattern-seidaku",
+          "title": "「ぴゅ」が「ひゅ」に聞こえる",
+          "description": "「ひゅ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pyu-to-hyu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ひゅ"
+        },
+        {
+          "id": "seidaku-pyu-to-byu",
+          "groupId": "pattern-seidaku",
+          "title": "「ぴゅ」が「びゅ」に聞こえる",
+          "description": "「びゅ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pyu-to-byu.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "びゅ"
+        }
+      ],
+      "normal": "assets/normal/pyu.svg"
+    },
+    {
+      "kana": "ぴょ",
+      "patterns": [
+        {
+          "id": "seidaku-pyo-to-hyo",
+          "groupId": "pattern-seidaku",
+          "title": "「ぴょ」が「ひょ」に聞こえる",
+          "description": "「ひょ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pyo-to-hyo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "ひょ"
+        },
+        {
+          "id": "seidaku-pyo-to-byo",
+          "groupId": "pattern-seidaku",
+          "title": "「ぴょ」が「びょ」に聞こえる",
+          "description": "「びょ」のように聞こえる。",
+          "svg": "assets/namari/pattern-seidaku/pyo-to-byo.svg",
+          "renderMode": "symbol-switch",
+          "targetKana": "びょ"
+        }
+      ],
+      "normal": "assets/normal/pyo.svg"
     }
   ],
   "levels": [
@@ -561,7 +1789,47 @@
         "high",
         "high"
       ]
+    },
+    {
+      "id": "experiment-be-pe",
+      "word": "べ",
+      "morae": [
+        "べ"
+      ],
+      "audio": null,
+      "visualExperiment": true,
+      "recordingId": "experiment-be-pe-no-audio-v1",
+      "defaultAccent": [
+        "low"
+      ],
+      "qualityCheck": {
+        "type": "visual_experiment"
+      }
+    },
+    {
+      "id": "experiment-seidaku-string",
+      "word": "ぱぺびがぎょ",
+      "morae": [
+        "ぱ",
+        "ぺ",
+        "び",
+        "が",
+        "ぎょ"
+      ],
+      "audio": null,
+      "visualExperiment": true,
+      "recordingId": "experiment-seidaku-string-no-audio-v1",
+      "defaultAccent": [
+        "low",
+        "low",
+        "low",
+        "low",
+        "low"
+      ],
+      "qualityCheck": {
+        "type": "visual_experiment"
+      }
     }
   ],
-  "updatedAt": "2026-11-15T15:40:21.935Z"
+  "updatedAt": "2026-11-16T14:16:38.025Z"
 }

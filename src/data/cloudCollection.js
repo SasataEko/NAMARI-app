@@ -1,3 +1,4 @@
+import { assertResearchUpload } from './researchState.js';
 import { directoryConnected } from './directoryProject.js';
 let configPromise;
 const base=()=>import.meta.env?.BASE_URL || '/NAMARI-app/';
@@ -28,9 +29,10 @@ export async function attachLevelVersion(record,level){
 export async function sendPending(id){
  const config=await collectionConfig();if(!config.enabled)return {status:'local'};
  const item=readOutbox().find(r=>r.id===id);if(!item)return {status:'synced'};
+ await assertResearchUpload(item);
  const controller=new AbortController(),postTimer=setTimeout(()=>controller.abort(),12000);
  // A simple text/plain POST avoids a preflight. Opaque fetch success is NOT an acknowledgement.
- try{await fetch(config.endpoint,{method:'POST',mode:'no-cors',credentials:'omit',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify({action:item.gameMode==='mode1'?'submit_mode1':'submit',participantKey:credential(),response:item}),signal:controller.signal});}catch{}finally{clearTimeout(postTimer);}
+ try{await fetch(config.endpoint,{method:'POST',mode:'no-cors',credentials:'omit',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify({action:item.schemaType==='study_event'?'submit_study_event':item.gameMode==='mode1'?'submit_mode1':'submit',participantKey:credential(),response:item}),signal:controller.signal});}catch{}finally{clearTimeout(postTimer);}
  const deadline=Date.now()+Math.min(45000,Math.max(5000,config.timeoutMs||30000));
  let lastError;
  while(Date.now()<deadline){
@@ -43,16 +45,18 @@ export async function sendPending(id){
  throw lastError||new Error('保存の確認がまだ取れていません。回答は端末に保管され、再送できます。');
 }
 export async function queueAndSend(record,level){
+ if(record.visualExperiment||level?.visualExperiment)return {status:'local',visualExperiment:true};
+ await assertResearchUpload(record);
  let config;try{config=await collectionConfig();}catch(e){const queue=readOutbox();if(!queue.some(r=>r.id===record.id)){queue.push({...record,levelVersion:null});writeOutbox(queue);}throw e;}if(!config.enabled)return {status:'local'};
  let versioned;
- try{versioned=await attachLevelVersion(record,level);}catch(e){versioned={...record,levelVersion:null};}
+ try{versioned=record.schemaType==='study_event'?{...record,levelVersion:record.app_version}:await attachLevelVersion(record,level);}catch(e){versioned={...record,levelVersion:null};}
  const queue=readOutbox();if(!queue.some(r=>r.id===record.id)){queue.push(versioned);writeOutbox(queue);}
  if(!versioned.levelVersion)throw new Error('回答は端末に保管済みです。管理者が問題バージョンを設定した後に再送してください。');
  return sendPending(record.id);
 }
 export async function retryPending(record,level){
  const queue=readOutbox();let index=queue.findIndex(r=>r.id===record.id);if(index<0){queue.push({...record,levelVersion:null});index=queue.length-1;}
- if(index>=0&&!queue[index].levelVersion){queue[index]=await attachLevelVersion(queue[index],level);writeOutbox(queue);}
+ if(index>=0&&!queue[index].levelVersion){queue[index]=queue[index].schemaType==='study_event'?{...queue[index],levelVersion:queue[index].app_version}:await attachLevelVersion(queue[index],level);writeOutbox(queue);}
  return sendPending(record.id);
 }
 export async function cloudAggregate(level,options){

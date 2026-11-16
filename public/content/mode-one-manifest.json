@@ -2,7 +2,7 @@
   {
     "levelId": "kusuri",
     "recordingId": "kusuri-recording-v1",
-    "levelVersion": "20c7b4803b8c8e0a",
+    "levelVersion": "2ec74296691db114",
     "definition": {
       "scoring": "selection",
       "targets": [
@@ -106,7 +106,7 @@
   {
     "levelId": "tutorial-karada",
     "recordingId": "tutorial-karada-recording-v1",
-    "levelVersion": "570ed7d73d8e60cd",
+    "levelVersion": "0373168f5f11a3ca",
     "definition": {
       "scoring": "pattern",
       "characters": [
@@ -130,7 +130,7 @@
   {
     "levelId": "tutorial-ranpu",
     "recordingId": "tutorial-ranpu-recording-v1",
-    "levelVersion": "d8de6e04addf6ce8",
+    "levelVersion": "0323767098b3aeb3",
     "definition": {
       "scoring": "rhythm",
       "characters": [

@@ -12,14 +12,16 @@ var LEVEL_MANIFEST = [
         "text": "く",
         "patterns": [
           "ku-custom",
-          "pattern-souki-ku"
+          "pattern-souki-ku",
+          "seidaku-ku-to-gu"
         ]
       },
       {
         "text": "す",
         "patterns": [
           "pattern-u-su",
-          "pattern-souki-su"
+          "pattern-souki-su",
+          "seidaku-su-to-zu"
         ]
       },
       {
@@ -28,7 +30,7 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "58e5266ff46f319c"
+    "levelVersion": "149d1371b825043f"
   },
   {
     "levelId": "9e584fe5-6873-4db1-9b09-d75c806d5bb4",
@@ -49,12 +51,15 @@ var LEVEL_MANIFEST = [
       },
       {
         "text": "で",
-        "patterns": []
+        "patterns": [
+          "seidaku-de-to-te"
+        ]
       },
       {
         "text": "た",
         "patterns": [
-          "pattern-souki-ta"
+          "pattern-souki-ta",
+          "seidaku-ta-to-da"
         ]
       },
       {
@@ -63,11 +68,13 @@ var LEVEL_MANIFEST = [
       },
       {
         "text": "ご",
-        "patterns": []
+        "patterns": [
+          "seidaku-go-to-ko"
+        ]
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "f5de53e7600479f4"
+    "levelVersion": "6e1fb63b803965b4"
   },
   {
     "levelId": "130bfe9f-865c-4bf5-a2de-30e514330402",
@@ -83,7 +90,8 @@ var LEVEL_MANIFEST = [
       {
         "text": "か",
         "patterns": [
-          "pattern-souki-ka"
+          "pattern-souki-ka",
+          "seidaku-ka-to-ga"
         ]
       },
       {
@@ -92,7 +100,9 @@ var LEVEL_MANIFEST = [
       },
       {
         "text": "きゅ",
-        "patterns": []
+        "patterns": [
+          "seidaku-kyu-to-gyu"
+        ]
       },
       {
         "text": "ら",
@@ -106,7 +116,7 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "cffd87b4f4fda820"
+    "levelVersion": "f09f8813487a2294"
   },
   {
     "levelId": "ccb4f0b9-8e27-4cbf-9998-37ce23e56908",
@@ -122,7 +132,8 @@ var LEVEL_MANIFEST = [
       {
         "text": "き",
         "patterns": [
-          "pattern-souki-ki"
+          "pattern-souki-ki",
+          "seidaku-ki-to-gi"
         ]
       },
       {
@@ -135,7 +146,9 @@ var LEVEL_MANIFEST = [
       },
       {
         "text": "だ",
-        "patterns": []
+        "patterns": [
+          "seidaku-da-to-ta"
+        ]
       },
       {
         "text": "る",
@@ -145,7 +158,7 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "3881d03b31f99ed0"
+    "levelVersion": "90c7ac799d0813bd"
   },
   {
     "levelId": "0d3eb58f-7be3-4d09-aaf3-ecbb7f9e3254",
@@ -159,7 +172,9 @@ var LEVEL_MANIFEST = [
     "characters": [
       {
         "text": "しょ",
-        "patterns": []
+        "patterns": [
+          "seidaku-sho-to-jyo"
+        ]
       },
       {
         "text": "う",
@@ -170,7 +185,8 @@ var LEVEL_MANIFEST = [
       {
         "text": "し",
         "patterns": [
-          "pattern-souki-shi"
+          "pattern-souki-shi",
+          "seidaku-shi-to-ji"
         ]
       },
       {
@@ -179,7 +195,77 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "906f182dfcf0f1b5"
+    "levelVersion": "196c4f5c134fca9c"
+  },
+  {
+    "levelId": "experiment-be-pe",
+    "recordingId": "experiment-be-pe-no-audio-v1",
+    "defaultAccent": [
+      "low"
+    ],
+    "characters": [
+      {
+        "text": "べ",
+        "patterns": [
+          "seidaku-be-to-pe",
+          "seidaku-be-to-he"
+        ]
+      }
+    ],
+    "qualityCheck": {
+      "type": "visual_experiment"
+    },
+    "levelVersion": "fafd3d227f521096"
+  },
+  {
+    "levelId": "experiment-seidaku-string",
+    "recordingId": "experiment-seidaku-string-no-audio-v1",
+    "defaultAccent": [
+      "low",
+      "low",
+      "low",
+      "low",
+      "low"
+    ],
+    "characters": [
+      {
+        "text": "ぱ",
+        "patterns": [
+          "seidaku-pa-to-ha",
+          "seidaku-pa-to-ba"
+        ]
+      },
+      {
+        "text": "ぺ",
+        "patterns": [
+          "seidaku-pe-to-he",
+          "seidaku-pe-to-be"
+        ]
+      },
+      {
+        "text": "び",
+        "patterns": [
+          "seidaku-bi-to-hi",
+          "seidaku-bi-to-pi"
+        ]
+      },
+      {
+        "text": "が",
+        "patterns": [
+          "seidaku-ga-to-ka"
+        ]
+      },
+      {
+        "text": "ぎょ",
+        "patterns": [
+          "seidaku-gyo-to-kyo"
+        ]
+      }
+    ],
+    "qualityCheck": {
+      "type": "visual_experiment"
+    },
+    "levelVersion": "0c9b53e764372e2d"
   },
   {
     "levelId": "tutorial-mode2-curriculum",
@@ -195,7 +281,8 @@ var LEVEL_MANIFEST = [
       {
         "text": "か",
         "patterns": [
-          "pattern-souki-ka"
+          "pattern-souki-ka",
+          "seidaku-ka-to-ga"
         ]
       },
       {
@@ -204,7 +291,9 @@ var LEVEL_MANIFEST = [
       },
       {
         "text": "きゅ",
-        "patterns": []
+        "patterns": [
+          "seidaku-kyu-to-gyu"
+        ]
       },
       {
         "text": "ら",
@@ -218,14 +307,14 @@ var LEVEL_MANIFEST = [
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "58e2dbfb3d666b9f"
+    "levelVersion": "d525aed42e42c043"
   }
 ];
 var MODE1_MANIFEST = [
   {
     "levelId": "kusuri",
     "recordingId": "kusuri-recording-v1",
-    "levelVersion": "20c7b4803b8c8e0a",
+    "levelVersion": "2ec74296691db114",
     "definition": {
       "scoring": "selection",
       "targets": [
@@ -329,7 +418,7 @@ var MODE1_MANIFEST = [
   {
     "levelId": "tutorial-karada",
     "recordingId": "tutorial-karada-recording-v1",
-    "levelVersion": "570ed7d73d8e60cd",
+    "levelVersion": "0373168f5f11a3ca",
     "definition": {
       "scoring": "pattern",
       "characters": [
@@ -353,7 +442,7 @@ var MODE1_MANIFEST = [
   {
     "levelId": "tutorial-ranpu",
     "recordingId": "tutorial-ranpu-recording-v1",
-    "levelVersion": "d8de6e04addf6ce8",
+    "levelVersion": "0323767098b3aeb3",
     "definition": {
       "scoring": "rhythm",
       "characters": [

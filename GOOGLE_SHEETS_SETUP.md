@@ -1,3 +1,5 @@
+> 2026-11-16 研究数据扩展：新增同意/背景/评价/反馈及部署流程见 [RESEARCH_DATA_EXTENSION.md](RESEARCH_DATA_EXTENSION.md)。该扩展尚未在线部署；research 保持禁用。下文早期初始化说明不应覆盖已有工作表。
+
 # Google Sheets + Apps Script 数据收集原型
 
 ## 当前状态

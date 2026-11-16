@@ -9,3 +9,8 @@ test('Mode1 chooses its own manifest and submit action; a rejected receipt stays
  const p={id:crypto.randomUUID(),gameMode:'mode1',levelId:'kusuri',recordingId:'kusuri-recording-v1'};reject=true;await assert.rejects(queueAndSend(p,{id:'kusuri'}));assert.equal(readOutbox().length,1);assert.equal(posted[0].action,'submit_mode1');assert.ok(paths.some(p=>p.endsWith('mode-one-manifest.json')));reject=false;assert.equal(await retryAllPending(),1);assert.equal(readOutbox().length,0);assert.equal(posted[0].response.id,posted[1].response.id);assert.equal(posted[1].action,'submit_mode1');
  const mode2={id:crypto.randomUUID(),gameMode:'mode2',levelId:'kusuri',recordingId:'kusuri-recording-v1'};await queueAndSend(mode2,{id:'kusuri'});assert.equal(posted.at(-1).action,'submit');assert.ok(paths.some(p=>p.endsWith('study-manifest.json')));
 });
+
+test('study events use their own submit action; historical research without consent is never posted',async()=>{
+ const before=posted.length;await assert.rejects(queueAndSend({id:crypto.randomUUID(),studyMode:'research',gameMode:'mode2',levelId:'kusuri',recordingId:'kusuri-recording-v1'},{id:'kusuri'}),/研究説明|研究同意/);assert.equal(posted.length,before);
+ const event={id:crypto.randomUUID(),schemaType:'study_event',studyMode:'test',gameMode:'overall',app_version:'test-app',event_type:'chapter_rating'};await queueAndSend(event,{id:'study-event'});assert.equal(posted.at(-1).action,'submit_study_event');assert.equal(readOutbox().length,0);
+});

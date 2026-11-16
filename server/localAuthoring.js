@@ -8,7 +8,7 @@ export function localAuthoring(){
  const root=server.config.root,publicRoot=path.join(root,'public'),file=path.join(publicRoot,'content/library.json');
  server.middlewares.use(async(req,res,next)=>{
  const url=new URL(req.url,'http://localhost');
- if(req.method==='GET'&&['library.json','collection.json','study-manifest.json','mode-one-manifest.json'].some(name=>url.pathname===`${server.config.base}content/${name}`)){
+ if(req.method==='GET'&&['library.json','collection.json','research-protocol.json','study-manifest.json','mode-one-manifest.json'].some(name=>url.pathname===`${server.config.base}content/${name}`)){
    try{const bytes=await fs.readFile(path.join(publicRoot,'content',path.basename(url.pathname)));res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.end(bytes);}catch{res.statusCode=404;res.end();}return;
  }
  const publicPrefix=server.config.base;
@@ -45,7 +45,7 @@ export function localAuthoring(){
  if(!Array.isArray(data.glyphs)||!Array.isArray(data.groups)||!Array.isArray(data.levels))throw new Error('素材設定が不正です。');
  const plan=planAssetOrganization(data);
  // Check every source before writing or moving anything.
- const original=[...data.glyphs.flatMap(g=>[g.normal,...g.patterns.map(p=>p.svg)]),...data.levels.map(l=>l.audio)].filter(Boolean);for(const value of original){if(typeof value!=='string'||!/^(assets|uploads)\/[a-zA-Z0-9_./-]+$/.test(value)||value.split('/').some(p=>!p||p==='.'||p==='..'))throw new Error('素材の保存先が不正です。');await fs.access(path.join(publicRoot,value));}
+ const original=[...data.glyphs.flatMap(g=>[g.normal,...g.patterns.map(p=>p.svg)]),...data.levels.flatMap(l=>[l.audio,l.referenceAudio])].filter(Boolean);for(const value of original){if(typeof value!=='string'||!/^(assets|uploads)\/[a-zA-Z0-9_./-]+$/.test(value)||value.split('/').some(p=>!p||p==='.'||p==='..'))throw new Error('素材の保存先が不正です。');await fs.access(path.join(publicRoot,value));}
  const backup=path.join(root,'authoring-backups'),snapshot=randomUUID(),assetBackup=path.join(backup,'assets',snapshot);await fs.mkdir(backup,{recursive:true});await fs.copyFile(file,path.join(backup,`library-${current.revision}-${snapshot}.json`));
  const sources=new Map(await Promise.all(plan.copies.map(async move=>[move.from,await fs.readFile(path.join(publicRoot,move.from))])));
  const written=[];
