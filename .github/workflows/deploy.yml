@@ -30,8 +30,10 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Verify committed level registry
+        run: node scripts/verify-study-manifest.mjs
       - name: Build
-        run: pnpm run build
+        run: pnpm exec vite build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

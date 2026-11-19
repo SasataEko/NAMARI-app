@@ -1,3 +1,4 @@
+import {digest,canonicalAsset} from './registry-integrity.mjs';
 import {projectModeOneDefinition} from '../src/data/projectModeOne.js';
 import {linkPitch} from '../src/data/linkedPitch.js';
 import { modeTwoTutorialSource } from '../src/data/modeTwoTutorial.js';
@@ -36,3 +37,8 @@ await fs.writeFile('public/content/mode-one-manifest.json',JSON.stringify(mode1,
 await fs.writeFile('apps-script/mode-one-levels.json',JSON.stringify(mode1,null,2)+'\n');
 await fs.writeFile('apps-script/Levels.gs','var LEVEL_MANIFEST = '+JSON.stringify(manifests,null,2)+';\nvar MODE1_MANIFEST = '+JSON.stringify(mode1,null,2)+';\n');
 console.log('Generated server/client study manifests:',manifests.length,'levels');
+
+// CI verifies these semantic hashes but publishes the exact owner-deployed registry.
+const trackedAssets=[...new Set([...library.glyphs.flatMap(g=>[g.normal,...g.patterns.map(p=>p.svg)]),...definitions.flatMap(l=>[l.audio,l.referenceAudio]),...tutorials.map(q=>q.audio),...(library.modeOneLevels||[]).flatMap(q=>[q.audio,q.referenceAudio])].filter(Boolean).map(p=>p.replace(/^\/NAMARI-app\//,'')))].sort();
+const integrityAssets=Object.fromEntries(await Promise.all(trackedAssets.map(async p=>[p,digest(canonicalAsset(p,await fs.readFile('public/'+p)))])));
+await fs.writeFile('public/content/registry-integrity.json',JSON.stringify({registries:{'public/content/study-manifest.json':digest(JSON.stringify(manifests)),'public/content/mode-one-manifest.json':digest(JSON.stringify(mode1))},assets:integrityAssets},null,2)+'\n');
