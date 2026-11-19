@@ -1,5 +1,5 @@
 {
-  "revision": 25,
+  "revision": 35,
   "groups": [
     {
       "id": "existing-ku",
@@ -11,7 +11,7 @@
     {
       "id": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
       "title": "「あ」列が広い発音",
-      "description": "/a/より/æ/，口が大きく開いた発音",
+      "description": "口が大きく開いた「あ」の発音",
       "color": "#fe9ab8",
       "folderName": "pattern-A"
     },
@@ -28,12 +28,28 @@
       "folderName": "pattern-seidaku",
       "description": "清音・濁音・半濁音の間で、別のかなのように聞こえる変化。",
       "color": "#fe9ab8"
+    },
+    {
+      "id": "379d76e7-5e1d-43e0-a3ee-c8e5b272f97b",
+      "title": "「ｒ」と「ｎ」の混同",
+      "folderName": "pattern-RN",
+      "description": "「r」「ｎ」の舌位を混同して発音する。",
+      "color": "#ffb347"
     }
   ],
   "glyphs": [
     {
       "kana": "あ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-a-a",
+          "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
+          "title": "広くなった「あ」",
+          "description": "口が大きく開いた「あ」の発音",
+          "svg": "assets/namari/pattern-A/a-NM1.svg",
+          "sourceSvg": "assets/namari/pattern-A/a-NM1.svg"
+        }
+      ],
       "normal": "assets/normal/a.svg"
     },
     {
@@ -82,6 +98,14 @@
           "svg": "assets/namari/pattern-seidaku/ka-to-ga.svg",
           "renderMode": "symbol-switch",
           "targetKana": "が"
+        },
+        {
+          "id": "pattern-a-ka",
+          "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
+          "title": "広くなった「か」",
+          "description": "口が大きく開いた「あ」の発音",
+          "svg": "assets/namari/pattern-A/ka-NM1-morph.svg",
+          "sourceSvg": "assets/namari/pattern-A/ka-NM1.svg"
         }
       ],
       "normal": "assets/normal/ka.svg"
@@ -199,6 +223,14 @@
           "svg": "assets/namari/pattern-seidaku/sa-to-za.svg",
           "renderMode": "symbol-switch",
           "targetKana": "ざ"
+        },
+        {
+          "id": "pattern-a-sa",
+          "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
+          "title": "広くなった「さ」",
+          "description": "口が大きく開いた「あ」の発音",
+          "svg": "assets/namari/pattern-A/sa-NM1.svg",
+          "sourceSvg": "assets/namari/pattern-A/sa-NM1.svg"
         }
       ],
       "normal": "assets/normal/sa.svg"
@@ -316,6 +348,14 @@
           "svg": "assets/namari/pattern-seidaku/ta-to-da.svg",
           "renderMode": "symbol-switch",
           "targetKana": "だ"
+        },
+        {
+          "id": "pattern-a-ta",
+          "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
+          "title": "広くなった「た」",
+          "description": "口が大きく開いた「あ」の発音",
+          "svg": "assets/namari/pattern-A/ta-NM1-morph.svg",
+          "sourceSvg": "assets/namari/pattern-A/ta-NM1.svg"
         }
       ],
       "normal": "assets/normal/ta.svg"
@@ -417,12 +457,38 @@
     },
     {
       "kana": "な",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-a-na",
+          "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
+          "title": "広くなった「な」",
+          "description": "口が大きく開いた「あ」の発音",
+          "svg": "assets/namari/pattern-A/na-NM1-morph.svg",
+          "sourceSvg": "assets/namari/pattern-A/na-NM1.svg"
+        },
+        {
+          "id": "pattern-rn-306a",
+          "groupId": "379d76e7-5e1d-43e0-a3ee-c8e5b272f97b",
+          "title": "「な」の r・n の混同",
+          "description": "「r」「ｎ」の舌位を混同して発音する。",
+          "svg": "assets/namari/pattern-RN/RNA-morph.svg",
+          "sourceSvg": "assets/namari/pattern-RN/RNA.svg"
+        }
+      ],
       "normal": "assets/normal/na.svg"
     },
     {
       "kana": "に",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-rn-306b",
+          "groupId": "379d76e7-5e1d-43e0-a3ee-c8e5b272f97b",
+          "title": "「に」の r・n の混同",
+          "description": "「r」「ｎ」の舌位を混同して発音する。",
+          "svg": "assets/namari/pattern-RN/RNI-morph.svg",
+          "sourceSvg": "assets/namari/pattern-RN/RNI.svg"
+        }
+      ],
       "normal": "assets/normal/ni.svg"
     },
     {
@@ -434,18 +500,44 @@
           "title": "丸くなった「ぬ」",
           "description": "中国語の母音「u」に影響された発音傾向。",
           "svg": "assets/namari/pattern-U/nu-NM.svg"
+        },
+        {
+          "id": "pattern-rn-306c",
+          "groupId": "379d76e7-5e1d-43e0-a3ee-c8e5b272f97b",
+          "title": "「ぬ」の r・n の混同",
+          "description": "「r」「ｎ」の舌位を混同して発音する。",
+          "svg": "assets/namari/pattern-RN/RNU.svg",
+          "sourceSvg": "assets/namari/pattern-RN/RNU.svg"
         }
       ],
       "normal": "assets/normal/nu.svg"
     },
     {
       "kana": "ね",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-rn-306d",
+          "groupId": "379d76e7-5e1d-43e0-a3ee-c8e5b272f97b",
+          "title": "「ね」の r・n の混同",
+          "description": "「r」「ｎ」の舌位を混同して発音する。",
+          "svg": "assets/namari/pattern-RN/RNE.svg",
+          "sourceSvg": "assets/namari/pattern-RN/RNE.svg"
+        }
+      ],
       "normal": "assets/normal/ne.svg"
     },
     {
       "kana": "の",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-rn-306e",
+          "groupId": "379d76e7-5e1d-43e0-a3ee-c8e5b272f97b",
+          "title": "「の」の r・n の混同",
+          "description": "「r」「ｎ」の舌位を混同して発音する。",
+          "svg": "assets/namari/pattern-RN/RNO.svg",
+          "sourceSvg": "assets/namari/pattern-RN/RNO.svg"
+        }
+      ],
       "normal": "assets/normal/no.svg"
     },
     {
@@ -475,6 +567,14 @@
           "svg": "assets/namari/pattern-seidaku/ha-to-pa.svg",
           "renderMode": "symbol-switch",
           "targetKana": "ぱ"
+        },
+        {
+          "id": "pattern-a-ha",
+          "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
+          "title": "広くなった「は」",
+          "description": "口が大きく開いた「あ」の発音",
+          "svg": "assets/namari/pattern-A/ha-NM1-morph.svg",
+          "sourceSvg": "assets/namari/pattern-A/ha-NM1.svg"
         }
       ],
       "normal": "assets/normal/ha.svg"
@@ -612,7 +712,16 @@
     },
     {
       "kana": "ま",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-a-ma",
+          "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
+          "title": "広くなった「ま」",
+          "description": "口が大きく開いた「あ」の発音",
+          "svg": "assets/namari/pattern-A/ma-NM1.svg",
+          "sourceSvg": "assets/namari/pattern-A/ma-NM1.svg"
+        }
+      ],
       "normal": "assets/normal/ma.svg"
     },
     {
@@ -645,7 +754,16 @@
     },
     {
       "kana": "や",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-a-ya",
+          "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
+          "title": "広くなった「や」",
+          "description": "口が大きく開いた「あ」の発音",
+          "svg": "assets/namari/pattern-A/ya-NM1.svg",
+          "sourceSvg": "assets/namari/pattern-A/ya-NM1.svg"
+        }
+      ],
       "normal": "assets/normal/ya.svg"
     },
     {
@@ -668,13 +786,39 @@
     },
     {
       "kana": "ら",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-a-ra",
+          "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
+          "title": "広くなった「ら」",
+          "description": "口が大きく開いた「あ」の発音",
+          "svg": "assets/namari/pattern-A/ra-NM1-morph.svg",
+          "sourceSvg": "assets/namari/pattern-A/ra-NM1.svg"
+        },
+        {
+          "id": "pattern-rn-3089",
+          "groupId": "379d76e7-5e1d-43e0-a3ee-c8e5b272f97b",
+          "title": "「ら」の r・n の混同",
+          "description": "「r」「ｎ」の舌位を混同して発音する。",
+          "svg": "assets/namari/pattern-RN/RNA-morph.svg",
+          "sourceSvg": "assets/namari/pattern-RN/RNA.svg"
+        }
+      ],
       "normal": "assets/normal/ra.svg"
     },
     {
       "kana": "り",
       "normal": "assets/normal/ri.svg",
-      "patterns": []
+      "patterns": [
+        {
+          "id": "pattern-rn-308a",
+          "groupId": "379d76e7-5e1d-43e0-a3ee-c8e5b272f97b",
+          "title": "「り」の r・n の混同",
+          "description": "「r」「ｎ」の舌位を混同して発音する。",
+          "svg": "assets/namari/pattern-RN/RNI-morph.svg",
+          "sourceSvg": "assets/namari/pattern-RN/RNI.svg"
+        }
+      ]
     },
     {
       "kana": "る",
@@ -685,23 +829,58 @@
           "title": "丸くなった「る」",
           "description": "中国語の母音「u」に影響された発音傾向。",
           "svg": "assets/namari/pattern-U/ru-NM.svg"
+        },
+        {
+          "id": "pattern-rn-308b",
+          "groupId": "379d76e7-5e1d-43e0-a3ee-c8e5b272f97b",
+          "title": "「る」の r・n の混同",
+          "description": "「r」「ｎ」の舌位を混同して発音する。",
+          "svg": "assets/namari/pattern-RN/RNU.svg",
+          "sourceSvg": "assets/namari/pattern-RN/RNU.svg"
         }
       ],
       "normal": "assets/normal/ru.svg"
     },
     {
       "kana": "れ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-rn-308c",
+          "groupId": "379d76e7-5e1d-43e0-a3ee-c8e5b272f97b",
+          "title": "「れ」の r・n の混同",
+          "description": "「r」「ｎ」の舌位を混同して発音する。",
+          "svg": "assets/namari/pattern-RN/RNE.svg",
+          "sourceSvg": "assets/namari/pattern-RN/RNE.svg"
+        }
+      ],
       "normal": "assets/normal/re.svg"
     },
     {
       "kana": "ろ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-rn-308d",
+          "groupId": "379d76e7-5e1d-43e0-a3ee-c8e5b272f97b",
+          "title": "「ろ」の r・n の混同",
+          "description": "「r」「ｎ」の舌位を混同して発音する。",
+          "svg": "assets/namari/pattern-RN/RNO.svg",
+          "sourceSvg": "assets/namari/pattern-RN/RNO.svg"
+        }
+      ],
       "normal": "assets/normal/ro.svg"
     },
     {
       "kana": "わ",
-      "patterns": [],
+      "patterns": [
+        {
+          "id": "pattern-a-wa",
+          "groupId": "5eaf5c65-4ee7-4097-9b90-cd6b31895e52",
+          "title": "広くなった「わ」",
+          "description": "口が大きく開いた「あ」の発音",
+          "svg": "assets/namari/pattern-A/wa-NM1.svg",
+          "sourceSvg": "assets/namari/pattern-A/wa-NM1.svg"
+        }
+      ],
       "normal": "assets/normal/wa.svg"
     },
     {
@@ -755,6 +934,14 @@
           "svg": "assets/namari/pattern-seidaku/gu-to-ku.svg",
           "renderMode": "symbol-switch",
           "targetKana": "く"
+        },
+        {
+          "id": "pattern-u-gu",
+          "groupId": "existing-ku",
+          "title": "丸くなった「ぐ」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/gu-NM-morph.svg",
+          "sourceSvg": "assets/namari/pattern-U/gu-NM.svg"
         }
       ],
       "normal": "assets/normal/gu.svg"
@@ -830,6 +1017,14 @@
           "svg": "assets/namari/pattern-seidaku/zu-to-su.svg",
           "renderMode": "symbol-switch",
           "targetKana": "す"
+        },
+        {
+          "id": "pattern-u-zu",
+          "groupId": "existing-ku",
+          "title": "丸くなった「ず」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/zu-NM-morph.svg",
+          "sourceSvg": "assets/namari/pattern-U/zu-NM.svg"
         }
       ],
       "normal": "assets/normal/zu.svg"
@@ -905,6 +1100,14 @@
           "svg": "assets/namari/pattern-seidaku/du-to-tsu.svg",
           "renderMode": "symbol-switch",
           "targetKana": "つ"
+        },
+        {
+          "id": "pattern-u-du",
+          "groupId": "existing-ku",
+          "title": "丸くなった「づ」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/du-NM-morph.svg",
+          "sourceSvg": "assets/namari/pattern-U/du-NM.svg"
         }
       ],
       "normal": "assets/normal/du.svg"
@@ -1007,6 +1210,14 @@
           "svg": "assets/namari/pattern-seidaku/bu-to-pu.svg",
           "renderMode": "symbol-switch",
           "targetKana": "ぷ"
+        },
+        {
+          "id": "pattern-u-bu",
+          "groupId": "existing-ku",
+          "title": "丸くなった「ぶ」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/bu-NM-morph.svg",
+          "sourceSvg": "assets/namari/pattern-U/bu-NM.svg"
         }
       ],
       "normal": "assets/normal/bu.svg"
@@ -1127,6 +1338,14 @@
           "svg": "assets/namari/pattern-seidaku/pu-to-bu.svg",
           "renderMode": "symbol-switch",
           "targetKana": "ぶ"
+        },
+        {
+          "id": "pattern-u-pu",
+          "groupId": "existing-ku",
+          "title": "丸くなった「ぷ」",
+          "description": "中国語の母音「u」に影響された発音傾向。",
+          "svg": "assets/namari/pattern-U/pu-NM-morph.svg",
+          "sourceSvg": "assets/namari/pattern-U/pu-NM.svg"
         }
       ],
       "normal": "assets/normal/pu.svg"
@@ -1709,6 +1928,12 @@
         }
       ],
       "normal": "assets/normal/pyo.svg"
+    },
+    {
+      "kana": "っ",
+      "normal": "assets/normal/xtsu-outlined.svg",
+      "patterns": [],
+      "sourceNormal": "assets/normal/xtsu.svg"
     }
   ],
   "levels": [
@@ -1791,6 +2016,77 @@
       ]
     },
     {
+      "id": "b106206b-f825-464f-8cdc-bcd665c2c591",
+      "word": "えんぴつけずり",
+      "morae": [
+        "え",
+        "ん",
+        "ぴ",
+        "つ",
+        "け",
+        "ず",
+        "り"
+      ],
+      "audio": "uploads/audio/5591134f-413f-418f-ab7d-efe28ba45ab5.wav",
+      "recordingId": "428152f6-e686-42de-972a-e11688bbe750",
+      "defaultAccent": [
+        "low",
+        "high",
+        "high",
+        "high",
+        "high",
+        "low",
+        "low"
+      ]
+    },
+    {
+      "id": "723b0cae-9b95-47ff-895b-cc458170fe9f",
+      "word": "ひなんこうどう",
+      "morae": [
+        "ひ",
+        "な",
+        "ん",
+        "こ",
+        "う",
+        "ど",
+        "う"
+      ],
+      "audio": "uploads/audio/9cadcfeb-71fa-4600-a46e-1ba10f66d5d9.wav",
+      "recordingId": "688ddb68-4c91-4406-9f01-81d1ebc0cc6a",
+      "defaultAccent": [
+        "low",
+        "high",
+        "high",
+        "high",
+        "high",
+        "high",
+        "high"
+      ]
+    },
+    {
+      "id": "748ed832-3394-4d4f-98b2-530859285522",
+      "word": "かのうせい",
+      "morae": [
+        "か",
+        "の",
+        "う",
+        "せ",
+        "い"
+      ],
+      "audio": "uploads/audio/712c0329-f587-48ba-a3ae-627fe71e4abe.wav",
+      "recordingId": "90dc3fc5-b51f-4b51-8c01-e9c0495fdf4f",
+      "defaultAccent": [
+        "low",
+        "high",
+        "high",
+        "high",
+        "high"
+      ]
+    }
+  ],
+  "updatedAt": "2026-11-19T04:17:41.874Z",
+  "archivedLevels": [
+    {
       "id": "experiment-be-pe",
       "word": "べ",
       "morae": [
@@ -1804,7 +2100,8 @@
       ],
       "qualityCheck": {
         "type": "visual_experiment"
-      }
+      },
+      "deletedAt": "2026-11-19T02:36:41.032Z"
     },
     {
       "id": "experiment-seidaku-string",
@@ -1828,8 +2125,588 @@
       ],
       "qualityCheck": {
         "type": "visual_experiment"
-      }
+      },
+      "deletedAt": "2026-11-19T02:36:45.296Z"
     }
   ],
-  "updatedAt": "2026-11-16T14:16:38.025Z"
+  "modeOneLevels": [
+    {
+      "id": "08077b62-c9ae-40f1-b7de-3a7b7af0e0e7",
+      "mode": "diyMora",
+      "chapter": "mora",
+      "word": "けいぞくてきに",
+      "reading": [
+        "け",
+        "い",
+        "ぞ",
+        "く",
+        "て",
+        "き",
+        "に"
+      ],
+      "pattern": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "targetIndexes": [],
+      "patternChoices": [],
+      "beats": [
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/000f04c7-ed67-46f9-ba0e-03d7a16b6666.wav",
+      "audioHash": "57d27ee7f89bf54745f069b0bcee2f61f6a3a228b524aaa2dd6800787fb7372b",
+      "audioName": "1号小岚-継続的に.wav",
+      "recordingId": "f398a8ab-a7aa-4916-83cc-736dc019edcb",
+      "createdAt": "2026-11-19T03:55:47.765Z",
+      "updatedAt": "2026-11-19T03:55:47.765Z",
+      "source": "diy-project"
+    },
+    {
+      "id": "120f86f6-fcb3-4d15-bb26-0a1a50a950f2",
+      "mode": "diyMora",
+      "chapter": "mora",
+      "word": "しょうしん",
+      "reading": [
+        "しょ",
+        "う",
+        "し",
+        "ん"
+      ],
+      "pattern": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "targetIndexes": [],
+      "patternChoices": [],
+      "beats": [
+        1,
+        0,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/a4817a5b-8b5d-48a5-95e8-68682719540f.wav",
+      "audioHash": "ac693178960c8800d9f23f937cacae8e4149a7a6df105d27e47dffd78fb83c92",
+      "audioName": "９号　昇進.wav",
+      "recordingId": "f790db38-042f-47f7-a8e0-dab2b8a1f277",
+      "createdAt": "2026-11-19T03:54:58.989Z",
+      "updatedAt": "2026-11-19T03:54:58.989Z",
+      "source": "diy-project"
+    },
+    {
+      "id": "cfc14c7e-c144-43b9-8fa4-507d6d325c4e",
+      "mode": "diyVowel",
+      "chapter": "vowelChallenge",
+      "word": "いちぶ",
+      "reading": [
+        "い",
+        "ち",
+        "ぶ"
+      ],
+      "pattern": [
+        null,
+        null,
+        null
+      ],
+      "targetIndexes": [
+        2
+      ],
+      "patternChoices": [
+        null,
+        "pattern-souki-chi",
+        "pattern-u-bu"
+      ],
+      "beats": [
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false
+      ],
+      "audio": "uploads/audio/ddc3f2ae-7d61-4208-b4de-0c24b35322e4.wav",
+      "audioHash": "37530c2ea1d43af1331568a8dd85a7dc1a0b6bff37a780313da19024238ec074",
+      "audioName": "1号小岚-一部.wav",
+      "recordingId": "02a90a4e-7f1a-43b8-8b4e-91939b70c9a9",
+      "createdAt": "2026-11-19T03:05:14.027Z",
+      "updatedAt": "2026-11-19T03:53:37.790Z",
+      "source": "diy-project"
+    },
+    {
+      "id": "c7c1772c-815a-43aa-8d70-4ffb0a67719e",
+      "mode": "diyAccent",
+      "chapter": "accent",
+      "word": "くすり",
+      "reading": [
+        "く",
+        "す",
+        "り"
+      ],
+      "pattern": [
+        "low",
+        "high",
+        "low"
+      ],
+      "targetIndexes": [],
+      "patternChoices": [],
+      "beats": [
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false
+      ],
+      "audio": "uploads/audio/b4a97e38-032d-4396-a11d-20dbe87248fc.wav",
+      "audioHash": "853c7082af1ecf5c401ed4049a3b034c59d267c7c3f586eafe349c76f964bcab",
+      "audioName": "12号くすり.wav",
+      "recordingId": "2572210f-7d1f-421e-8805-45868d41022a",
+      "createdAt": "2026-11-19T03:03:47.467Z",
+      "updatedAt": "2026-11-19T03:03:47.467Z",
+      "source": "diy-project"
+    },
+    {
+      "id": "70bb338d-6da5-4069-8764-06f031ff9ea1",
+      "mode": "diyMora",
+      "chapter": "mora",
+      "word": "かりきゅらむ",
+      "reading": [
+        "か",
+        "り",
+        "きゅ",
+        "ら",
+        "む"
+      ],
+      "pattern": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "targetIndexes": [],
+      "patternChoices": [],
+      "beats": [
+        1,
+        1,
+        1,
+        2,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/e364b54a-e89d-45ac-a30c-0af8292bfce5.wav",
+      "audioHash": "f229d75577ab7bfe5095e7638dd0c69ba3b9b3e0c7d321edaca8c950eb81bfa8",
+      "audioName": "９号カリキュラム.wav",
+      "recordingId": "69723208-45e6-4d80-9378-762ff51292b2",
+      "createdAt": "2026-11-19T03:01:29.851Z",
+      "updatedAt": "2026-11-19T03:02:11.627Z",
+      "source": "diy-project"
+    },
+    {
+      "id": "ea472ee3-9db9-43e2-b787-d7fa42009799",
+      "mode": "diyAccent",
+      "chapter": "accent",
+      "word": "とおりみち",
+      "reading": [
+        "と",
+        "お",
+        "り",
+        "み",
+        "ち"
+      ],
+      "pattern": [
+        "high",
+        "high",
+        "low",
+        "low",
+        "low"
+      ],
+      "targetIndexes": [],
+      "patternChoices": [],
+      "beats": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/0b63df6c-49db-4d86-bc55-e2a58d3a09f5.wav",
+      "audioHash": "261de6038980b4ccc4428240533434edad8282abc0f9c3a74801517b44347f21",
+      "audioName": "15号　通り道.wav",
+      "recordingId": "83781f7b-313c-4c51-9b4d-2859f5a3d667",
+      "createdAt": "2026-11-19T02:55:14.124Z",
+      "updatedAt": "2026-11-19T02:55:14.124Z",
+      "source": "diy-project"
+    },
+    {
+      "id": "3ed1e5ee-cf5a-457b-be09-f398937cb33f",
+      "mode": "diyAccent",
+      "chapter": "accent",
+      "word": "きんめだる",
+      "reading": [
+        "き",
+        "ん",
+        "め",
+        "だ",
+        "る"
+      ],
+      "pattern": [
+        "low",
+        "high",
+        "low",
+        "high",
+        "low"
+      ],
+      "targetIndexes": [],
+      "patternChoices": [],
+      "beats": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/7cc5974e-b8fa-4f21-9d7a-d19668eb35c7.wav",
+      "audioHash": "c03e1040f96eb407099b3d7c1d6e867e20c26d13521933b049fe2cf708d61c7d",
+      "audioName": "９号金メダル.wav",
+      "recordingId": "35ff9d0b-927b-4971-ae16-e0b5a476e271",
+      "createdAt": "2026-11-19T02:54:18.636Z",
+      "updatedAt": "2026-11-19T02:54:18.636Z",
+      "source": "diy-project"
+    },
+    {
+      "id": "141f19c3-1774-46f8-8079-f16c48841e3d",
+      "mode": "diyAccent",
+      "chapter": "accent",
+      "word": "ぱいろっと",
+      "reading": [
+        "ぱ",
+        "い",
+        "ろ",
+        "っ",
+        "と"
+      ],
+      "pattern": [
+        "low",
+        "low",
+        "high",
+        "high",
+        "low"
+      ],
+      "targetIndexes": [],
+      "patternChoices": [],
+      "beats": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/31e302b9-b36f-400c-8d81-8cf62ed75db9.wav",
+      "audioHash": "6f9314bc0855f0dec843af711c8b845a57486975cee32d80d5ff36fe1b2a3f54",
+      "audioName": "3号パイロット.wav",
+      "recordingId": "b09e8944-6553-48c8-9d92-d580048969bd",
+      "createdAt": "2026-11-19T02:53:00.660Z",
+      "updatedAt": "2026-11-19T02:53:00.660Z",
+      "source": "diy-project"
+    },
+    {
+      "id": "fecffa51-4a70-4f17-8ef0-d7d1948f4f8f",
+      "mode": "diyAccent",
+      "chapter": "accent",
+      "word": "じゅうみん",
+      "reading": [
+        "じゅ",
+        "う",
+        "み",
+        "ん"
+      ],
+      "pattern": [
+        "low",
+        "low",
+        "high",
+        "high"
+      ],
+      "targetIndexes": [],
+      "patternChoices": [],
+      "beats": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/73a649ad-123c-4281-a669-b136fc8e144b.wav",
+      "audioHash": "e6891f9db22d8485dc6916e6006e58ba4fcf9e71ca72d4a4fafc3137c5a11161",
+      "audioName": "1号小岚-住民.wav",
+      "recordingId": "948b3934-48ed-4a6f-afd6-f27d7bc9c02a",
+      "createdAt": "2026-11-19T02:50:40.588Z",
+      "updatedAt": "2026-11-19T02:50:40.589Z",
+      "source": "diy-project"
+    },
+    {
+      "id": "77701bec-890c-40b5-a506-5fc07d31edf5",
+      "mode": "diyVowel",
+      "chapter": "vowelChallenge",
+      "word": "えんぴつけずり",
+      "reading": [
+        "え",
+        "ん",
+        "ぴ",
+        "つ",
+        "け",
+        "ず",
+        "り"
+      ],
+      "pattern": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "targetIndexes": [
+        2,
+        4
+      ],
+      "patternChoices": [
+        null,
+        null,
+        "seidaku-pi-to-bi",
+        "pattern-u-tsu",
+        "seidaku-ke-to-ge",
+        "seidaku-zu-to-su"
+      ],
+      "beats": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/98c749e2-9dac-46f4-9a32-9d6a3b95e4f3.wav",
+      "audioHash": "e43dcfbe02fedd096f71da8d66964772f3d240a2f42c414d33a4fc67b0975040",
+      "audioName": "11号えんぴつ.wav",
+      "recordingId": "77701bec-890c-40b5-a506-5fc07d31edf5-recording-v1",
+      "createdAt": "2026-11-18T14:57:17.480Z",
+      "updatedAt": "2026-11-18T14:57:17.480Z",
+      "source": "diy-project"
+    },
+    {
+      "id": "957231e2-93cb-446f-bea0-5618723092e7",
+      "mode": "diyVowel",
+      "chapter": "vowelChallenge",
+      "word": "ぱいろっと",
+      "reading": [
+        "ぱ",
+        "い",
+        "ろ",
+        "っ",
+        "と"
+      ],
+      "pattern": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "targetIndexes": [
+        0
+      ],
+      "patternChoices": [
+        "seidaku-pa-to-ba",
+        null,
+        null,
+        null,
+        "pattern-souki-to"
+      ],
+      "beats": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/8325cb06-86b6-4c98-af59-01978e984878.wav",
+      "audioHash": "6c91df51e175d37eb1a50e5e19dde7b998073481a50b2233cff62ed670b64053",
+      "audioName": "11号ばいろっと.wav",
+      "recordingId": "957231e2-93cb-446f-bea0-5618723092e7-recording-v1",
+      "createdAt": "2026-11-18T14:56:26.001Z",
+      "updatedAt": "2026-11-18T14:56:26.001Z",
+      "source": "diy-project"
+    },
+    {
+      "id": "8309efe1-c7f2-48ba-84e5-9ea0d8e7ab42",
+      "mode": "diyVowel",
+      "chapter": "vowelChallenge",
+      "word": "ゆでたまご",
+      "reading": [
+        "ゆ",
+        "で",
+        "た",
+        "ま",
+        "ご"
+      ],
+      "pattern": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "targetIndexes": [
+        2
+      ],
+      "patternChoices": [
+        "pattern-u-yu",
+        "seidaku-de-to-te",
+        "seidaku-ta-to-da",
+        null,
+        "seidaku-go-to-ko"
+      ],
+      "beats": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/c325d94e-68c9-4488-90c5-b707e675012c.wav",
+      "audioHash": "ff45a0dc4d446d21b94dc2bef657229cc81a4f6a2074d4eb511ea55fa59d6088",
+      "audioName": "4号ゆでだまこ.wav",
+      "recordingId": "8309efe1-c7f2-48ba-84e5-9ea0d8e7ab42-recording-v1",
+      "createdAt": "2026-11-18T14:55:42.368Z",
+      "updatedAt": "2026-11-18T14:55:42.368Z",
+      "source": "diy-project"
+    },
+    {
+      "id": "39f2954e-39e4-4d47-a36d-a6988bd5c6f8",
+      "mode": "diyVowel",
+      "chapter": "vowelChallenge",
+      "word": "ゆでたまご",
+      "reading": [
+        "ゆ",
+        "で",
+        "た",
+        "ま",
+        "ご"
+      ],
+      "pattern": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "targetIndexes": [
+        0
+      ],
+      "patternChoices": [
+        "pattern-u-yu",
+        "seidaku-de-to-te",
+        "pattern-souki-ta",
+        null,
+        "seidaku-go-to-ko"
+      ],
+      "beats": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/883062f1-99c3-4c85-a0e7-21d47cd5674f.wav",
+      "audioHash": "696bb031402ab793c0fd1e2a1e1ff91c29707a997dc954d2e3da06885dd4f001",
+      "audioName": "1号-ゆで卵.wav",
+      "recordingId": "39f2954e-39e4-4d47-a36d-a6988bd5c6f8-recording-v1",
+      "createdAt": "2026-11-18T14:54:52.121Z",
+      "updatedAt": "2026-11-18T14:54:52.121Z",
+      "source": "diy-project"
+    }
+  ]
 }

@@ -1,6 +1,6 @@
 import {participantId} from './participantIdentity.js';
-export const APP_VERSION='2026.11.16-research-extension-v1';
-export const TUTORIAL_VERSION='2026.11.16-guided-v2';
+export const APP_VERSION='2026.11.19-tutorial-sequence-v1';
+export const TUTORIAL_VERSION='2026.11.19-guided-skippable-v5';
 let protocol=null;
 const base=()=>import.meta.env?.BASE_URL||'/NAMARI-app/';
 function read(key,fallback){try{return JSON.parse(localStorage.getItem(key)||'null')??fallback;}catch{return fallback;}}

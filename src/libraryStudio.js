@@ -1,3 +1,6 @@
+import {linkedMora,linkPitch} from './data/linkedPitch.js';
+import {confirmQuestionDeletion} from './authorConfirmation.js';
+import {archiveLevel,restoreLevel} from './data/levelManagement.js';
 import { normalizePatternFolders, remapDraftAssets } from './data/assetOrganization.js';
 import { connectDirectory, disconnectDirectory, directoryConnected, directoryName } from './data/directoryProject.js';
 import { readLibrary,writeLibrary,uploadAsset,assetUrl } from './data/projectLibrary.js';
@@ -30,6 +33,7 @@ export async function mountAuthor(root){
  if(button.disabled)root.querySelector('[data-connect-status]').textContent='パソコンのChromeまたはEdgeで開いてください。';
  button.onclick=async()=>{button.disabled=true;try{await connectDirectory();if(root.isConnected)mountAuthor(root);}catch(e){root.querySelector('[data-connect-status]').textContent=e.name==='AbortError'?'フォルダーの選択をキャンセルしました。':e.name==='NotAllowedError'?'フォルダーへのアクセスを許可してください。':e.name==='NotFoundError'?'プロジェクトのフォルダーを選んでください。設定や素材が見つかりません。':e.message;}finally{if(button.isConnected)button.disabled=false;}};return;
  }
+ let savingLevel=false;
  let library=await readLibrary(),kana='く',tab='glyph',editingLevel=null;
  let drafts;try{drafts=JSON.parse(localStorage.getItem('kotoba-author-drafts')||'{}');}catch{drafts={};}
  const remember=(key,data)=>{drafts[key]=structuredClone(data);localStorage.setItem('kotoba-author-drafts',JSON.stringify(drafts));};
@@ -64,16 +68,34 @@ export async function mountAuthor(root){
  }
  function levelEditor(){
  const draftKey='level:'+(editingLevel||'new');const draft=structuredClone(drafts[draftKey]||library.levels.find(l=>l.id===editingLevel)||{id:uid(),word:'',morae:[],audio:null,recordingId:uid(),defaultAccent:[]});
- const body=root.querySelector('[data-editor-body]');body.innerHTML=`<div class="author-levels"><button data-new-level>＋ 問題を追加</button>${library.levels.map(l=>`<button data-edit-level="${esc(l.id)}">${esc(l.word)}</button>`).join('')}</div><form class="author-form"><h2>録音と問題</h2><label>表示することば<input data-word value="${esc(draft.word)}" required></label><label>拍ごとのかな（・で区切る。「きゅ」は1拍）<input data-morae value="${esc(draft.morae.join('・'))}" placeholder="く・す・り" required></label><label>録音<input type="file" accept="audio/*" data-audio-file></label><audio controls data-audio-preview ${draft.audio?`src="${esc(assetUrl(draft.audio))}"`:''}></audio><label>参照音声（任意）<input type="file" accept="audio/*" data-reference-file></label><audio controls data-reference-preview ${draft.referenceAudio?`src="${esc(assetUrl(draft.referenceAudio))}"`:''}></audio><button type="button" data-remove-reference>参照音声を外す</button><div data-accent></div><button class="primary-cta compact">問題を保存</button>${editingLevel?'<button type="button" data-remove-level>問題の一覧から外す（過去の設定はバックアップに保存）</button>':''}<p>字形とパターンは図鑑から読み込みます。通常SVGのない文字は標準フォントで表示します。録音を変更すると録音IDも変わり、集計を分けます。</p></form>`;
+ const body=root.querySelector('[data-editor-body]');body.innerHTML=`<div class="author-levels"><button data-new-level>＋ 問題を追加</button>${library.levels.map(l=>`<button data-edit-level="${esc(l.id)}" aria-pressed="${l.id===editingLevel}">${esc(l.word)} · 編集</button>`).join('')}</div><p>保存済みのことばを選ぶと、録音・読み・アクセントを編集できます。削除した問題は下の一覧から復元できます。</p><div data-archived-levels></div><form class="author-form"><h2>${editingLevel?'問題を編集':'録音と問題'}</h2><label>表示することば<input data-word value="${esc(draft.word)}" required></label><label>拍ごとのかな（・で区切る。「きゅ」は1拍）<input data-morae value="${esc(draft.morae.join('・'))}" placeholder="く・す・り" required></label><label>録音<input type="file" accept="audio/*" data-audio-file></label><audio controls data-audio-preview ${draft.audio?`src="${esc(assetUrl(draft.audio))}"`:''}></audio><label>参照音声（任意）<input type="file" accept="audio/*" data-reference-file></label><audio controls data-reference-preview ${draft.referenceAudio?`src="${esc(assetUrl(draft.referenceAudio))}"`:''}></audio><button type="button" data-remove-reference>参照音声を外す</button><div data-accent></div><button class="primary-cta compact">問題を保存</button>${editingLevel?'<button type="button" data-remove-level>この問題を削除（復元できます）</button>':''}<p>字形とパターンは図鑑から読み込みます。通常SVGのない文字は標準フォントで表示します。録音を変更すると録音IDも変わり、集計を分けます。</p></form>`;
  body.querySelector('[data-word]').oninput=e=>{draft.word=e.target.value;remember(draftKey,draft);};
- if(editingLevel)body.querySelector('[data-remove-level]').onclick=async()=>{try{library.levels=library.levels.filter(l=>l.id!==editingLevel);await commit();forget(draftKey);editingLevel=null;render();}catch(e){message(e.message);}};
+ const applyLevelChange=async(change,done)=>{
+  if(savingLevel)return;savingLevel=true;const previous=library;
+  root.querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{library=change();await commit();done();render();message('問題一覧を保存しました · 版 '+library.revision);}
+  catch(e){library=previous;message('保存できませんでした：'+e.message);}
+  finally{savingLevel=false;root.querySelectorAll('button').forEach(b=>b.disabled=false);}
+ };
+ if(editingLevel)body.querySelector('[data-remove-level]').onclick=async()=>{
+  if(!await confirmQuestionDeletion(draft.word))return;
+  applyLevelChange(()=>archiveLevel(library,editingLevel),()=>{forget(draftKey);editingLevel=null;});
+ };
+ if(editingLevel){const cancel=document.createElement('button');cancel.type='button';cancel.textContent='編集をキャンセル';cancel.onclick=()=>{forget(draftKey);editingLevel=null;render();};body.querySelector('[data-remove-level]').before(cancel);}
+ const archive=body.querySelector('[data-archived-levels]');
+ archive.innerHTML=(library.archivedLevels||[]).length?'<details><summary>削除した問題（復元できます）</summary>'+library.archivedLevels.map(l=>'<p>'+esc(l.word)+' <button type="button" data-restore-level="'+esc(l.id)+'">復元</button></p>').join('')+'</details>':'';
+ archive.querySelectorAll('[data-restore-level]').forEach(b=>b.onclick=()=>applyLevelChange(()=>restoreLevel(library,b.dataset.restoreLevel),()=>{}));
  body.querySelector('[data-new-level]').onclick=()=>{editingLevel=null;render();};body.querySelectorAll('[data-edit-level]').forEach(b=>b.onclick=()=>{editingLevel=b.dataset.editLevel;render();});
- const drawAccent=()=>{body.querySelector('[data-accent]').innerHTML=draft.morae.map((m,i)=>`<label>${esc(m)}<select data-accent-index="${i}"><option value="low" ${draft.defaultAccent[i]==='low'?'selected':''}>低 L</option><option value="high" ${draft.defaultAccent[i]==='high'?'selected':''}>高 H</option></select></label>`).join('');body.querySelectorAll('[data-accent-index]').forEach(s=>s.onchange=()=>{draft.defaultAccent[Number(s.dataset.accentIndex)]=s.value;remember(draftKey,draft);});};drawAccent();
+ const drawAccent=()=>{draft.defaultAccent=linkPitch(draft.morae,draft.defaultAccent);body.querySelector('[data-accent]').innerHTML=draft.morae.map((m,i)=>`<label>${esc(m)}<select data-accent-index="${i}" ${linkedMora(draft.morae,i)?'disabled title="前の拍と連動"':''}><option value="low" ${draft.defaultAccent[i]==='low'?'selected':''}>低 L</option><option value="high" ${draft.defaultAccent[i]==='high'?'selected':''}>高 H</option></select></label>`).join('');body.querySelectorAll('[data-accent-index]').forEach(s=>s.onchange=()=>{draft.defaultAccent[Number(s.dataset.accentIndex)]=s.value;drawAccent();remember(draftKey,draft);});};drawAccent();
  body.querySelector('[data-morae]').oninput=e=>{draft.morae=e.target.value.split('・').map(s=>s.trim()).filter(Boolean);draft.defaultAccent=draft.morae.map((_,i)=>draft.defaultAccent[i]||'low');remember(draftKey,draft);drawAccent();};
  body.querySelector('[data-audio-file]').onchange=e=>uploading(e.target,p=>{draft.audio=p;draft.recordingId=uid();remember(draftKey,draft);body.querySelector('audio').src=assetUrl(p);});
  body.querySelector('[data-reference-file]').onchange=e=>uploading(e.target,p=>{draft.referenceAudio=p;draft.referenceRecordingId=uid();remember(draftKey,draft);body.querySelector('[data-reference-preview]').src=assetUrl(p);});
  body.querySelector('[data-remove-reference]').onclick=()=>{draft.referenceAudio=null;draft.referenceRecordingId=null;remember(draftKey,draft);body.querySelector('[data-reference-preview]').removeAttribute('src');};
- body.querySelector('form').onsubmit=async e=>{e.preventDefault();try{draft.word=body.querySelector('[data-word]').value.trim();if(!draft.word||!draft.audio||!draft.morae.length)throw new Error('録音と拍ごとのかなを入力してください。');if(draft.morae.length>30)throw new Error('1問につき30拍以内にしてください。');const index=library.levels.findIndex(l=>l.id===draft.id);if(index>=0)library.levels[index]=draft;else library.levels.push(draft);await commit();forget(draftKey);editingLevel=draft.id;render();message(`問題を保存しました · 版 ${library.revision}`);}catch(e){message(e.message);}};
+ body.querySelector('form').onsubmit=async e=>{e.preventDefault();try{
+ draft.word=body.querySelector('[data-word]').value.trim();if(!draft.word||(!draft.audio&&!draft.visualExperiment)||!draft.morae.length)throw new Error('録音と拍ごとのかなを入力してください。');
+ if(draft.morae.length>30)throw new Error('1問につき30拍以内にしてください。');
+ await applyLevelChange(()=>({...library,levels:library.levels.some(l=>l.id===draft.id)?library.levels.map(l=>l.id===draft.id?{...draft,updatedAt:new Date().toISOString()}:l):[...library.levels,draft]}),()=>{forget(draftKey);editingLevel=draft.id;});
+ }catch(e){message(e.message);}};
  }
  render();
  }catch(e){root.textContent=e.message;}

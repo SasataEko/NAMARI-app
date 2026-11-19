@@ -62,7 +62,7 @@ export async function retryPending(record,level){
 export async function cloudAggregate(level,options){
  const config=await collectionConfig();const request=await attachLevelVersion({recordingId:level.recordingId||`${level.id}-recording-v1`},level);
  const result=await jsonp(config.endpoint,{action:'stats',levelId:level.id,recordingId:request.recordingId,levelVersion:request.levelVersion,studyMode:options.studyMode||'test'},config.timeoutMs||30000);
- if(!result.ok)throw new Error('集団データを取得できませんでした');return result.aggregate;
+ if(!result.ok)throw new Error('集団データを取得できませんでした');if(result.aggregate?.aggregationPolicy!=='all_submissions_v1')throw new Error('Google Sheets側の更新が必要です。管理者がApps Scriptを再デプロイしてください。');return result.aggregate;
 }
 
 export async function retryAllPending(){

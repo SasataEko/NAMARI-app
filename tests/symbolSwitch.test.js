@@ -19,7 +19,9 @@ test('direction proportions remain separate and target SVG is an unchanged origi
  assert.equal(symbolDistribution('べ',[pattern],{})[0].rate,1);
 });
 test('silent experiments have exact requested text and cannot enter the cloud outbox',async()=>{
- const level=playableLevels(library).find(l=>l.id==='experiment-be-pe'),word=library.levels.find(l=>l.id==='experiment-seidaku-string');
+ // Researcher may remove diagnostic levels from the real catalogue. Keep diagnostics isolated here.
+ const fixture={...library,levels:[{id:'experiment-be-pe',word:'べ',morae:['べ'],audio:null,visualExperiment:true,defaultAccent:['low']},{id:'experiment-seidaku-string',word:'ぱぺびがぎょ',morae:['ぱ','ぺ','び','が','ぎょ'],audio:null,visualExperiment:true,defaultAccent:['low','high','high','high','high']}]};
+ const level=playableLevels(fixture).find(l=>l.id==='experiment-be-pe'),word=fixture.levels.find(l=>l.id==='experiment-seidaku-string');
  assert.equal(word.word,'ぱぺびがぎょ');assert.deepEqual(word.morae,['ぱ','ぺ','び','が','ぎょ']);assert.equal(level.audio,null);assert.equal(word.audio,null);
  globalThis.fetch=()=>{throw Error('Experimental answers must never use network');};
  const record={levelId:level.id,id:crypto.randomUUID(),participantId:'experiment-test',studyMode:'test',noticed:[true],pattern:['seidaku-be-to-pe'],features:['seidaku-be-to-pe'],pitch:['low'],beats:[1],blanks:[],audioPlayed:false,listenedMs:0,responseDurationMs:10,answerStatus:'explored',skipped:false,visualExperiment:true};

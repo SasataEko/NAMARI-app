@@ -1,13 +1,13 @@
 import {markTutorial} from './data/researchState.js';
 import { createTutorialGuide } from './tutorialGuide.js';
-export function createModeTwoGuide(root,{level,state,getMode,getSelected}){
+export function createModeTwoGuide(root,{level,state,getMode,getSelected,onSkip}){
   const guide=createTutorialGuide();let step='listen',disposed=false;
   const transitions={listen:['listened','segment-tab'],'segment-tab':['mode:segment','kana'],kana:['kana','pattern'],pattern:['pattern','pitch-tab'],'pitch-tab':['mode:pitch','pitch'],pitch:['pitch','duration-tab'],'duration-tab':['mode:duration','stretch'],stretch:['stretch','gap'],gap:['gap','free']};
   const cue=root.querySelector('[data-mode2-cue]'),end=root.querySelector('[data-guide-end]');
   const text={listen:'まず録音を最後まで聞いてみよう。', 'segment-tab':'「母音/子音」を押すと、文字の音を表現できます。',kana:'試しに「か」を選んでみよう。',pattern:'カードを選んで字形の変化を試してみよう。これは正解の指定ではありません。','pitch-tab':'次は「アクセント」を押してみよう。',pitch:'「か」の高低を変えて、背景の丸を動かしてみよう。','duration-tab':'次は「拍」を押してみよう。',stretch:'最後の「む」を2拍にのばしてみよう。',gap:'「か」の後に「＋」で空白拍の「ッ」を加えてみよう。',free:'操作の練習はここまで！ここからは自由に組み合わせて、聞こえたかたちをつくってみよう。送るタイミングも自由です。'};
-  end.onclick=()=>{markTutorial('mode2','exploration','skipped');step='free';refresh();};
+  end.onclick=()=>{if(step!=='free')markTutorial('mode2','exploration','skipped');guide.hide();if(onSkip)onSkip();else{step='free';refresh();}};
   function refresh(){
-    if(disposed||!root.isConnected)return;cue.textContent=text[step];end.hidden=step==='free';
+    if(disposed||!root.isConnected)return;cue.textContent=text[step];end.hidden=false;end.textContent=step==='free'?'次の問題へ':'チュートリアルをスキップ';
     if(step==='free'){guide.hide();return;}
     const audio=root.querySelector('audio');if(step==='listen'){guide.set(audio,{text:text.listen,step:'MODE 2 / 操作を試す'});return;}
     const work=root.querySelector('[data-mode2-workarea]'),highlight=work?[work]:[];

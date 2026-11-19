@@ -14,9 +14,9 @@ function server(){
 function record(c,id=crypto.randomUUID(),mode='research'){
  const l=c.LEVEL_MANIFEST[0];return withConsent(c,{id:crypto.randomUUID(),participantId:id,studyMode:mode,levelId:l.levelId,levelVersion:l.levelVersion,recordingId:l.recordingId,createdAt:new Date().toISOString(),noticed:l.characters.map((_,i)=>i===0),pattern:l.characters.map((ch,i)=>i===0?(ch.patterns[0]||null):null),pitch:l.defaultAccent,beats:l.characters.map((_,i)=>i===0?2:1),blanks:l.characters.slice(1).map(()=>false),audioPlayed:true,listenedMs:1000,responseDurationMs:5000,skipped:false,answerStatus:'explored'});
 }
-test('Apps Script upserts one Raw row, preserves Audit, rejects a stolen participant ID and retries idempotently',()=>{
+test('Apps Script records each submission, preserves Audit, rejects a stolen participant ID and retries idempotently',()=>{
  const {c,sheets}=server(),p=record(c),key=crypto.randomUUID();c.save_({response:p,participantKey:key});c.save_({response:p,participantKey:key});assert.equal(sheets.get('Raw').data.length,2);assert.equal(sheets.get('Audit').data.length,2);
- const updated={...p,id:crypto.randomUUID(),noticed:p.noticed.map(()=>false),pattern:p.pattern.map(()=>null)};c.save_({response:updated,participantKey:key});assert.equal(sheets.get('Raw').data.length,2);assert.equal(sheets.get('Audit').data.length,3);assert.throws(()=>c.save_({response:{...updated,id:crypto.randomUUID()},participantKey:crypto.randomUUID()}),/IDENTITY_MISMATCH/);
+ const updated={...p,id:crypto.randomUUID(),noticed:p.noticed.map(()=>false),pattern:p.pattern.map(()=>null)};c.save_({response:updated,participantKey:key});assert.equal(sheets.get('Raw').data.length,3);assert.equal(sheets.get('Audit').data.length,3);assert.throws(()=>c.save_({response:{...updated,id:crypto.randomUUID()},participantKey:crypto.randomUUID()}),/IDENTITY_MISMATCH/);
 });
 test('Mode2 aggregate is version/mode isolated; one participant is visible and owner deletion updates means',()=>{
  const {c,sheets}=server();let query;
@@ -101,4 +101,20 @@ test('optional background accepts not-applicable, feedback is formula-safe, and 
 test('per-target analysis preserves all click order and timings without inflating solved-target accuracy',()=>{
  const {c}=server(),p={events:[{kind:'kana',index:1,atMs:100},{kind:'kana',index:0,atMs:200},{kind:'kana',index:0,atMs:300},{kind:'kana',index:2,atMs:400}]},d={targets:[0,2]};const clicks=c.targetClickAnalysis_(p,d);
  assert.equal(clicks.length,4);assert.equal(clicks[1].first_identification,true);assert.equal(clicks[1].errors_preceding,1);assert.equal(clicks[2].review,true);assert.equal(clicks[3].click_order,4);assert.equal(clicks[3].relative_ms,400);
+});
+
+test('Sheets preserves zero beats, averages omitted durations, and rejects values outside 0/1/2',()=>{
+ const {c,sheets}=server(),a=record(c),b=record(c);a.beats[0]=0;b.beats[0]=2;
+ c.save_({response:a,participantKey:crypto.randomUUID()});c.save_({response:b,participantKey:crypto.randomUUID()});assert.equal(c.stats_(a).beats[0],1);assert.equal(c.stats_(a).omissionRates[0],.5);assert.equal(JSON.parse(sheets.get('Raw').data[1][10])[0],0);
+ const bad=record(c);bad.beats[0]=-1;assert.throws(()=>c.save_({response:bad,participantKey:crypto.randomUUID()}),/INVALID_RESPONSE/);
+ const definition={scoring:'rhythm',characters:[{text:'き'},{text:'っ'},{text:'ぷ'}],beats:[1,0,1],blanks:[false,false]},p={...mode1Record(c),studyMode:'test',mode1Definition:definition,events:[{kind:'rhythm',beats:[1,0,1],blanks:[false,false],atMs:5000}]};
+ assert.doesNotThrow(()=>c.mode1Validate_(p,definition));assert.equal(c.mode1Metrics_(p,definition).completed,true);assert.throws(()=>c.mode1Validate_({...p,events:[{kind:'rhythm',beats:[1,-1,1],blanks:[false,false],atMs:5000}]},definition),/INVALID_EVENTS/);
+});
+
+test('repeated answers count independently, but same-submission retries and same-attempt updates do not',()=>{
+ const {c,sheets}=server(),key=crypto.randomUUID(),p=record(c,crypto.randomUUID(),'test');
+ p.beats[0]=0;c.save_({response:p,participantKey:key});const second={...p,id:crypto.randomUUID(),beats:p.beats.map(()=>1)};c.save_({response:second,participantKey:key});c.save_({response:second,participantKey:key});
+ const g=c.stats_(p);assert.equal(g.count,2);assert.equal(g.participantCount,1);assert.equal(g.beats[0],.5);assert.equal(sheets.get('Raw').data.length,3);assert.equal(sheets.get('Audit').data.length,3);assert.equal(sheets.get('Mode2Summary').data[1][4],1);assert.equal(sheets.get('Mode2Summary').data[1][11],2);
+ const m=mode1Record(c,crypto.randomUUID(),'test'),mkey=crypto.randomUUID();c.saveMode1_({response:m,participantKey:mkey});c.saveMode1_({response:{...m,id:crypto.randomUUID()},participantKey:mkey});const replay={...m,id:crypto.randomUUID(),attemptId:crypto.randomUUID()};c.saveMode1_({response:replay,participantKey:mkey});
+ const mstats=c.mode1Aggregate_(m,false);assert.equal(mstats.count,2);assert.equal(mstats.participantCount,1);assert.equal(sheets.get('Mode1Raw').data.length,3);assert.equal(sheets.get('Mode1Summary').data[1][4],1);assert.equal(sheets.get('Mode1Summary').data[1][15],2);
 });

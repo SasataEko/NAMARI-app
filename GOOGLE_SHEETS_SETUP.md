@@ -1,3 +1,5 @@
+> 2026-11-19 更新：重复作答按每次提交/挑战统计；0拍、最新素材和新统计规则的部署步骤见 APPS_SCRIPT_UPDATE_2026-11-19.txt。以下早期“同参与者仅计一次”等描述已由此规则替代。
+
 > 2026-11-16 研究数据扩展：新增同意/背景/评价/反馈及部署流程见 [RESEARCH_DATA_EXTENSION.md](RESEARCH_DATA_EXTENSION.md)。该扩展尚未在线部署；research 保持禁用。下文早期初始化说明不应覆盖已有工作表。
 
 # Google Sheets + Apps Script 数据收集原型

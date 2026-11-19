@@ -1,3 +1,5 @@
+import {projectModeOneDefinition} from '../src/data/projectModeOne.js';
+import {linkPitch} from '../src/data/linkedPitch.js';
 import { modeTwoTutorialSource } from '../src/data/modeTwoTutorial.js';
 import { tutorials, tutorialDefinition } from '../src/data/tutorials.js';
 import { libraryGlyph } from '../src/data/patternLibrary.js';
@@ -9,7 +11,7 @@ const mode2Tutorial=modeTwoTutorialSource(library);
 const definitions=[...levels,...library.levels,...(mode2Tutorial?[mode2Tutorial]:[])];
 const manifests=await Promise.all(definitions.map(async l=>{
  const chars=l.characters?l.characters.map(c=>c.text):l.morae;
- const descriptor={levelId:l.id,recordingId:l.recordingId||`${l.id}-recording-v1`,defaultAccent:l.defaultAccent,characters:chars.map(k=>({text:k,patterns:(libraryGlyph(library,k)?.patterns||[]).map(p=>p.id)})),qualityCheck:l.qualityCheck||null};
+ const descriptor={levelId:l.id,recordingId:l.recordingId||`${l.id}-recording-v1`,defaultAccent:linkPitch(chars,l.defaultAccent),characters:chars.map(k=>({text:k,patterns:(libraryGlyph(library,k)?.patterns||[]).map(p=>p.id)})),qualityCheck:l.qualityCheck||null};
  const assets=[l.audio,l.referenceAudio,...chars.flatMap(k=>{const g=libraryGlyph(library,k);return g?[g.normal,...g.patterns.map(p=>p.svg)]:[];})].filter(Boolean);
  const assetHashes=await Promise.all(assets.map(async p=>createHash('sha256').update(await fs.readFile('public/'+p.replace(/^\/NAMARI-app\//,''))).digest('hex')));
  descriptor.levelVersion=createHash('sha256').update(JSON.stringify(descriptor)+JSON.stringify(chars.map(k=>libraryGlyph(library,k)||null))+JSON.stringify(assetHashes)).digest('hex').slice(0,16);return descriptor;
@@ -23,6 +25,12 @@ for(const question of tutorials){
  const assets=[question.audio,...question.reading.flatMap(k=>{const g=libraryGlyph(library,k);return g?[g.normal,...(question.mode==='diyVowel'?g.patterns.filter(p=>question.patternChoices.includes(p.id)).map(p=>p.svg):[])]:[];})].filter(Boolean);
  const hashes=await Promise.all(assets.map(async p=>createHash('sha256').update(await fs.readFile('public/'+p)).digest('hex')));
  mode1.push({levelId:question.id,recordingId:question.recordingId,levelVersion:createHash('sha256').update(JSON.stringify(definition)+hashes.join('')).digest('hex').slice(0,16),definition});
+}
+for(const question of library.modeOneLevels||[]){
+ const definition=projectModeOneDefinition(library,question);
+ const assets=[question.audio,...question.reading.flatMap((k,i)=>{const g=libraryGlyph(library,k);return g?[g.normal,...(question.mode==='diyVowel'?g.patterns.filter(p=>definition.patternChoices.includes(p.id)).map(p=>p.svg):[])]:[];})].filter(Boolean);
+ const hashes=await Promise.all(assets.map(async p=>createHash('sha256').update(await fs.readFile('public/'+p)).digest('hex')));
+ mode1.push({levelId:question.id,recordingId:question.recordingId||question.id+'-recording-v1',levelVersion:createHash('sha256').update(JSON.stringify(definition)+hashes.join('')).digest('hex').slice(0,16),definition});
 }
 await fs.writeFile('public/content/mode-one-manifest.json',JSON.stringify(mode1,null,2)+'\n');
 await fs.writeFile('apps-script/mode-one-levels.json',JSON.stringify(mode1,null,2)+'\n');

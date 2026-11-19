@@ -1,3 +1,4 @@
+import {linkPitch} from './linkedPitch.js';
 // Guided lessons are intentionally separate from research trials.
 export const tutorials = [
   {id:'tutorial-kusuri',chapter:'vowelChallenge',word:'くすり',reading:['く','す','り'],audio:'assets/kusuri-audio.mp3',recordingId:'kusuri-recording-v1',mode:'diyVowel',targetIndexes:[0],patternChoices:['ku-custom',null,null],tutorial:true},
@@ -8,6 +9,6 @@ export function rhythmAnswer(question){const n=question.reading.length;return {s
 export function tutorialDefinition(question,library){
   if(question.mode==='diyMora')return rhythmAnswer(question);
   const characters=question.reading.map(text=>({text}));
-  if(question.mode==='diyAccent')return {scoring:'pattern',characters,pitch:question.pattern};
+  if(question.mode==='diyAccent')return {scoring:'pattern',characters,pitch:linkPitch(question.reading,question.pattern)};
   return {scoring:'selection',characters,targets:question.targetIndexes,patternChoices:question.reading.map((text,i)=>question.targetIndexes.includes(i)?question.patternChoices[i]:null)};
 }

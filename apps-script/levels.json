@@ -26,11 +26,13 @@
       },
       {
         "text": "り",
-        "patterns": []
+        "patterns": [
+          "pattern-rn-308a"
+        ]
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "149d1371b825043f"
+    "levelVersion": "044b185bff770873"
   },
   {
     "levelId": "9e584fe5-6873-4db1-9b09-d75c806d5bb4",
@@ -59,12 +61,15 @@
         "text": "た",
         "patterns": [
           "pattern-souki-ta",
-          "seidaku-ta-to-da"
+          "seidaku-ta-to-da",
+          "pattern-a-ta"
         ]
       },
       {
         "text": "ま",
-        "patterns": []
+        "patterns": [
+          "pattern-a-ma"
+        ]
       },
       {
         "text": "ご",
@@ -74,7 +79,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "6e1fb63b803965b4"
+    "levelVersion": "a8b324302f443b50"
   },
   {
     "levelId": "130bfe9f-865c-4bf5-a2de-30e514330402",
@@ -91,12 +96,15 @@
         "text": "か",
         "patterns": [
           "pattern-souki-ka",
-          "seidaku-ka-to-ga"
+          "seidaku-ka-to-ga",
+          "pattern-a-ka"
         ]
       },
       {
         "text": "り",
-        "patterns": []
+        "patterns": [
+          "pattern-rn-308a"
+        ]
       },
       {
         "text": "きゅ",
@@ -106,7 +114,10 @@
       },
       {
         "text": "ら",
-        "patterns": []
+        "patterns": [
+          "pattern-a-ra",
+          "pattern-rn-3089"
+        ]
       },
       {
         "text": "む",
@@ -116,7 +127,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "f09f8813487a2294"
+    "levelVersion": "2b20ac04a7080e5d"
   },
   {
     "levelId": "ccb4f0b9-8e27-4cbf-9998-37ce23e56908",
@@ -153,12 +164,13 @@
       {
         "text": "る",
         "patterns": [
-          "pattern-u-ru"
+          "pattern-u-ru",
+          "pattern-rn-308b"
         ]
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "90c7ac799d0813bd"
+    "levelVersion": "fb70d3d3bde4c26e"
   },
   {
     "levelId": "0d3eb58f-7be3-4d09-aaf3-ecbb7f9e3254",
@@ -198,74 +210,171 @@
     "levelVersion": "196c4f5c134fca9c"
   },
   {
-    "levelId": "experiment-be-pe",
-    "recordingId": "experiment-be-pe-no-audio-v1",
+    "levelId": "b106206b-f825-464f-8cdc-bcd665c2c591",
+    "recordingId": "428152f6-e686-42de-972a-e11688bbe750",
     "defaultAccent": [
+      "low",
+      "high",
+      "high",
+      "high",
+      "high",
+      "low",
       "low"
     ],
     "characters": [
       {
-        "text": "べ",
+        "text": "え",
+        "patterns": []
+      },
+      {
+        "text": "ん",
+        "patterns": []
+      },
+      {
+        "text": "ぴ",
         "patterns": [
-          "seidaku-be-to-pe",
-          "seidaku-be-to-he"
+          "seidaku-pi-to-hi",
+          "seidaku-pi-to-bi"
+        ]
+      },
+      {
+        "text": "つ",
+        "patterns": [
+          "pattern-u-tsu",
+          "pattern-souki-tsu",
+          "seidaku-tsu-to-du"
+        ]
+      },
+      {
+        "text": "け",
+        "patterns": [
+          "pattern-souki-ke",
+          "seidaku-ke-to-ge"
+        ]
+      },
+      {
+        "text": "ず",
+        "patterns": [
+          "seidaku-zu-to-su",
+          "pattern-u-zu"
+        ]
+      },
+      {
+        "text": "り",
+        "patterns": [
+          "pattern-rn-308a"
         ]
       }
     ],
-    "qualityCheck": {
-      "type": "visual_experiment"
-    },
-    "levelVersion": "fafd3d227f521096"
+    "qualityCheck": null,
+    "levelVersion": "4a289fc1b20ea6c9"
   },
   {
-    "levelId": "experiment-seidaku-string",
-    "recordingId": "experiment-seidaku-string-no-audio-v1",
+    "levelId": "723b0cae-9b95-47ff-895b-cc458170fe9f",
+    "recordingId": "688ddb68-4c91-4406-9f01-81d1ebc0cc6a",
     "defaultAccent": [
       "low",
-      "low",
-      "low",
-      "low",
-      "low"
+      "high",
+      "high",
+      "high",
+      "high",
+      "high",
+      "high"
     ],
     "characters": [
       {
-        "text": "ぱ",
+        "text": "ひ",
         "patterns": [
-          "seidaku-pa-to-ha",
-          "seidaku-pa-to-ba"
+          "pattern-souki-hi",
+          "seidaku-hi-to-bi",
+          "seidaku-hi-to-pi"
         ]
       },
       {
-        "text": "ぺ",
+        "text": "な",
         "patterns": [
-          "seidaku-pe-to-he",
-          "seidaku-pe-to-be"
+          "pattern-a-na",
+          "pattern-rn-306a"
         ]
       },
       {
-        "text": "び",
+        "text": "ん",
+        "patterns": []
+      },
+      {
+        "text": "こ",
         "patterns": [
-          "seidaku-bi-to-hi",
-          "seidaku-bi-to-pi"
+          "pattern-souki-ko",
+          "seidaku-ko-to-go"
         ]
       },
       {
-        "text": "が",
+        "text": "う",
         "patterns": [
-          "seidaku-ga-to-ka"
+          "pattern-u-u"
         ]
       },
       {
-        "text": "ぎょ",
+        "text": "ど",
         "patterns": [
-          "seidaku-gyo-to-kyo"
+          "seidaku-do-to-to"
+        ]
+      },
+      {
+        "text": "う",
+        "patterns": [
+          "pattern-u-u"
         ]
       }
     ],
-    "qualityCheck": {
-      "type": "visual_experiment"
-    },
-    "levelVersion": "0c9b53e764372e2d"
+    "qualityCheck": null,
+    "levelVersion": "e291ec130df89a6d"
+  },
+  {
+    "levelId": "748ed832-3394-4d4f-98b2-530859285522",
+    "recordingId": "90dc3fc5-b51f-4b51-8c01-e9c0495fdf4f",
+    "defaultAccent": [
+      "low",
+      "high",
+      "high",
+      "high",
+      "high"
+    ],
+    "characters": [
+      {
+        "text": "か",
+        "patterns": [
+          "pattern-souki-ka",
+          "seidaku-ka-to-ga",
+          "pattern-a-ka"
+        ]
+      },
+      {
+        "text": "の",
+        "patterns": [
+          "pattern-rn-306e"
+        ]
+      },
+      {
+        "text": "う",
+        "patterns": [
+          "pattern-u-u"
+        ]
+      },
+      {
+        "text": "せ",
+        "patterns": [
+          "pattern-souki-se",
+          "seidaku-se-to-ze"
+        ]
+      },
+      {
+        "text": "い",
+        "patterns": []
+      }
+    ],
+    "qualityCheck": null,
+    "levelVersion": "a3a4b6874ffccc56"
   },
   {
     "levelId": "tutorial-mode2-curriculum",
@@ -282,12 +391,15 @@
         "text": "か",
         "patterns": [
           "pattern-souki-ka",
-          "seidaku-ka-to-ga"
+          "seidaku-ka-to-ga",
+          "pattern-a-ka"
         ]
       },
       {
         "text": "り",
-        "patterns": []
+        "patterns": [
+          "pattern-rn-308a"
+        ]
       },
       {
         "text": "きゅ",
@@ -297,7 +409,10 @@
       },
       {
         "text": "ら",
-        "patterns": []
+        "patterns": [
+          "pattern-a-ra",
+          "pattern-rn-3089"
+        ]
       },
       {
         "text": "む",
@@ -307,6 +422,6 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "d525aed42e42c043"
+    "levelVersion": "e2653e4b421ff387"
   }
 ]

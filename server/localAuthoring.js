@@ -45,7 +45,7 @@ export function localAuthoring(){
  if(!Array.isArray(data.glyphs)||!Array.isArray(data.groups)||!Array.isArray(data.levels))throw new Error('素材設定が不正です。');
  const plan=planAssetOrganization(data);
  // Check every source before writing or moving anything.
- const original=[...data.glyphs.flatMap(g=>[g.normal,...g.patterns.map(p=>p.svg)]),...data.levels.flatMap(l=>[l.audio,l.referenceAudio])].filter(Boolean);for(const value of original){if(typeof value!=='string'||!/^(assets|uploads)\/[a-zA-Z0-9_./-]+$/.test(value)||value.split('/').some(p=>!p||p==='.'||p==='..'))throw new Error('素材の保存先が不正です。');await fs.access(path.join(publicRoot,value));}
+ const original=[...data.glyphs.flatMap(g=>[g.normal,...g.patterns.map(p=>p.svg)]),...[...data.levels,...(data.modeOneLevels||[])].flatMap(l=>[l.audio,l.referenceAudio])].filter(Boolean);for(const value of original){if(typeof value!=='string'||!/^(assets|uploads)\/[a-zA-Z0-9_./-]+$/.test(value)||value.split('/').some(p=>!p||p==='.'||p==='..'))throw new Error('素材の保存先が不正です。');await fs.access(path.join(publicRoot,value));}
  const backup=path.join(root,'authoring-backups'),snapshot=randomUUID(),assetBackup=path.join(backup,'assets',snapshot);await fs.mkdir(backup,{recursive:true});await fs.copyFile(file,path.join(backup,`library-${current.revision}-${snapshot}.json`));
  const sources=new Map(await Promise.all(plan.copies.map(async move=>[move.from,await fs.readFile(path.join(publicRoot,move.from))])));
  const written=[];

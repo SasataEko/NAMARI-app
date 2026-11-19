@@ -1,3 +1,4 @@
+import {linkPitch} from './linkedPitch.js';
 import {participantId} from './participantIdentity.js';
 export {participantId} from './participantIdentity.js';
 import {studyMetadata} from './researchState.js';
@@ -6,7 +7,7 @@ import { featuresFor } from './explorationFeatures.js';
 import { studyConfig, recordingIdFor, qualityCheckFor } from './studyConfig.js';
 export function defaultAccent(level) {
   if (!Array.isArray(level.defaultAccent) || level.defaultAccent.length !== level.characters.length || level.defaultAccent.some(p => !['low','high'].includes(p))) throw new Error('標準アクセントを設定してください。');
-  return [...level.defaultAccent];
+  return linkPitch(level.characters.map(c=>c.text),level.defaultAccent);
 }
 export const pitchValue = p => typeof p === 'number' ? p : p === 'high' ? 1 : 0;
 const experimentRules={...studyConfig.qualityRules,version:'2026-11-16-visual-experiment-v1',excludeFlags:['invalid_response']};
@@ -22,7 +23,7 @@ export function validResponse(r, level) {
     Array.isArray(r.noticed) && r.noticed.length === n && r.noticed.every(v => typeof v === 'boolean') &&
     Array.isArray(r.pattern) && r.pattern.length === n && r.pattern.every((v,i) => v === null || (r.noticed[i] && featuresFor(level.characters[i]).some(f => f.id === v))) &&
     Array.isArray(r.pitch) && r.pitch.length === n && r.pitch.every(p => ['high','low'].includes(p)) &&
-    Array.isArray(r.beats) && r.beats.length === n && r.beats.every(b => b === 1 || b === 2) &&
+    Array.isArray(r.beats) && r.beats.length === n && r.beats.every(b => b === 0 || b === 1 || b === 2) &&
     Array.isArray(r.blanks) && r.blanks.length === Math.max(0,n-1) && r.blanks.every(b => typeof b === 'boolean') &&
     Number.isFinite(r.responseDurationMs) && r.responseDurationMs >= 0 &&
     typeof r.audioPlayed === 'boolean' && Number.isFinite(r.listenedMs) && r.listenedMs >= 0 &&
@@ -63,7 +64,7 @@ export function includedResponses(records, level, { studyMode = 'test', excludeP
   for (const r of records) {
     if (r.schemaVersion !== 3 || r.studyMode !== studyMode || r.recordingId !== recordingIdFor(level) || r.levelId !== level.id || r.participantId === excludeParticipantId) continue;
     // Repeat controls have their own slot so they cannot overwrite the main recording response.
-    const slot = `${r.participantId}:${r.qualityCheck ? r.levelId : 'main'}`;
+    const slot = r.id; // One explicit submission is one response; retransmissions retain the same ID.
     latest.set(slot,r);
   }
   const eligible=[...latest.values()].filter(r => {
@@ -72,11 +73,11 @@ export function includedResponses(records, level, { studyMode = 'test', excludeP
     const flags = qualityFlags(r,level,rules);
     return !flags.some(f => rules.excludeFlags.includes(f)) && (rules.includeSkipped || !r.skipped) && (rules.includeUncertain || r.answerStatus !== 'uncertain');
   });
-  return [...new Map(eligible.map(r=>[r.participantId,r])).values()];
+  return eligible;
 }
 export function aggregateExplorations(records, level, options = {}) {
   const defaults = defaultAccent(level), rows = includedResponses(records,level,options), count = rows.length;
-  const result = { count, features:[], noticed:[], noticedRates:[], unspecifiedRates:[], pattern:[], intensity:[], featureRates:[], pitch:[], beats:[], blanks:[], aggregation:'mean' };
+  const result = { count, participantCount:new Set(rows.map(r=>r.participantId)).size, aggregationPolicy:'all_submissions_v1', features:[], noticed:[], noticedRates:[], unspecifiedRates:[], pattern:[], intensity:[], featureRates:[], pitch:[], beats:[], omissionRates:[], blanks:[], aggregation:'mean' };
   const mean = (values,fallback) => count ? values.reduce((a,b)=>a+b,0)/count : fallback;
   level.characters.forEach((c,i) => {
     const rates = Object.fromEntries(featuresFor(c).map(v => [v.id,mean(rows.map(r=>!r.skipped&&r.pattern[i]===v.id?1:0),0)]));
@@ -86,7 +87,7 @@ export function aggregateExplorations(records, level, options = {}) {
     result.unspecifiedRates.push(mean(rows.map(r=>!r.skipped&&r.noticed[i]&&r.pattern[i]===null?1:0),0));
     result.noticed.push(result.noticedRates[i]>0);
     result.pitch.push(mean(rows.map(r=>pitchValue(r.skipped?defaults[i]:r.pitch[i])),pitchValue(defaults[i])));
-    result.beats.push(mean(rows.map(r=>r.skipped?1:r.beats[i]),1));
+    result.beats.push(mean(rows.map(r=>r.skipped?1:r.beats[i]),1));result.omissionRates.push(mean(rows.map(r=>!r.skipped&&r.beats[i]===0?1:0),0));
     if(i<level.characters.length-1)result.blanks.push(mean(rows.map(r=>!r.skipped&&r.blanks[i]?1:0),0));
   }); return result;
 }

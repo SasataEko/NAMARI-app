@@ -1,0 +1,21 @@
+Google Sheets データ収集更新（2026-11-19）
+
+本次更新已由研究者完成线上部署，并通过当前关卡版本的只读汇总请求验证。以下步骤保留供后续更新参考。
+本次浏览器连接只能读取界面，无法代替你点击或输入。
+
+1. 在原 Google 表格中打开「扩展程序 → Apps Script」。请继续使用原项目。
+2. 将本项目 apps-script 文件夹中 Code.gs、Mode1.gs、Levels.gs、Research.gs 的全文分别覆盖到脚本编辑器的同名文件中。缺少的同名脚本文件请新建；不要重复定义同一文件。ResearchGuide.gs 如已存在可保留。
+3. 保存，选择并运行 setupCurrentDataSystem。它只补齐缺少的数据表并刷新汇总，不删除回答，也不会开启正式 research。沿用现有授权与原表格ID；无需修改身份密钥或共享权限。
+4. 「部署 → 管理部署 → 编辑（铅笔）→ 版本：新版本 → 部署」。保留原 /exec URL；如果另建部署导致 URL 变化，请更新 public/content/collection.json。
+5. 打开/刷新本地游戏 http://127.0.0.1:5173/NAMARI-app/ 走完整流程。第一次加载新版会清理该浏览器原有 test 回答、test 问卷与 test 待发送队列；保留 research、身份ID、DIY、SVG与录音，之后的新测试不会被反复删除。
+
+本次新规则：
+- 同一IP可以重复回答（程序从未采集或按IP限制回答）。同一浏览器同一匿名ID也可重新回答。
+- Mode2每次明确提交计1件回答；网络重试同一submission_id不会重复计数。
+- Mode1每次重新挑战使用新的attempt_id；同一次挑战的关卡结束、关闭卡片、反馈更新同一条记录，不增加作答次数。
+- 群体平均按所有符合既定纳入规则的回答计算。玩家页面只显示回答件数，不显示独立参与人数。
+- Summary保留participants为独立匿名ID数，新增responses为有效回答/挑战数；分析时仍能通过participant_id识别重复。
+- 减少拍支持0/1/2，Code.gs与Mode1.gs都已更新。
+- 新素材改变关卡版本，必须同步Levels.gs；只有前端更新而服务器未更新时，新回答会保留待发送。
+
+旧test记录清理结果：Mode1Raw 4、Mode1Audit 19、Raw 5、Audit 6、Mode1Summary 3、Mode2Summary 1。表头、说明页、匿名身份映射保留；核对时没有research答题记录。
