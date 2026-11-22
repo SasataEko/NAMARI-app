@@ -1,0 +1,14 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mode2 · 表示テスト（架空データ）</title><body><main class="page-shell screen-play"><p style="font-size:11px;margin:0">表示テスト · 架空データ · 研究統計ではありません</p><div data-exploration class="mode-two-lab"></div></main><script type="module">
+import '../src/style.css';import '../src/viewport.css';import '../src/interactionRefinements.css';
+import {readLibrary,playableLevels} from '../src/data/projectLibrary.js';
+import {aggregateExplorations} from '../src/data/explorationStore.js';
+import {studyConfig} from '../src/data/studyConfig.js';
+import {mountModeTwoResult} from '../src/modeTwoResult.js';
+const library=await readLibrary(),level=playableLevels(library).find(l=>l.word==='くすり'),n=level.characters.length;
+const row=i=>({id:'fixture-'+i,schemaVersion:3,participantId:'fixture-only',studyMode:'test',recordingId:level.recordingId||level.id+'-recording-v1',levelId:level.id,noticed:Array(n).fill(false),pattern:Array(n).fill(null),pitch:[...level.defaultAccent],beats:Array(n).fill(1),blanks:Array(n-1).fill(false),audioPlayed:true,listenedMs:1000,responseDurationMs:5000,answerStatus:'explored',skipped:false,qualityRulesVersion:studyConfig.qualityRules.version,qualityRulesSnapshot:studyConfig.qualityRules,interactionVersion:'mode2-make-v1',emphasis:[],glyphAngles:{},backgroundAngles:{},sync:{status:'fixture'}});
+const rows=Array.from({length:4},(_,i)=>row(i));
+for(const r of rows.slice(0,2)){r.noticed[0]=true;r.pattern[0]=level.characters[0].features[0].id;r.beats[0]=2;r.emphasis=['base:0','long:0'];r.glyphAngles={'base:0':-6};}
+rows[2].pitch[1]=rows[2].pitch[1]==='high'?'low':'high';rows[2].blanks[1]=true;rows[2].emphasis=['base:1'];
+const aggregate=aggregateExplorations(rows,level,{studyMode:'test'}),root=document.querySelector('[data-exploration]');
+await mountModeTwoResult(root,{record:rows[0],level,studyMode:'test',aggregate,alive:()=>true,onAgain:()=>location.reload(),onLevelList:()=>location.assign('/NAMARI-app/')});
+</script></body></html>

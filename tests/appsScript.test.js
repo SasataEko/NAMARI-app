@@ -9,7 +9,7 @@ function server(){
  const sheet=()=>({data:[],getLastRow(){return this.data.length;},clearContents(){this.data=[];},appendRow(r){this.data.push([...r]);},setFrozenRows(){},getRange(at,col,n,m){return {setValues:rows=>{this.data[at-1]=[...rows[0]];},setFontWeight(){}};},getDataRange(){return {getValues:()=>this.data.map(r=>[...r])};}});
  const ss={getSheetByName:n=>sheets.get(n),insertSheet:n=>{const s=sheet();sheets.set(n,s);return s;}};
  const context=vm.createContext({console,MODE1_MANIFEST:JSON.parse(fs.readFileSync('apps-script/mode-one-levels.json','utf8')),LEVEL_MANIFEST:JSON.parse(fs.readFileSync('apps-script/levels.json','utf8')),PropertiesService:{getScriptProperties:()=>({getProperty:k=>props.get(k),setProperty:(k,v)=>props.set(k,v)})},SpreadsheetApp:{openById:()=>ss,flush(){}},Utilities:{getUuid:()=>crypto.randomUUID(),computeHmacSha256Signature:(v,k)=>[...crypto.createHmac('sha256',k).update(v).digest()]},LockService:{getScriptLock:()=>({waitLock(){if(lockHeld)throw new Error('NESTED_SCRIPT_LOCK');lockHeld=true;},releaseLock(){lockHeld=false;}})},CacheService:{getScriptCache:()=>({get:k=>cache.get(k),put:(k,v)=>cache.set(k,v)})},ContentService:{MimeType:{JSON:'json',JAVASCRIPT:'js'},createTextOutput:text=>({text,setMimeType(){return this;}})}});
- vm.runInContext(fs.readFileSync('apps-script/Code.gs','utf8').replace(/^\uFEFF/,''),context);vm.runInContext(fs.readFileSync('apps-script/Mode1.gs','utf8'),context);context.setup_();vm.runInContext(fs.readFileSync('apps-script/Research.gs','utf8'),context);context.setupResearchExtension_();return {c:context,sheets};
+ vm.runInContext(fs.readFileSync('apps-script/Code.gs','utf8').replace(/^\uFEFF/,''),context);vm.runInContext(fs.readFileSync('apps-script/Mode1.gs','utf8'),context);vm.runInContext(fs.readFileSync('apps-script/Mode2Visual.gs','utf8'),context);context.setup_();vm.runInContext(fs.readFileSync('apps-script/Research.gs','utf8'),context);context.setupResearchExtension_();return {c:context,sheets};
 }
 function record(c,id=crypto.randomUUID(),mode='research'){
  const l=c.LEVEL_MANIFEST[0];return withConsent(c,{id:crypto.randomUUID(),participantId:id,studyMode:mode,levelId:l.levelId,levelVersion:l.levelVersion,recordingId:l.recordingId,createdAt:new Date().toISOString(),noticed:l.characters.map((_,i)=>i===0),pattern:l.characters.map((ch,i)=>i===0?(ch.patterns[0]||null):null),pitch:l.defaultAccent,beats:l.characters.map((_,i)=>i===0?2:1),blanks:l.characters.slice(1).map(()=>false),audioPlayed:true,listenedMs:1000,responseDurationMs:5000,skipped:false,answerStatus:'explored'});
@@ -117,4 +117,15 @@ test('repeated answers count independently, but same-submission retries and same
  const g=c.stats_(p);assert.equal(g.count,2);assert.equal(g.participantCount,1);assert.equal(g.beats[0],.5);assert.equal(sheets.get('Raw').data.length,3);assert.equal(sheets.get('Audit').data.length,3);assert.equal(sheets.get('Mode2Summary').data[1][4],1);assert.equal(sheets.get('Mode2Summary').data[1][11],2);
  const m=mode1Record(c,crypto.randomUUID(),'test'),mkey=crypto.randomUUID();c.saveMode1_({response:m,participantKey:mkey});c.saveMode1_({response:{...m,id:crypto.randomUUID()},participantKey:mkey});const replay={...m,id:crypto.randomUUID(),attemptId:crypto.randomUUID()};c.saveMode1_({response:replay,participantKey:mkey});
  const mstats=c.mode1Aggregate_(m,false);assert.equal(mstats.count,2);assert.equal(mstats.participantCount,1);assert.equal(sheets.get('Mode1Raw').data.length,3);assert.equal(sheets.get('Mode1Summary').data[1][4],1);assert.equal(sheets.get('Mode1Summary').data[1][15],2);
+});
+
+test('Mode2 visual JSON round-trips without column changes; deletion updates emphasis and common examples',()=>{
+ const {c,sheets}=server(),person=crypto.randomUUID(),key=crypto.randomUUID();
+ for(let i=0;i<3;i++){
+  const p=record(c,person,'test');p.interactionVersion='mode2-make-v1';p.emphasis=i<2?['base:0','long:0']:['base:1'];p.glyphAngles={'base:0':-7};p.backgroundAngles={'base:0':180};c.save_({response:p,participantKey:key});
+ }
+ const sample=JSON.parse(sheets.get('Raw').data[1][15]),g=c.stats_(sample);
+ assert.equal(sample.interactionVersion,'mode2-make-v1');assert.deepEqual(sample.emphasis,['base:0','long:0']);assert.equal(sample.glyphAngles['base:0'],-7);assert.equal(sheets.get('Raw').data[0].length,21);
+ assert.equal(g.count,3);assert.equal(g.emphasisCount,3);assert.equal(g.emphasisRates['base:0'].first,2/3);assert.equal(g.commonExamples[0].count,2);assert.equal(g.commonExamples.length,2);assert.equal(JSON.stringify(g).includes(person),false);
+ sheets.get('Raw').data.splice(1,1);const after=c.stats_(sample);assert.equal(after.count,2);assert.equal(after.emphasisRates['base:0'].first,.5);assert.equal(sheets.get('Audit').data.length,4);
 });

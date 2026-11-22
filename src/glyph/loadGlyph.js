@@ -1,3 +1,4 @@
+import { rectanglePath } from './rectanglePath.js';
 /** 加载 SVG，读取 viewBox 和有序轮廓；多笔画使用多个 path 元素。 */
 export async function loadGlyph(url) {
   const response = await fetch(url);
@@ -8,9 +9,22 @@ export async function loadGlyph(url) {
   const svg = doc.documentElement;
   const viewBox = svg.getAttribute('viewBox');
   if (!viewBox) throw new Error(`${url} にviewBoxがありません。`);
+  const classFills = readClassFills(doc);
+  // A few Illustrator exports retain a rectangular stroke. Merge its exact
+  // outline into the matching compound path so existing morph pairs stay valid.
+  for (const rect of svg.querySelectorAll('rect')) {
+    const fill = readPathFill(rect, classFills) || '#231815';
+    const target = [...svg.querySelectorAll('path')].find(p =>
+      (readPathFill(p, classFills) || '#231815') === fill &&
+      ['fill-rule','clip-rule','opacity','style'].every(a => (p.getAttribute(a)||'') === (rect.getAttribute(a)||'')));
+    if (!target) throw new Error(url + ' の矩形を同じ塗りの輪郭にまとめられません。');
+    try {
+      target.setAttribute('d', target.getAttribute('d') + ' ' + rectanglePath(Object.fromEntries([...rect.attributes].map(a => [a.name,a.value]))));
+    } catch (error) { throw new Error(url + '：' + error.message); }
+    rect.remove();
+  }
   if (svg.querySelector('[transform]')) throw new Error(`${url} にtransformがあります。Illustratorでアピアランス・変換を分割してから書き出してください。`);
   if (svg.querySelector('mask, clipPath, filter, use, image')) throw new Error(`${url} に未対応の構造（mask・clipPath・filter・use・image）があります。輪郭のみで書き出してください。`);
-  const classFills = readClassFills(doc);
   const paths = [...svg.querySelectorAll('path')];
   if (!paths.length) throw new Error(`${url} にpathがありません。字形を輪郭パスに変換してください。`);
   const shapes = paths.map((path, index) => {

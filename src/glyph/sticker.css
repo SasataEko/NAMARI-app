@@ -1,0 +1,12 @@
+/* Display-only layers; source contours and statistical weights stay unchanged. */
+svg.sticker-glyph{overflow:visible!important;fill:var(--sticker-color);stroke:none;stroke-width:0}
+svg.sticker-glyph[data-sticker-aggregate=true]{fill:currentColor}
+svg.sticker-glyph .sticker-source,svg.sticker-glyph [data-sticker-layer]>path,svg.sticker-glyph [data-sticker-layer]>text{fill:inherit!important;stroke:inherit!important;stroke-width:inherit!important;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.sticker-glyph [data-sticker-layer]{pointer-events:none}
+.sticker-label svg{display:block;width:1.05em;height:1.05em;max-width:100%;margin:auto}
+.character-button:has(.sticker-glyph){overflow:visible}
+
+.diy-play-mora:has(>[data-play-pitch]){grid-template-rows:30px 54px 30px!important}
+.diy-play-mora>b.sticker-label{font-size:clamp(30px,5vw,42px)!important;line-height:1}
+
+.explore-blank-cell>span>svg.sticker-glyph{display:block;width:1em;height:1em;overflow:visible}

@@ -32,7 +32,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "044b185bff770873"
+    "levelVersion": "c45bd2d374cfda80"
   },
   {
     "levelId": "9e584fe5-6873-4db1-9b09-d75c806d5bb4",
@@ -79,7 +79,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "a8b324302f443b50"
+    "levelVersion": "ca2c90604c58b404"
   },
   {
     "levelId": "130bfe9f-865c-4bf5-a2de-30e514330402",
@@ -127,7 +127,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "2b20ac04a7080e5d"
+    "levelVersion": "ac090d17a34ae1ee"
   },
   {
     "levelId": "ccb4f0b9-8e27-4cbf-9998-37ce23e56908",
@@ -170,7 +170,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "fb70d3d3bde4c26e"
+    "levelVersion": "782d494d7be94feb"
   },
   {
     "levelId": "0d3eb58f-7be3-4d09-aaf3-ecbb7f9e3254",
@@ -267,7 +267,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "4a289fc1b20ea6c9"
+    "levelVersion": "af6d880ea85205fa"
   },
   {
     "levelId": "723b0cae-9b95-47ff-895b-cc458170fe9f",
@@ -328,7 +328,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "e291ec130df89a6d"
+    "levelVersion": "ec4e3e916cbfa549"
   },
   {
     "levelId": "748ed832-3394-4d4f-98b2-530859285522",
@@ -374,7 +374,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "a3a4b6874ffccc56"
+    "levelVersion": "4928ffe74faa759d"
   },
   {
     "levelId": "tutorial-mode2-curriculum",
@@ -422,6 +422,6 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "e2653e4b421ff387"
+    "levelVersion": "34825bac05b37536"
   }
 ]

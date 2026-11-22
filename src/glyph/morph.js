@@ -1,3 +1,4 @@
+import {syncSticker} from './sticker.js';
 import { interpolateAll } from 'flubber';
 
 /** 按素材中的 path 顺序建立多轮廓插值器。 */
@@ -29,6 +30,7 @@ export function setMorphIntensity(paths, interpolation, intensity) {
       ? interpolation.to
       : interpolation.map((interpolateShape) => interpolateShape(amount));
   shapes.forEach((shape, index) => paths[index]?.setAttribute('d', shape));
+  syncSticker(paths[0]?.closest?.('svg'));
 }
 
 /** 在同一 SVG 画布内连续更新 d 属性。 */

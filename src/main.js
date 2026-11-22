@@ -1,3 +1,8 @@
+import './glyph/sticker.css';
+import {decorateGameLabels} from './glyph/sticker.js';
+import {installPitchConnections} from './pitchConnections.js';
+import {showCorrectDialog} from './correctDialog.js';
+import {mountModeThree} from './modeThree.js';
 import {publishDiyQuestions} from './data/publishDiy.js';
 import {applyTestReset} from './data/testReset.js';
 import {linkedMora,linkPitch} from './data/linkedPitch.js';
@@ -16,6 +21,8 @@ import { readLibrary, playableLevels, assetUrl } from './data/projectLibrary.js'
 import { mountExploration } from './exploration.js';
 import './style.css';
 import './viewport.css';
+import './pitchDots.css';
+import './interactionRefinements.css';
 import {installViewportLayout} from './viewportLayout.js';
 import { levels } from './data/levels.js';
 import { libraryCards, libraryGlyph, nextChapterItem } from './data/patternLibrary.js';
@@ -29,6 +36,7 @@ import { loadProfiles, loadSettings, profiles, saveProfile, saveSettings } from 
 const app = document.querySelector('#app');
 try{applyTestReset(localStorage);}catch(error){console.warn('お試し記録のリセットを完了できませんでした。',error.message);}
 installViewportLayout(app);
+installPitchConnections(app);
 const level = levels[0];
 let sharedLibrary=null;
 let activeTutorial=null;
@@ -118,6 +126,7 @@ function render() {
     profiles: renderProfiles,
     home: renderHome,
     exploration: renderExploration,
+    modeThree: renderModeThree,
     developer: renderDeveloper,
     challenges: renderChallengeSelect,
     chapterLevels: renderChapterLevels,
@@ -163,6 +172,7 @@ function bindNav(active) {
 }
 
 function navigate(next) {
+  app.querySelector('[data-mode-three]')?.modeThreeSession?.dispose?.();
   if(legacyModeOneStats&&next!==legacyModeOneScreen){legacyModeOneStats.leave();legacyModeOneStats=null;legacyModeOneScreen=null;}
   app.querySelector('[data-exploration]')?.explorationSession?.dispose?.();
   disposeModeOne?.();disposeModeOne=null;
@@ -197,9 +207,14 @@ function renderProfiles() {
 }
 
 function renderHome() {
-  app.innerHTML = `<main class="page-shell">${profileHeader()}<section class="cover-intro"><p class="cover-eyebrow">PHONETIC TYPO PLAY</p><h1>化ける言語</h1><p>発音のちがいを、かたちでみつける。</p></section><section class="floating-cover" aria-label="訛をテーマにしたゲームカバー"><span class="float-card float-card-yellow">高<br>低</span><span class="float-card float-card-blue">あ</span><span class="float-card float-card-pink">声</span><span class="float-card float-card-white">A</span><span class="cover-kanji">訛</span><span class="cover-spark spark-one">✳</span><span class="cover-spark spark-two">·</span></section><div class="home-mode-stack"><button class="home-mode-button home-mode-one" data-action="challenge"><span>Mode1：　訛りを見つける</span><span aria-hidden="true">↗</span></button><button class="home-mode-button home-mode-two" data-nav="exploration"><span>Mode2：　みんなと聞き比べる</span><span aria-hidden="true">↗</span></button><button class="home-mode-button home-mode-developer" data-nav="developer"><span>開発者モード</span><span aria-hidden="true">↗</span></button></div><button class="text-action" data-end-experience>体験を終えて感想を書く（任意）</button><section class="archive-section"><div class="section-heading"><div><p class="eyebrow">COLLECTION & MODE</p><h2>アーカイブ & モード</h2></div></div><div class="archive-circles"><button class="archive-circle circle-blue" data-nav="collection"><i>▣</i><b>図鑑</b><small>五十音・パターン</small></button><button class="archive-circle circle-lavender" data-nav="diy"><i>✳</i><b>DIYモード</b><small>字形をつくる</small></button><button class="archive-circle circle-neutral" data-nav="settings"><i>⚙</i><b>設定</b><small>音・振動</small></button></div></section>${bottomNav('')}</main>`;
+  app.innerHTML = `<main class="page-shell">${profileHeader()}<section class="cover-intro"><p class="cover-eyebrow">PHONETIC TYPO PLAY</p><h1>化ける言語</h1><p>発音のちがいを、かたちでみつける。</p></section><section class="floating-cover" aria-label="訛をテーマにしたゲームカバー"><span class="float-card float-card-yellow">高<br>低</span><span class="float-card float-card-blue">あ</span><span class="float-card float-card-pink">声</span><span class="float-card float-card-white">A</span><span class="cover-kanji">訛</span><span class="cover-spark spark-one">✳</span><span class="cover-spark spark-two">·</span></section><div class="home-mode-stack"><button class="home-mode-button home-mode-one" data-action="challenge"><span>Mode1：　訛りを見つける</span><span aria-hidden="true">↗</span></button><button class="home-mode-button home-mode-two" data-nav="exploration"><span>Mode2：　みんなと聞き比べる</span><span aria-hidden="true">↗</span></button><button class="home-mode-button home-mode-three" data-nav="modeThree"><span>Mode3：　ことばをつくる</span><span aria-hidden="true">↗</span></button><button class="home-mode-button home-mode-developer" data-nav="developer"><span>開発者モード</span><span aria-hidden="true">↗</span></button></div><button class="text-action" data-end-experience>体験を終えて感想を書く（任意）</button><section class="archive-section"><div class="section-heading"><div><p class="eyebrow">COLLECTION & MODE</p><h2>アーカイブ & モード</h2></div></div><div class="archive-circles"><button class="archive-circle circle-blue" data-nav="collection"><i>▣</i><b>図鑑</b><small>五十音・パターン</small></button><button class="archive-circle circle-lavender" data-nav="diy"><i>✳</i><b>DIYモード</b><small>字形をつくる</small></button><button class="archive-circle circle-neutral" data-nav="settings"><i>⚙</i><b>設定</b><small>音・振動</small></button></div></section>${bottomNav('')}</main>`;
   bindNav('');
   app.querySelector('[data-action="challenge"]').addEventListener('click', () => navigate('challenges'));
+}
+
+function renderModeThree() {
+  app.innerHTML=`<main class="page-shell mode-three-page">${profileHeader()}<div data-mode-three></div>${bottomNav('')}</main>`;
+  bindNav('');mountModeThree(app.querySelector('[data-mode-three]'));
 }
 
 function renderDeveloper() {
@@ -211,7 +226,7 @@ async function renderExploration() {
   app.innerHTML=`<main class="page-shell">${profileHeader()}${titleReturn()}<div data-exploration></div>${bottomNav('')}</main>`;
   bindNav('');const root=app.querySelector('[data-exploration]');root.textContent='問題を読み込み中…';
   try{const library=await readLibrary();if(!root.isConnected)return;
-    const available=orderedModeTwoLevels(library);
+    const available=playableLevels(library).filter(l=>!l.tutorial).sort((a,b)=>Number(b.word==='かりきゅらむ')-Number(a.word==='かりきゅらむ'));
     root.innerHTML='<section class="library-intro"><h1>聴くことばを選ぼう</h1><p class="mode-explanation">このモードでは、訛りについて感じたことを自由に表現し、みんなの選択と見比べられます。正解はありません。</p><button class="text-action" data-mode-info>モードの説明をもう一度見る</button></section><div class="mode2-level-grid"></div>';
     const feedbackButton=document.createElement('button');feedbackButton.className='text-action';feedbackButton.textContent='体験を終えて感想を書く（任意）';feedbackButton.onclick=async()=>{const mode=localStorage.getItem('kotoba-last-study-mode')==='research'?'research':'test';if(mode==='research'&&!await ensureParticipation('research'))return;await experienceFeedback(mode);};root.append(feedbackButton);
     root.querySelector('[data-mode-info]').onclick=()=>showModeIntro('mode2',{force:true});
@@ -286,7 +301,7 @@ function pitchPath() {
   pitchPattern.forEach((pitch, index) => {
     if (!pitch) return;
     const x = 50 + index * 100;
-    const y = pitch === 'high' ? 19 : 57;
+    const y = pitch === 'high' ? 19 : 111;
     path += `${path && pitchPattern[index - 1] ? 'L' : 'M'}${x} ${y} `;
   });
   return path.trim();
@@ -296,7 +311,7 @@ function renderAccentChallenge() {
   modeOneCurrentId||='builtin-accent';
   const picked = pitchPattern.filter(Boolean).length;
   const patternLabel = pitchPattern.map((pitch) => pitch === 'high' ? '高' : pitch === 'low' ? '低' : '・').join('　');
-  app.innerHTML = `<main class="page-shell challenge-page">${profileHeader()}<div class="challenge-title-row"><button class="back-circle" data-back="challenges" aria-label="チャレンジ選択へ戻る">←</button><div><p class="eyebrow">ACCENT CHALLENGE / 01</p><h1>アクセントを組み立てる</h1></div></div><div class="challenge-kicker"><span>WORD</span><b>「かりきゅらむ」</b></div><section class="mission-card"><span class="mission-icon">♧</span><div><p class="blue-label">アクセント・チャレンジ</p><h2>サンプルを聴いて、<br>一拍ずつ高さを選んでください</h2></div></section><section class="pitch-card accent-builder-card"><button class="audio-pill sample-pending" disabled>◖))　サンプル音声（準備中）</button><p class="audio-caption">録音素材を受け取り次第、ここから再生できます</p><div class="pitch-builder"><div class="pitch-row-labels"><span>高</span><span>低</span></div><div class="pitch-columns"><svg class="pitch-path" viewBox="0 0 500 76" preserveAspectRatio="none" aria-hidden="true"><path class="pitch-guide" d="M50 19 H450 M50 57 H450"/><path class="pitch-line-path" d="${pitchPath()}"/></svg>${accentMorae.map((mora, index) => `<div class="pitch-column"><button class="pitch-choice pitch-high ${pitchPattern[index] === 'high' ? 'selected' : ''}" data-mora="${index}" data-pitch="high" aria-label="${mora}を高くする">●</button><button class="pitch-choice pitch-low ${pitchPattern[index] === 'low' ? 'selected' : ''}" data-mora="${index}" data-pitch="low" aria-label="${mora}を低くする">●</button><b>${mora}</b><small>第${index + 1}拍</small></div>`).join('')}</div></div><p class="pitch-note">タップして高低を設定　${picked} / ${accentMorae.length} 拍</p><div class="pattern-readout" aria-live="polite">${patternLabel}</div></section>${answerChecked ? '<p class="answer-feedback recorded" role="status">回答を記録しました。正解データを受け取り次第、判定結果を表示します。</p>' : ''}<button class="judge-button" data-action="judge" ${(picked !== accentMorae.length || answerChecked) ? 'disabled' : ''}>このアクセントで判定する　 ✓</button><p class="judge-hint">選んだ高低パターンをプロフィールに保存します。</p>${bottomNav('')}</main>`;
+  app.innerHTML = `<main class="page-shell challenge-page">${profileHeader()}<div class="challenge-title-row"><button class="back-circle" data-back="challenges" aria-label="チャレンジ選択へ戻る">←</button><div><p class="eyebrow">ACCENT CHALLENGE / 01</p><h1>アクセントを組み立てる</h1></div></div><div class="challenge-kicker"><span>WORD</span><b>「かりきゅらむ」</b></div><section class="mission-card"><span class="mission-icon">♧</span><div><p class="blue-label">アクセント・チャレンジ</p><h2>サンプルを聴いて、<br>一拍ずつ高さを選んでください</h2></div></section><section class="pitch-card accent-builder-card"><button class="audio-pill sample-pending" disabled>◖))　サンプル音声（準備中）</button><p class="audio-caption">録音素材を受け取り次第、ここから再生できます</p><div class="pitch-builder"><div class="pitch-row-labels"><span>高</span><span>低</span></div><div class="pitch-columns"><svg class="pitch-path" viewBox="0 0 500 130" preserveAspectRatio="none" aria-hidden="true"><path class="pitch-guide" d="M50 19 H450 M50 111 H450"/><path class="pitch-line-path" d="${pitchPath()}"/></svg>${accentMorae.map((mora, index) => `<div class="pitch-column"><button class="pitch-choice pitch-high ${pitchPattern[index] === 'high' ? 'selected' : ''}" data-mora="${index}" data-pitch="high" aria-label="${mora}を高くする">●</button><button class="pitch-choice pitch-low ${pitchPattern[index] === 'low' ? 'selected' : ''}" data-mora="${index}" data-pitch="low" aria-label="${mora}を低くする">●</button><b>${mora}</b><small>第${index + 1}拍</small></div>`).join('')}</div></div><p class="pitch-note">タップして高低を設定　${picked} / ${accentMorae.length} 拍</p><div class="pattern-readout" aria-live="polite">${patternLabel}</div></section>${answerChecked ? '<p class="answer-feedback recorded" role="status">回答を記録しました。正解データを受け取り次第、判定結果を表示します。</p>' : ''}<button class="judge-button" data-action="judge" ${(picked !== accentMorae.length || answerChecked) ? 'disabled' : ''}>このアクセントで判定する　 ✓</button><p class="judge-hint">選んだ高低パターンをプロフィールに保存します。</p>${bottomNav('')}</main>`;
   bindNav('');
   appendModeOneNext(answerChecked);
   app.querySelectorAll('[data-mora]').forEach((button) => button.addEventListener('click', () => {
@@ -507,7 +522,7 @@ function renderDiyPitchEditor() {
     const draw=async()=>{try{const library=sharedLibrary||await refreshLibrary();if(!editor.isConnected)return;await mountBeatEditor(editor,{library,reading:diyBuilderMorae,beats,blanks,onChange:()=>{diyBeatValues=[...beats];diyLongAfter=beats.map(v=>v===2);diyBlankAfter=[...blanks,false];updateDiySaveButton();}});}catch(e){if(editor.isConnected)editor.textContent=e.message;}};
     draw();updateDiySaveButton();return;
   }
-  editor.innerHTML = diyBuilderMorae.map((mora, index) => `<div class="diy-pitch-row"><b>${escapeHtml(mora)}</b><button class="diy-pitch-option ${diyBuilderPattern[index] === 'high' ? 'selected' : ''}" data-builder-index="${index}" data-builder-pitch="high" ${linkedMora(diyBuilderMorae,index)?'disabled title="前の拍と連動"':''}>高</button><button class="diy-pitch-option ${diyBuilderPattern[index] === 'low' ? 'selected' : ''}" data-builder-index="${index}" data-builder-pitch="low" ${linkedMora(diyBuilderMorae,index)?'disabled title="前の拍と連動"':''}>低</button>${diyMode === 'diyMora' && index < diyBuilderMorae.length - 1 ? `<button class="mora-config-option ${diyLongAfter[index] ? 'enabled' : ''}" data-long-after="${index}">長音</button>` : ''}${diyMode === 'diyMora' ? `<button class="mora-config-option ${diyBlankAfter[index] ? 'enabled' : ''}" data-blank-after="${index}">空白拍</button>` : ''}</div>`).join('');
+  editor.innerHTML = diyBuilderMorae.map((mora, index) => `<div class="diy-pitch-row"><b>${escapeHtml(mora)}</b><button class="diy-pitch-option accent-dot ${diyBuilderPattern[index] === 'high' ? 'selected' : ''}" data-builder-index="${index}" data-builder-pitch="high" ${linkedMora(diyBuilderMorae,index)?'disabled title="前の拍と連動"':''} aria-label="${escapeHtml(mora)}を高くする" aria-pressed="${diyBuilderPattern[index] === 'high'}"></button><button class="diy-pitch-option accent-dot ${diyBuilderPattern[index] === 'low' ? 'selected' : ''}" data-builder-index="${index}" data-builder-pitch="low" ${linkedMora(diyBuilderMorae,index)?'disabled title="前の拍と連動"':''} aria-label="${escapeHtml(mora)}を低くする" aria-pressed="${diyBuilderPattern[index] === 'low'}"></button>${diyMode === 'diyMora' && index < diyBuilderMorae.length - 1 ? `<button class="mora-config-option ${diyLongAfter[index] ? 'enabled' : ''}" data-long-after="${index}">長音</button>` : ''}${diyMode === 'diyMora' ? `<button class="mora-config-option ${diyBlankAfter[index] ? 'enabled' : ''}" data-blank-after="${index}">空白拍</button>` : ''}</div>`).join('');
   editor.querySelectorAll('[data-builder-index]').forEach((button) => button.addEventListener('click', () => {
     diyBuilderPattern[Number(button.dataset.builderIndex)] = button.dataset.builderPitch;
     renderDiyPitchEditor();
@@ -594,6 +609,7 @@ async function renderCustomVowelChallenge(){
 function renderDiyPlayer() {
   if (!activeDiyQuestion) { navigate('diy'); return; }
   const question = activeDiyQuestion;
+  const openSuccess=()=>{const next=nextChapterItem(chapterItems(),modeOneCurrentId);showCorrectDialog(app.querySelector('main'),{label:customPlayReturnScreen==='chapterLevels'?(next?'次の問題へ：'+next.word+' →':'ホームへ'):'問題一覧へ',onNext:customPlayReturnScreen==='chapterLevels'?advanceModeOne:()=>navigate('diy')});};
   if(question.mode==='diyMora'){renderRhythmQuestion(question,diyPlaybackUrl,customPlayReturnScreen);return;}
   if(question.mode==='diyAccent')diyPlayerPattern=linkPitch(question.reading,diyPlayerPattern);
   const isVowelQuestion = question.mode === 'diyVowel';
@@ -601,12 +617,13 @@ function renderDiyPlayer() {
   const picked = isVowelQuestion ? diyPlayerTargetIndex !== null : diyPlayerPattern.filter(Boolean).length === question.reading.length;
   const responseArea = isVowelQuestion
     ? `<p>録音を聴いて、変形する拍を選んでください。</p><div class="diy-play-morae">${question.reading.map((mora, index) => `<button class="diy-play-mora diy-target-choice ${diyPlayerTargetIndex === index ? 'selected' : ''}" data-play-target="${index}"><b>${escapeHtml(mora)}</b><small>第${index + 1}拍</small></button>`).join('')}</div>`
-    : `<p>${isMoraQuestion ? '拍ごとの高低、長音、空白拍を設定してください。' : '録音を聴いて、各拍の高低を選んでください。'}</p><div class="diy-play-morae">${question.reading.map((mora, index) => `<div class="diy-play-mora"><b>${escapeHtml(mora)}</b><button class="diy-pitch-option ${diyPlayerPattern[index] === 'high' ? 'selected' : ''}" data-play-index="${index}" data-play-pitch="high" ${linkedMora(question.reading,index)?'disabled title="前の拍と連動"':''}>高</button><button class="diy-pitch-option ${diyPlayerPattern[index] === 'low' ? 'selected' : ''}" data-play-index="${index}" data-play-pitch="low" ${linkedMora(question.reading,index)?'disabled title="前の拍と連動"':''}>低</button>${isMoraQuestion && index < question.reading.length - 1 ? `<button class="mora-config-option ${diyPlayerLongAfter[index] ? 'enabled' : ''}" data-play-long="${index}">長音</button>` : ''}${isMoraQuestion ? `<button class="mora-config-option ${diyPlayerBlankAfter[index] ? 'enabled' : ''}" data-play-blank="${index}">空白拍</button>` : ''}</div>`).join('')}</div>`;
+    : `<p>${isMoraQuestion ? '拍ごとの高低、長音、空白拍を設定してください。' : '録音を聴いて、各拍の高低を選んでください。'}</p><div class="diy-play-morae">${question.reading.map((mora, index) => `<div class="diy-play-mora"><b>${escapeHtml(mora)}</b><button class="diy-pitch-option accent-dot ${diyPlayerPattern[index] === 'high' ? 'selected' : ''}" data-play-index="${index}" data-play-pitch="high" ${linkedMora(question.reading,index)?'disabled title="前の拍と連動"':''} aria-label="${escapeHtml(mora)}を高くする" aria-pressed="${diyPlayerPattern[index] === 'high'}"></button><button class="diy-pitch-option accent-dot ${diyPlayerPattern[index] === 'low' ? 'selected' : ''}" data-play-index="${index}" data-play-pitch="low" ${linkedMora(question.reading,index)?'disabled title="前の拍と連動"':''} aria-label="${escapeHtml(mora)}を低くする" aria-pressed="${diyPlayerPattern[index] === 'low'}"></button>${isMoraQuestion && index < question.reading.length - 1 ? `<button class="mora-config-option ${diyPlayerLongAfter[index] ? 'enabled' : ''}" data-play-long="${index}">長音</button>` : ''}${isMoraQuestion ? `<button class="mora-config-option ${diyPlayerBlankAfter[index] ? 'enabled' : ''}" data-play-blank="${index}">空白拍</button>` : ''}</div>`).join('')}</div>`;
   const backTarget = customPlayReturnScreen === 'chapterLevels' ? 'chapterLevels' : 'diy';
-  app.innerHTML = `<main class="page-shell diy-page ${isMoraQuestion ? 'diy-mora' : ''}">${profileHeader()}<div class="challenge-title-row"><button class="back-circle" data-back="${backTarget}" aria-label="問題一覧へ戻る">←</button><div><p class="eyebrow">${customPlayReturnScreen === 'chapterLevels' ? 'CHALLENGE / DIY LEVEL' : 'DIY QUESTION / PLAY'}</p><h1>${escapeHtml(question.word)}</h1></div></div><section class="diy-play-card">${responseArea}<audio class="diy-audio-playback" controls src="${diyPlaybackUrl || ''}"></audio></section>${diyPlayerFeedback ? `<p class="answer-feedback recorded" role="status">${diyPlayerFeedback}</p>` : ''}<button class="judge-button" data-check-diy ${!picked ? 'disabled' : ''}>回答を判定する</button>${bottomNav(backTarget === 'diy' ? 'diy' : '')}</main>`;
+  app.innerHTML = `<main class="page-shell diy-page ${isMoraQuestion ? 'diy-mora' : ''}">${profileHeader()}<div class="challenge-title-row"><button class="back-circle" data-back="${backTarget}" aria-label="問題一覧へ戻る">←</button><div><p class="eyebrow">${customPlayReturnScreen === 'chapterLevels' ? 'CHALLENGE / DIY LEVEL' : 'DIY QUESTION / PLAY'}</p><h1>${escapeHtml(question.word)}</h1></div></div><section class="diy-play-card">${responseArea}<audio class="diy-audio-playback" controls src="${diyPlaybackUrl || ''}"></audio></section>${diyPlayerFeedback&&!diyPlayerFeedback.startsWith('正解') ? `<p class="answer-feedback recorded" role="status">${diyPlayerFeedback}</p>` : ''}<button class="judge-button" data-check-diy ${!picked ? 'disabled' : ''}>${diyPlayerFeedback.startsWith('正解')?'正解を見る':'回答を判定する'}</button>${bottomNav(backTarget === 'diy' ? 'diy' : '')}</main>`;
   bindNav(backTarget === 'diy' ? 'diy' : '');
+  decorateGameLabels(app,sharedLibrary);
   legacyModeOneStats?.attachAudio(app.querySelector('audio'));
-  appendModeOneNext(diyPlayerFeedback.startsWith('正解'));
+  if(question.mode==='diyAccent')attachLegacyModeOneStatus();else appendModeOneNext(diyPlayerFeedback.startsWith('正解'));
   app.querySelectorAll('[data-play-target]').forEach((button) => button.addEventListener('click', () => {
     diyPlayerTargetIndex = Number(button.dataset.playTarget);
     diyPlayerFeedback = '';
@@ -628,6 +645,7 @@ function renderDiyPlayer() {
     renderDiyPlayer();
   }));
   app.querySelector('[data-check-diy]').addEventListener('click', () => {
+    if(diyPlayerFeedback.startsWith('正解')){openSuccess();return;}
     if (isVowelQuestion) {
       if (diyPlayerTargetIndex === null) return;
       diyPlayerFeedback = diyPlayerTargetIndex === question.targetIndex ? '正解です。変形する拍が一致しました。' : '場所が異なります。録音をもう一度聴いてみましょう。';
@@ -641,6 +659,7 @@ function renderDiyPlayer() {
     legacyModeOneStats?.answer({kind:'answer',pitch:[...diyPlayerPattern],longAfter:[...diyPlayerLongAfter],blankAfter:[...diyPlayerBlankAfter]});
     diyPlayerFeedback = correct ? (isMoraQuestion ? '正解です。モーラの構成が一致しました。' : '正解です。アクセントパターンが一致しました。') : 'パターンが異なります。録音をもう一度聴いてみましょう。';
     renderDiyPlayer();
+    if(correct){if(settings.sfx)playCorrectFeedback();openSuccess();}
   });
 }
 

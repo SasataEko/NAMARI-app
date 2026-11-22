@@ -1,3 +1,4 @@
+import {visualStatistics,validVisualMetadata} from './modeTwoVisual.js';
 import {linkPitch} from './linkedPitch.js';
 import {participantId} from './participantIdentity.js';
 export {participantId} from './participantIdentity.js';
@@ -27,7 +28,7 @@ export function validResponse(r, level) {
     Array.isArray(r.blanks) && r.blanks.length === Math.max(0,n-1) && r.blanks.every(b => typeof b === 'boolean') &&
     Number.isFinite(r.responseDurationMs) && r.responseDurationMs >= 0 &&
     typeof r.audioPlayed === 'boolean' && Number.isFinite(r.listenedMs) && r.listenedMs >= 0 &&
-    ['explored','no_difference','uncertain'].includes(r.answerStatus);
+    ['explored','no_difference','uncertain'].includes(r.answerStatus)&&validVisualMetadata(r,level);
 }
 export function qualityFlags(r, level, rules) {
   const flags = [];
@@ -89,7 +90,7 @@ export function aggregateExplorations(records, level, options = {}) {
     result.pitch.push(mean(rows.map(r=>pitchValue(r.skipped?defaults[i]:r.pitch[i])),pitchValue(defaults[i])));
     result.beats.push(mean(rows.map(r=>r.skipped?1:r.beats[i]),1));result.omissionRates.push(mean(rows.map(r=>!r.skipped&&r.beats[i]===0?1:0),0));
     if(i<level.characters.length-1)result.blanks.push(mean(rows.map(r=>!r.skipped&&r.blanks[i]?1:0),0));
-  }); return result;
+  }); return Object.assign(result,visualStatistics(rows,level.characters.length));
 }
 export async function getExplorationAggregate(level, options = {}) {
   if(level.visualExperiment)return {...aggregateExplorations(readRawResponses(),level,{...options,studyMode:'test',rules:experimentRules}),source:'local-experiment'};

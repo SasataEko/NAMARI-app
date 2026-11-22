@@ -1,3 +1,5 @@
+import {decorateGameLabels} from './glyph/sticker.js';
+import {showCorrectDialog} from './correctDialog.js';
 import {mountTutorialSkip} from './tutorialSkip.js';
 import {linkedMora,linkPitch} from './data/linkedPitch.js';
 import {wordRows} from './wordLayout.js';
@@ -20,19 +22,20 @@ export async function mountModeOneLesson(root,{question,library,profileId,studyM
   const audio=root.querySelector('audio');audio.src=question.audio;session.attachAudio(audio);mountReferenceAudio(audio,question.referenceAudio,()=>session.referencePlayed());
   const cue=root.querySelector('.lesson-cue'),judge=root.querySelector('[data-judge]'),next=root.querySelector('[data-next]'),answer=root.querySelector('.lesson-answer'),feedback=root.querySelector('[data-feedback]'),retry=root.querySelector('[data-retry]');
   next.textContent=nextLabel;next.onclick=()=>{if(solved)onNext();};retry.onclick=()=>session.retry();session.setListener(s=>{if(active&&root.isConnected){root.querySelector('[data-sync]').textContent=s.text;retry.hidden=s.status!=='pending';}});
+  const openSuccess=()=>showCorrectDialog(root,{label:nextLabel||'次の問題へ',onNext});
   function update(){
-    cue.textContent=solved?'できたね！次へ進んでみよう。':!heard?'① まずは録音を最後まで聞いてみよう。':guided?(rhythm?'② 「ぷ」を「→ 2拍」で長くしてみよう。空白拍は加えずに判定してね。':'② 「か」を高く、「ら」「だ」を低くしよう（H・L・L）。選べたら判定してね。'):'文字を2拍にのばしたり、文字の間に「ッ」を加えて、聞こえたリズムをつくろう。';
-    next.hidden=!solved;next.disabled=!solved;
-    judge.disabled=solved||!heard||(!rhythm&&pitch.some(p=>!p));
+    cue.textContent=solved?'':!heard?'① まずは録音を最後まで聞いてみよう。':guided?(rhythm?'② 「ぷ」を選び、「ー」で1拍増やしてみよう。':'② 「か」を高く、「ら」「だ」を低くしよう（H・L・L）。選べたら判定してね。'):'文字を2拍にのばしたり、文字の間に「ッ」を加えて、聞こえたリズムをつくろう。';
+    next.hidden=true;next.disabled=true;
+    judge.disabled=!heard||(!solved&&!rhythm&&pitch.some(p=>!p));judge.textContent=solved?'正解を見る':'この答えで判定する';
     answer.querySelectorAll('button').forEach(b=>b.disabled=!heard||solved||b.dataset.linked==='true'||b.dataset.unavailable==='true');
     if(!guide)return;
-    if(solved){guide.set(next,{highlight:[cue,answer,judge,next,feedback],showNote:false,text:'上手にできたね！ここから次へ進もう。',step:'STEP 3 / 次へ進む'});return;}
+    if(solved){guide.hide();return;}
     if(!heard){guide.set(audio,{highlight:[cue,audio],showNote:false,text:'ここを押して、録音を最後まで聞いてみよう。',step:'STEP 1 / 録音を聞く'});return;}
     if(rhythm){
       const extra=blanks.findIndex((v,i)=>v!==definition.blanks[i]);
-      if(extra>=0){guide.set(answer.querySelectorAll('.explore-gap button')[extra],{highlight:[cue,answer,judge],showNote:false,text:'この空白拍を元に戻してみよう。',step:'STEP 2 / 拍をつくる'});return;}
+      if(extra>=0){guide.set((answer.querySelector('[data-delete-blank-index="'+extra+'"]')||answer.querySelector('[data-blank-index="'+extra+'"]')),{highlight:[cue,answer,judge],showNote:false,text:'この空白拍を元に戻してみよう。',step:'STEP 2 / 拍をつくる'});return;}
       const index=beats.findIndex((v,i)=>v!==definition.beats[i]);
-      if(index>=0){guide.set(beats[index]===0?answer.querySelector('.beat-reduction-controls'):answer.querySelectorAll('.explore-beat-toggle')[index],{highlight:[cue,answer,judge],showNote:false,text:'ここを押して、「'+question.reading[index]+'」を'+definition.beats[index]+'拍にしてみよう。',step:'STEP 2 / 拍をつくる'});return;}
+      if(index>=0){guide.set(beats[index]===0?answer.querySelector('.beat-reduction-controls'):(answer.querySelector('[data-stretch-index="'+index+'"]')||answer.querySelector('[data-beat-kana="'+index+'"]')),{highlight:[cue,answer,judge],showNote:false,text:'ここを押して、「'+question.reading[index]+'」を'+definition.beats[index]+'拍にしてみよう。',step:'STEP 2 / 拍をつくる'});return;}
     }else{
       const index=pitch.findIndex((v,i)=>v!==definition.pitch[i]);
       if(index>=0){guide.set(answer.querySelectorAll('.pitch-column')[index].querySelectorAll('button')[definition.pitch[index]==='high'?0:1],{highlight:[cue,answer,judge],showNote:false,text:'「'+question.reading[index]+'」を'+(definition.pitch[index]==='high'?'高く':'低く')+'してみよう。',step:'STEP 2 / 高低を選ぶ'});return;}
@@ -45,10 +48,11 @@ export async function mountModeOneLesson(root,{question,library,profileId,studyM
     for(const indices of wordRows(question.reading)){
       const builder=document.createElement('div');builder.className='pitch-builder';builder.innerHTML='<div class="pitch-row-labels"><span>高</span><span>低</span></div><div class="pitch-columns"></div>';answer.append(builder);
       const columns=builder.querySelector('.pitch-columns');columns.style.gridTemplateColumns='repeat('+indices.length+',minmax(0,1fr))';let d='';
-      indices.forEach((i,j)=>{if(pitch[i])d+=(j&&pitch[indices[j-1]]?'L':'M')+(50+j*100)+' '+(pitch[i]==='high'?19:57)+' ';});
-      columns.innerHTML='<svg class="pitch-path" viewBox="0 0 '+indices.length*100+' 76" preserveAspectRatio="none" aria-hidden="true"><path class="pitch-guide" d="M50 19 H'+(indices.length*100-50)+' M50 57 H'+(indices.length*100-50)+'"/><path class="pitch-line-path" d="'+d+'"/></svg>';
-      indices.forEach(i=>{const text=question.reading[i],col=document.createElement('div');col.className='pitch-column';['high','low'].forEach(p=>{const b=document.createElement('button');b.dataset.linked=String(linkedMora(question.reading,i));if(linkedMora(question.reading,i))b.title='前の拍と連動';b.className='pitch-choice '+(pitch[i]===p?'selected':'');b.setAttribute('aria-label',text+'を'+(p==='high'?'高':'低')+'くする');b.setAttribute('aria-pressed',String(pitch[i]===p));b.textContent='●';b.onclick=()=>{session.markVisualization();pitch[i]=p;feedback.textContent='';drawPitch();update();};col.append(b);});const label=document.createElement('b');label.textContent=text;col.append(label);columns.append(col);});
+      indices.forEach((i,j)=>{if(pitch[i])d+=(j&&pitch[indices[j-1]]?'L':'M')+(50+j*100)+' '+(pitch[i]==='high'?19:111)+' ';});
+      columns.innerHTML='<svg class="pitch-path" viewBox="0 0 '+indices.length*100+' 130" preserveAspectRatio="none" aria-hidden="true"><path class="pitch-guide" d="M50 19 H'+(indices.length*100-50)+' M50 111 H'+(indices.length*100-50)+'"/><path class="pitch-line-path" d="'+d+'"/></svg>';
+      indices.forEach(i=>{const text=question.reading[i],col=document.createElement('div');col.className='pitch-column';['high','low'].forEach(p=>{const b=document.createElement('button');b.dataset.linked=String(linkedMora(question.reading,i));if(linkedMora(question.reading,i))b.title='前の拍と連動';b.className='pitch-choice '+(pitch[i]===p?'selected':'');b.setAttribute('aria-label',text+'を'+(p==='high'?'高':'低')+'くする');b.setAttribute('aria-pressed',String(pitch[i]===p));b.textContent='';b.onclick=()=>{session.markVisualization();pitch[i]=p;feedback.textContent='';drawPitch();update();};col.append(b);});const label=document.createElement('b');label.textContent=text;col.append(label);columns.append(col);});
     }
+    decorateGameLabels(answer,library);
   }
   audio.addEventListener('play',()=>{if(!heard){cue.textContent='録音を聞いてみよう。聞き終わったら操作できます。';guide?.set(audio,{highlight:[cue,audio],showNote:false,text:'聞き終わるまで、そのまま聞いてみよう。',step:'STEP 1 / 録音を聞く',point:false});}});
   audio.addEventListener('pause',()=>{if(!heard)update();});
@@ -58,10 +62,11 @@ export async function mountModeOneLesson(root,{question,library,profileId,studyM
   if(!root.isConnected){guide?.dispose();session.leave();return ()=>{};}update();
   judge.onclick=()=>{
     if(judge.disabled)return;
+    if(solved){openSuccess();return;}
     const result=session.answer(rhythm?{kind:'rhythm',beats:[...beats],blanks:[...blanks]}:{kind:'answer',pitch:[...pitch]});
-    if(result.completed){solved=true;feedback.textContent=guided?'すごい！上手にできました。'+(rhythm?'「ぷ」が2拍になったね。':'「からだ」のH・L・Lをつくれたね。'):'正解です。聞こえた拍を再現できました。';next.hidden=false;beatEditor?.setDisabled(true);onCorrect?.();onComplete?.(question.id);}
+    if(result.completed){solved=true;feedback.textContent='';beatEditor?.setDisabled(true);onCorrect?.();onComplete?.(question.id);}
     else feedback.textContent=guided?(rhythm?'もう少し！「ぷ」だけを2拍にしてみよう。':'もう少し！高・低・低の順に選んでみよう。'):'拍の構成が異なります。録音をもう一度聞いてみよう。';
-    update();
+    update();if(result.completed)openSuccess();
   };
   return ()=>{active=false;guide?.dispose();beatEditor?.dispose?.();session.leave();};
 }

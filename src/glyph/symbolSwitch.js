@@ -1,3 +1,4 @@
+import {decorateSticker} from './sticker.js';
 const ns='http://www.w3.org/2000/svg';
 export const isSymbolSwitch=variant=>variant?.renderMode==='symbol-switch';
 // One visible glyph at a time. At the handoff both opacities are zero.
@@ -5,6 +6,7 @@ export function symbolSwitchFrame(progress){const t=Math.max(0,Math.min(1,progre
 export function paintWholeGlyph(svg,glyph){
   svg.replaceChildren();svg.dataset.glyphViewBox=glyph.viewBox;svg.setAttribute('viewBox',glyph.viewBox);
   for(const shape of glyph.shapes){const path=document.createElementNS(ns,'path');path.setAttribute('d',shape.d);path.setAttribute('fill','currentColor');if(shape.fillRule)path.setAttribute('fill-rule',shape.fillRule);svg.append(path);}
+  if(svg.dataset.stickerIndex!==undefined)decorateSticker(svg,Number(svg.dataset.stickerIndex),{aggregate:svg.dataset.stickerAggregate==='true'});
 }
 export function animateWholeGlyphSwitch(svg,from,to,{onFrame=()=>{},onDone=()=>{},duration=480}={}){
   let frame=0,cancelled=false,lastTarget=null;const start=performance.now();
