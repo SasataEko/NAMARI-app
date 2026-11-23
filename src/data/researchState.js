@@ -1,5 +1,5 @@
 import {participantId} from './participantIdentity.js';
-export const APP_VERSION='2026.11.19-tutorial-sequence-v1';
+export const APP_VERSION='2026.11.22-answer-reveal-v1';
 export const TUTORIAL_VERSION='2026.11.19-guided-skippable-v5';
 let protocol=null;
 const base=()=>import.meta.env?.BASE_URL||'/NAMARI-app/';

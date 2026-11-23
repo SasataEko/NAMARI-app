@@ -129,3 +129,12 @@ test('Mode2 visual JSON round-trips without column changes; deletion updates emp
  assert.equal(g.count,3);assert.equal(g.emphasisCount,3);assert.equal(g.emphasisRates['base:0'].first,2/3);assert.equal(g.commonExamples[0].count,2);assert.equal(g.commonExamples.length,2);assert.equal(JSON.stringify(g).includes(person),false);
  sheets.get('Raw').data.splice(1,1);const after=c.stats_(sample);assert.equal(after.count,2);assert.equal(after.emphasisRates['base:0'].first,.5);assert.equal(sheets.get('Audit').data.length,4);
 });
+
+test('Mode1 reveal is server-derived, requires three consecutive errors and counts once per attempt',()=>{
+ const {c,sheets}=server(),key=crypto.randomUUID(),p=mode1Record(c,crypto.randomUUID(),'test');
+ p.events=[1,1,1].map((index,i)=>({kind:'kana',index,atMs:2000+i*1000}));p.events.push({kind:'give_up',atMs:5000});p.completed=false;p.gaveUp=true;p.completionStatus='gave_up';c.saveMode1_({response:p,participantKey:key});c.saveMode1_({response:p,participantKey:key});
+ const saved=JSON.parse(sheets.get('Mode1Raw').data[1][19]);assert.equal(saved.gaveUp,true);assert.equal(saved.answerRevealed,true);assert.equal(saved.completionStatus,'gave_up');assert.equal(saved.completed,false);assert.equal(saved.correctCount,0);assert.equal(saved.errorCount,3);assert.equal(sheets.get('Mode1Raw').data[0].length,22);
+ const revision={...p,id:crypto.randomUUID(),createdAt:new Date(Date.parse(p.createdAt)+1000).toISOString(),totalDurationMs:7000,cardViewCount:1};c.saveMode1_({response:revision,participantKey:key});const stats=c.mode1Aggregate_(p,false);assert.equal(stats.count,1);assert.equal(stats.gaveUpCount,1);assert.equal(stats.gaveUpParticipantCount,1);assert.equal(stats.completedCount,0);assert.equal(sheets.get('Mode1Audit').data.length,3);const headers=sheets.get('Mode1Summary').data[0],row=sheets.get('Mode1Summary').data[1];assert.equal(row[headers.indexOf('gave_up_count')],1);
+ const early={...p,id:crypto.randomUUID(),attemptId:crypto.randomUUID(),events:[{kind:'kana',index:1,atMs:2000},{kind:'give_up',atMs:5000}]};assert.throws(()=>c.saveMode1_({response:early,participantKey:key}),/INVALID_GIVE_UP/);
+ const tampered={...p,id:crypto.randomUUID(),events:[...p.events,{kind:'kana',index:0,atMs:5500}]};assert.throws(()=>c.saveMode1_({response:tampered,participantKey:key}),/INVALID_GIVE_UP/);
+});

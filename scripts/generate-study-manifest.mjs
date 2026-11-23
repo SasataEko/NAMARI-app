@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto';
 const library=JSON.parse((await fs.readFile('public/content/library.json','utf8')).replace(/^\uFEFF/,''));
 const { levels }=await import('../src/data/levels.js');
 const mode2Tutorial=modeTwoTutorialSource(library);
-const definitions=[...levels,...library.levels,...(mode2Tutorial?[mode2Tutorial]:[])];
+const definitions=[...levels.filter(l=>!library.levels.some(q=>q.id===l.id)),...library.levels,...(mode2Tutorial?[mode2Tutorial]:[])];
 const manifests=await Promise.all(definitions.map(async l=>{
  const chars=l.characters?l.characters.map(c=>c.text):l.morae;
  const descriptor={levelId:l.id,recordingId:l.recordingId||`${l.id}-recording-v1`,defaultAccent:linkPitch(chars,l.defaultAccent),characters:chars.map(k=>({text:k,patterns:(libraryGlyph(library,k)?.patterns||[]).map(p=>p.id)})),qualityCheck:l.qualityCheck||null};
@@ -21,13 +21,14 @@ await fs.writeFile('public/content/study-manifest.json',JSON.stringify(manifests
 await fs.writeFile('apps-script/levels.json',JSON.stringify(manifests,null,2)+'\n');
 const mode1=levels.map(l=>{const base=manifests.find(m=>m.levelId===l.id);const definition={scoring:'selection',targets:l.characters.flatMap((c,i)=>c.isTarget?[i]:[]),characters:l.characters.map(c=>({text:c.text})),patternChoices:l.characters.map(c=>c.isTarget?(libraryGlyph(library,c.text)?.patterns[0]?.id||null):null)};return {levelId:l.id,recordingId:base.recordingId,levelVersion:createHash('sha256').update('mode1'+base.levelVersion+JSON.stringify(definition)).digest('hex').slice(0,16),definition};});
 for(const id of ['builtin-accent','builtin-mora'])mode1.push({levelId:id,recordingId:id+'-recording-v1',levelVersion:'unscored-v1',definition:{scoring:'none',characters:['か','り','きゅ','ら','む'].map(text=>({text}))}});
-for(const question of tutorials){
+for(const base of tutorials){
+ const question={...base,...library.modeOneLevels?.find(q=>q.id===base.id)};
  const definition=tutorialDefinition(question,library);
  const assets=[question.audio,...question.reading.flatMap(k=>{const g=libraryGlyph(library,k);return g?[g.normal,...(question.mode==='diyVowel'?g.patterns.filter(p=>question.patternChoices.includes(p.id)).map(p=>p.svg):[])]:[];})].filter(Boolean);
  const hashes=await Promise.all(assets.map(async p=>createHash('sha256').update(await fs.readFile('public/'+p)).digest('hex')));
  mode1.push({levelId:question.id,recordingId:question.recordingId,levelVersion:createHash('sha256').update(JSON.stringify(definition)+hashes.join('')).digest('hex').slice(0,16),definition});
 }
-for(const question of library.modeOneLevels||[]){
+for(const question of (library.modeOneLevels||[]).filter(q=>!tutorials.some(t=>t.id===q.id))){
  const definition=projectModeOneDefinition(library,question);
  const assets=[question.audio,...question.reading.flatMap((k,i)=>{const g=libraryGlyph(library,k);return g?[g.normal,...(question.mode==='diyVowel'?g.patterns.filter(p=>definition.patternChoices.includes(p.id)).map(p=>p.svg):[])]:[];})].filter(Boolean);
  const hashes=await Promise.all(assets.map(async p=>createHash('sha256').update(await fs.readFile('public/'+p)).digest('hex')));

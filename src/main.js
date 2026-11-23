@@ -1,3 +1,5 @@
+import {mergeModeOneQuestions} from './data/authorQuestions.js';
+import {mountAnswerReveal} from './modeOneReveal.js';
 import './glyph/sticker.css';
 import {decorateGameLabels} from './glyph/sticker.js';
 import {installPitchConnections} from './pitchConnections.js';
@@ -257,9 +259,9 @@ const chapterTitles = {
 };
 
 function chapterItems(chapter=challengeChapter){
- const tutorial=tutorials.find(q=>q.chapter===chapter);
+ const base=tutorials.find(q=>q.chapter===chapter);const tutorial={...base,...sharedLibrary?.modeOneLevels?.find(q=>q.id===base.id),tutorial:true};
  const built=[{id:tutorial.id,word:tutorial.word,summary:'チュートリアル · 録音を聞いて操作を練習',tutorial}];
- return [...built,...[...(sharedLibrary?.modeOneLevels||[]).filter(q=>!diyQuestions.some(local=>local.id===q.id)&&!diyDeletedQuestions.some(local=>local.id===q.id)),...diyQuestions].filter(q=>q.chapter===chapter||(!q.chapter&&q.mode===({vowelChallenge:'diyVowel',accent:'diyAccent',mora:'diyMora'}[chapter]))).map(question=>({id:question.id,word:question.word,summary:'DIYで作成した問題',question}))];
+ return [...built,...mergeModeOneQuestions(sharedLibrary||{},diyQuestions,diyDeletedQuestions).filter(q=>!q.tutorial).filter(q=>q.chapter===chapter||(!q.chapter&&q.mode===({vowelChallenge:'diyVowel',accent:'diyAccent',mora:'diyMora'}[chapter]))).map(question=>({id:question.id,word:question.word,summary:'DIYで作成した問題',question}))];
 }
 async function openChapterItem(item){
  if(!item.tutorial&&modeOneStudyMode==='research'&&!await ensureParticipation('research'))return;
@@ -609,6 +611,7 @@ async function renderCustomVowelChallenge(){
 function renderDiyPlayer() {
   if (!activeDiyQuestion) { navigate('diy'); return; }
   const question = activeDiyQuestion;
+  const gaveUp=legacyModeOneStats?.tracker.capture().gaveUp;
   const openSuccess=()=>{const next=nextChapterItem(chapterItems(),modeOneCurrentId);showCorrectDialog(app.querySelector('main'),{label:customPlayReturnScreen==='chapterLevels'?(next?'次の問題へ：'+next.word+' →':'ホームへ'):'問題一覧へ',onNext:customPlayReturnScreen==='chapterLevels'?advanceModeOne:()=>navigate('diy')});};
   if(question.mode==='diyMora'){renderRhythmQuestion(question,diyPlaybackUrl,customPlayReturnScreen);return;}
   if(question.mode==='diyAccent')diyPlayerPattern=linkPitch(question.reading,diyPlayerPattern);
@@ -644,7 +647,13 @@ function renderDiyPlayer() {
     diyPlayerFeedback = '';
     renderDiyPlayer();
   }));
+  if(question.mode==='diyAccent'&&legacyModeOneStats){
+   const owner=app.querySelector('main'),judge=owner.querySelector('[data-check-diy]');
+   mountAnswerReveal(owner,{session:legacyModeOneStats,before:judge,onReveal:()=>{diyPlayerPattern=[...linkPitch(question.reading,question.pattern)];diyPlayerFeedback='';renderDiyPlayer();}});
+   if(gaveUp){owner.querySelectorAll('[data-play-index],[data-play-target]').forEach(b=>b.disabled=true);judge.disabled=false;judge.textContent=customPlayReturnScreen==='chapterLevels'?'次の問題へ':'問題一覧へ';const note=document.createElement('p');note.className='mode-one-reveal-note';note.textContent='正解を表示しました。';judge.before(note);}
+  }
   app.querySelector('[data-check-diy]').addEventListener('click', () => {
+    if(gaveUp){if(customPlayReturnScreen==='chapterLevels')advanceModeOne();else navigate('diy');return;}
     if(diyPlayerFeedback.startsWith('正解')){openSuccess();return;}
     if (isVowelQuestion) {
       if (diyPlayerTargetIndex === null) return;

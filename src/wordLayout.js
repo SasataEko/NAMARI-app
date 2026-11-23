@@ -26,7 +26,7 @@ export function fitWordStage(stage) {
   const available=Math.max(1,stage.clientWidth-12),spacing=8;
   const cost=row=>[...row.children].reduce((sum,e)=>{
     if(e.hidden)return sum;
-    if(e.classList.contains('explore-gap'))return sum+(e.classList.contains('has-blank')?1:0);
+    if(e.classList.contains('explore-gap'))return sum+(e.dataset.beatCount!==undefined?Number(e.dataset.beatCount):(e.classList.contains('has-blank')?1:0));
     const svg=e.querySelector('.explore-kana svg'),label=e.querySelector('.lesson-kana-text');const visual=beatVisual(Number(svg?.dataset.beats??e.dataset.beats??1),Number(svg?.dataset.omissionRate??(e.hidden?1:0)));return sum+(Number(svg?.dataset.inkRatio)||.85*(label?[...label.textContent].length:1))*visual.survival+visual.extension;
   },0);
   const hasCards=stage.dataset.patternCards==='true'||!!stage.closest('.explore-card')?.querySelector('.explore-features');
@@ -39,7 +39,7 @@ export function fitWordStage(stage) {
   stage.style.setProperty('--word-size',size+'px');
   rows.forEach(row=>[...row.children].forEach(e=>{
     if(e.hidden){e.style.width='0px';return;}
-    if(e.classList.contains('explore-gap')){e.style.width=e.classList.contains('has-blank')?size+'px':'0px';const mark=e.querySelector('.explore-blank-cell>span');if(mark)mark.style.fontSize=Math.max(8,(14+16*Number(mark.dataset.blankRate??1))*size/80)+'px';return;}
+    if(e.classList.contains('explore-gap')){e.style.width=(e.dataset.beatCount!==undefined?size*Number(e.dataset.beatCount):(e.classList.contains('has-blank')?size:0))+'px';if(e.dataset.beatCount!==undefined){e.querySelectorAll('.lesson-beat-mark').forEach(mark=>{mark.style.width=size+'px';mark.querySelector('span').style.fontSize=size*.9+'px';});return;}const mark=e.querySelector('.explore-blank-cell>span');if(mark)mark.style.fontSize=Math.max(8,(14+16*Number(mark.dataset.blankRate??1))*size/80)+'px';return;}
     const svg=e.querySelector('.explore-kana svg');if(!svg){const label=e.querySelector('.lesson-kana-text');if(label){label.style.fontSize=(size*.9)+'px';label.style.lineHeight=(size+12)+'px';e.style.width=((.85*[...label.textContent].length+Math.max(0,Number(e.dataset.beats||1)-1))*size+spacing)+'px';}return;}
     const visual=beatVisual(Number(svg.dataset.beats??1),Number(svg.dataset.omissionRate??0));const width=((Number(svg.dataset.inkRatio)||.85)*visual.survival+visual.extension)*size;
     svg.style.width=width+'px';svg.style.height=size+'px';e.style.width=(width+spacing)+'px';

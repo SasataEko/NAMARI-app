@@ -1,3 +1,6 @@
+import {mountModeOneAuthor} from './modeOneAuthor.js';
+import {modeTwoAuthorQuestions,upsertModeOneQuestion} from './data/authorQuestions.js';
+import {listDiyQuestions,saveDiyQuestion,reviseDiyQuestion} from './data/diyStore.js';
 import {linkedMora,linkPitch} from './data/linkedPitch.js';
 import {confirmQuestionDeletion} from './authorConfirmation.js';
 import {archiveLevel,restoreLevel} from './data/levelManagement.js';
@@ -34,16 +37,17 @@ export async function mountAuthor(root){
  button.onclick=async()=>{button.disabled=true;try{await connectDirectory();if(root.isConnected)mountAuthor(root);}catch(e){root.querySelector('[data-connect-status]').textContent=e.name==='AbortError'?'フォルダーの選択をキャンセルしました。':e.name==='NotAllowedError'?'フォルダーへのアクセスを許可してください。':e.name==='NotFoundError'?'プロジェクトのフォルダーを選んでください。設定や素材が見つかりません。':e.message;}finally{if(button.isConnected)button.disabled=false;}};return;
  }
  let savingLevel=false;
- let library=await readLibrary(),kana='く',tab='glyph',editingLevel=null;
+ let library=await readLibrary(),kana='く',tab='glyph',editingLevel=null;let editingOne=null,disposeOne=null;let localQuestions=await listDiyQuestions().catch(()=>[]);
  let drafts;try{drafts=JSON.parse(localStorage.getItem('kotoba-author-drafts')||'{}');}catch{drafts={};}
  const remember=(key,data)=>{drafts[key]=structuredClone(data);localStorage.setItem('kotoba-author-drafts',JSON.stringify(drafts));};
  const forget=key=>{delete drafts[key];localStorage.setItem('kotoba-author-drafts',JSON.stringify(drafts));};
  if(!root.isConnected)return;
  const render=()=>{
- root.innerHTML=`<section class="library-intro"><p class="eyebrow">プロジェクト編集</p><h1>開発者モード</h1><p>SVGと録音を追加し、問題と図鑑を編集できます。保存すると通常SVGはassets/normal、変形SVGはassets/namariのグループ別フォルダーに整理し、以前の素材と設定をバックアップします。</p>${directoryConnected()?`<p>保存先：${esc(directoryName())} · 編集中はクラウドに回答を送信しません。</p>`:''}<p>プロジェクトの版：${library.revision} <span data-save-status role="status"></span></p><div class="library-tabs"><button data-editor-tab="glyph">字形と図鑑</button><button data-editor-tab="level">新モードの問題</button><button data-editor-tab="group">発音パターンのグループ</button></div></section>${directoryConnected()?'<button class="text-action" data-disconnect>フォルダーを閉じる</button>':''}<div data-editor-body></div>`;
+ disposeOne?.();disposeOne=null;
+ root.innerHTML=`<section class="library-intro"><p class="eyebrow">プロジェクト編集</p><h1>開発者モード</h1><p>SVGと録音を追加し、問題と図鑑を編集できます。保存すると通常SVGはassets/normal、変形SVGはassets/namariのグループ別フォルダーに整理し、以前の素材と設定をバックアップします。</p>${directoryConnected()?`<p>保存先：${esc(directoryName())} · 編集中はクラウドに回答を送信しません。</p>`:''}<p>プロジェクトの版：${library.revision} <span data-save-status role="status"></span></p><div class="library-tabs"><button data-editor-tab="glyph">字形と図鑑</button><button data-editor-tab="mode1">Mode1の問題</button><button data-editor-tab="level">Mode2の問題</button><button data-editor-tab="group">発音パターンのグループ</button></div></section>${directoryConnected()?'<button class="text-action" data-disconnect>フォルダーを閉じる</button>':''}<div data-editor-body></div>`;
  const close=root.querySelector('[data-disconnect]');if(close)close.onclick=()=>{disconnectDirectory();mountAuthor(root);};
  root.querySelectorAll('[data-editor-tab]').forEach(b=>{b.setAttribute('aria-pressed',String(tab===b.dataset.editorTab));b.onclick=()=>{tab=b.dataset.editorTab;render();};});
- if(tab==='glyph')glyphEditor();if(tab==='level')levelEditor();if(tab==='group')groupEditor();
+ if(tab==='mode1')oneEditor();if(tab==='glyph')glyphEditor();if(tab==='level')levelEditor();if(tab==='group')groupEditor();
  };
  const message=t=>{const el=root.querySelector('[data-save-status]');if(el)el.textContent=t;};
  async function commit(){const result=await writeLibrary(library);const {assetMoves=[],...saved}=result;library=saved;drafts=remapDraftAssets(drafts,assetMoves);localStorage.setItem('kotoba-author-drafts',JSON.stringify(drafts));message(`保存しました · 版 ${library.revision}`);}
@@ -66,9 +70,22 @@ export async function mountAuthor(root){
  const body=root.querySelector('[data-editor-body]');body.innerHTML=`<form class="author-form"><h2>発音パターンのグループ</h2><p>同じ発音の特徴をもつ文字をまとめられます。例えば「う・く・す」の丸い発音を同じグループに登録できます。字形の保存時に所属グループを選んでください。</p><div data-groups></div><button type="button" data-add-group>＋ グループを追加</button><button class="primary-cta compact">グループを保存</button></form>`;
  const draft=normalizePatternFolders(library.groups);const draw=()=>{body.querySelector('[data-groups]').innerHTML=draft.map((g,i)=>`<fieldset data-group-index="${i}"><label>名称<input data-group-title value="${esc(g.title)}" required></label><label>保存フォルダー名（英字）<input data-group-folder value="${esc(g.folderName)}" placeholder="pattern-U" pattern="[A-Za-z][A-Za-z0-9_-]{0,63}" maxlength="64" required><small>保存先：assets/namari/${esc(g.folderName)} ／ 英数字・ハイフン・アンダースコア</small></label><label>説明<input data-group-description value="${esc(g.description)}"></label><label>カードの色<input type="color" data-group-color value="${esc(g.color)}"></label></fieldset>`).join('');body.querySelectorAll('[data-group-index]').forEach(row=>{const g=draft[Number(row.dataset.groupIndex)];row.querySelector('[data-group-title]').oninput=e=>g.title=e.target.value;row.querySelector('[data-group-folder]').oninput=e=>g.folderName=e.target.value;row.querySelector('[data-group-description]').oninput=e=>g.description=e.target.value;row.querySelector('[data-group-color]').oninput=e=>g.color=e.target.value;});};draw();body.querySelector('[data-add-group]').onclick=()=>{draft.push({id:uid(),title:'',folderName:'pattern-'+(draft.length+1),description:'',color:'#ffe08b'});draw();};body.querySelector('form').onsubmit=async e=>{e.preventDefault();try{library.groups=normalizePatternFolders(draft);await commit();render();message('グループと保存フォルダーを保存しました。');}catch(e){message(e.message);}};
  }
+ function oneEditor(){
+  disposeOne=mountModeOneAuthor(root.querySelector('[data-editor-body]'),{library,locals:localQuestions,initialId:editingOne,onUpload:uploading,onError:message,onSave:async draft=>{
+   if(savingLevel)return;savingLevel=true;const previous=library;let committed=false;
+   root.querySelectorAll('button').forEach(b=>b.disabled=true);
+   try{
+    if(draft.audioBlob){const file=new File([draft.audioBlob],draft.audioName||'recording.wav',{type:draft.audioBlob.type});draft.audio=await uploadAsset(file);draft.recordingId||=draft.id+'-recording-v1';}
+    library=upsertModeOneQuestion(library,draft);await commit();committed=true;editingOne=draft.id;
+    const local=localQuestions.find(q=>q.id===draft.id);let warning='';
+    if(local)try{const saved=library.modeOneLevels.find(q=>q.id===draft.id),audioBlob=await fetch(assetUrl(saved.audio)).then(r=>{if(!r.ok)throw Error('録音を同期できません。');return r.blob();});await saveDiyQuestion({...reviseDiyQuestion(local,{...saved,audioBlob}),recordingId:saved.recordingId});localQuestions=await listDiyQuestions();}catch(e){warning=' · ブラウザー内のDIYへの同期は未確認です。';}
+    render();message('Mode1の変更を保存しました。'+warning);
+   }catch(e){if(!committed)library=previous;message(e.message);}finally{savingLevel=false;root.querySelectorAll('button').forEach(b=>b.disabled=false);}
+  }});
+ }
  function levelEditor(){
- const draftKey='level:'+(editingLevel||'new');const draft=structuredClone(drafts[draftKey]||library.levels.find(l=>l.id===editingLevel)||{id:uid(),word:'',morae:[],audio:null,recordingId:uid(),defaultAccent:[]});
- const body=root.querySelector('[data-editor-body]');body.innerHTML=`<div class="author-levels"><button data-new-level>＋ 問題を追加</button>${library.levels.map(l=>`<button data-edit-level="${esc(l.id)}" aria-pressed="${l.id===editingLevel}">${esc(l.word)} · 編集</button>`).join('')}</div><p>保存済みのことばを選ぶと、録音・読み・アクセントを編集できます。削除した問題は下の一覧から復元できます。</p><div data-archived-levels></div><form class="author-form"><h2>${editingLevel?'問題を編集':'録音と問題'}</h2><label>表示することば<input data-word value="${esc(draft.word)}" required></label><label>拍ごとのかな（・で区切る。「きゅ」は1拍）<input data-morae value="${esc(draft.morae.join('・'))}" placeholder="く・す・り" required></label><label>録音<input type="file" accept="audio/*" data-audio-file></label><audio controls data-audio-preview ${draft.audio?`src="${esc(assetUrl(draft.audio))}"`:''}></audio><label>参照音声（任意）<input type="file" accept="audio/*" data-reference-file></label><audio controls data-reference-preview ${draft.referenceAudio?`src="${esc(assetUrl(draft.referenceAudio))}"`:''}></audio><button type="button" data-remove-reference>参照音声を外す</button><div data-accent></div><button class="primary-cta compact">問題を保存</button>${editingLevel?'<button type="button" data-remove-level>この問題を削除（復元できます）</button>':''}<p>字形とパターンは図鑑から読み込みます。通常SVGのない文字は標準フォントで表示します。録音を変更すると録音IDも変わり、集計を分けます。</p></form>`;
+ const draftKey='level:'+(editingLevel||'new');const draft=structuredClone(drafts[draftKey]||modeTwoAuthorQuestions(library).find(l=>l.id===editingLevel)||{id:uid(),word:'',morae:[],audio:null,recordingId:uid(),defaultAccent:[]});
+ const body=root.querySelector('[data-editor-body]');body.innerHTML=`<div class="author-levels"><button data-new-level>＋ 問題を追加</button>${modeTwoAuthorQuestions(library).map(l=>`<button data-edit-level="${esc(l.id)}" aria-pressed="${l.id===editingLevel}">${esc(l.word)} · 編集</button>`).join('')}</div><p>保存済みのことばを選ぶと、録音・読み・アクセントを編集できます。削除した問題は下の一覧から復元できます。</p><div data-archived-levels></div><form class="author-form"><h2>${editingLevel?'問題を編集':'録音と問題'}</h2><label>表示することば<input data-word value="${esc(draft.word)}" required></label><label>拍ごとのかな（・で区切る。「きゅ」は1拍）<input data-morae value="${esc(draft.morae.join('・'))}" placeholder="く・す・り" required></label><label>録音<input type="file" accept="audio/*" data-audio-file></label><audio controls data-audio-preview ${draft.audio?`src="${esc(assetUrl(draft.audio))}"`:''}></audio><label>参照音声（任意）<input type="file" accept="audio/*" data-reference-file></label><audio controls data-reference-preview ${draft.referenceAudio?`src="${esc(assetUrl(draft.referenceAudio))}"`:''}></audio><button type="button" data-remove-reference>参照音声を外す</button><div data-accent></div><button class="primary-cta compact">問題を保存</button>${editingLevel?'<button type="button" data-remove-level>この問題を削除（復元できます）</button>':''}<p>字形とパターンは図鑑から読み込みます。通常SVGのない文字は標準フォントで表示します。録音を変更すると録音IDも変わり、集計を分けます。</p></form>`;
  body.querySelector('[data-word]').oninput=e=>{draft.word=e.target.value;remember(draftKey,draft);};
  const applyLevelChange=async(change,done)=>{
   if(savingLevel)return;savingLevel=true;const previous=library;
@@ -94,7 +111,7 @@ export async function mountAuthor(root){
  body.querySelector('form').onsubmit=async e=>{e.preventDefault();try{
  draft.word=body.querySelector('[data-word]').value.trim();if(!draft.word||(!draft.audio&&!draft.visualExperiment)||!draft.morae.length)throw new Error('録音と拍ごとのかなを入力してください。');
  if(draft.morae.length>30)throw new Error('1問につき30拍以内にしてください。');
- await applyLevelChange(()=>({...library,levels:library.levels.some(l=>l.id===draft.id)?library.levels.map(l=>l.id===draft.id?{...draft,updatedAt:new Date().toISOString()}:l):[...library.levels,draft]}),()=>{forget(draftKey);editingLevel=draft.id;});
+ await applyLevelChange(()=>({...library,levels:library.levels.some(l=>l.id===draft.id)?library.levels.map(l=>l.id===draft.id?{...draft,updatedAt:new Date().toISOString()}:l):(modeTwoAuthorQuestions({...library,levels:[]}).some(l=>l.id===draft.id)?[draft,...library.levels]:[...library.levels,draft])}),()=>{forget(draftKey);editingLevel=draft.id;});
  }catch(e){message(e.message);}};
  }
  render();
