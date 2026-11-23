@@ -1,3 +1,5 @@
+@font-face{font-family:"Gothic A1";src:url("/assets/fonts/GothicA1-Black.ttf") format("truetype");font-style:normal;font-weight:900;font-display:swap}
+:root{--sticker-outline-width:7.75px;--sticker-white-width:5.17px}
 /* Display-only layers; source contours and statistical weights stay unchanged. */
 svg.sticker-glyph{overflow:visible!important;fill:var(--sticker-color);stroke:none;stroke-width:0}
 svg.sticker-glyph[data-sticker-aggregate=true]{fill:currentColor}

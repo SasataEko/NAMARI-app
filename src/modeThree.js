@@ -1,3 +1,5 @@
+import {mountCompactAudio} from './compactAudio.js';
+import {centerBeatMarker} from './glyph/beatMarker.js';
 import {featuresFor} from './data/explorationFeatures.js';
 import {previewArtwork,averageGlyphPaths,averageEmphasisVisual} from './data/modeTwoVisual.js';
 import {accentBackgroundAssets,emphasisBackground,createRotationPicker,backgroundTransform,nextGlyphAngle,accentBackgroundColor,accentBackgroundScale} from './glyph/accentBackground.js';
@@ -20,7 +22,7 @@ function outline(svg,shapes){
 }
 function applyPaths(svg,paths){for(const g of svg.children)[...g.children].forEach((p,j)=>p.setAttribute('d',paths[j]));}
 function glyphSvg(glyph,text){const svg=svgNode('svg',{viewBox:paddedViewBox(glyph.viewBox),role:'img','aria-label':text,preserveAspectRatio:'xMidYMid meet'});if(text==='っ')svg.dataset.smallKana='true';outline(svg,glyph.shapes);return svg;}
-function markerSvg(text){const svg=svgNode('svg',{viewBox:'30 -12 110 194',role:'img','aria-label':text});for(const name of ['m3-outline','m3-white','m3-fill']){const g=svgNode('g',{'class':name}),t=svgNode('text',{x:85,y:88,'text-anchor':'middle','dominant-baseline':'central','font-size':text==='ッ'?86:112,'font-weight':900});t.textContent=text;g.append(t);svg.append(g);}return svg;}
+function markerSvg(text){const svg=svgNode('svg',{viewBox:'30 -12 110 194',role:'img','aria-label':text});for(const name of ['m3-outline','m3-white','m3-fill']){const g=svgNode('g',{'class':name}),t=svgNode('text',{x:85,y:88,'text-anchor':'middle','dominant-baseline':'central','font-family':'Gothic A1','font-size':text==='ッ'?72:90,'font-weight':900});t.textContent=text;g.append(t);svg.append(g);}return centerBeatMarker(svg,85,85);}
 // Reserve ink space across exact, unmodified contours, including Morph frames.
 function measureGlyph(data,text){
  const svg=glyphSvg(data.normal,text);svg.style.cssText='position:fixed;left:-10000px;top:0;width:200px;height:200px;visibility:hidden;overflow:visible';document.body.append(svg);
@@ -32,9 +34,9 @@ function measureGlyph(data,text){
 export async function mountModeThree(root,options={}){
  const sourceUrl=p=>/^(https?:|blob:|data:|\/)/.test(p)?p:assetUrl(p);
  const editingLevel=options.level||modeThreeLevel,isModeTwo=Boolean(options.level),readOnly=Boolean(options.preview),preview=options.preview;
- root.modeThreeSession?.dispose();let disposed=false,observer=null,selectedKey='base:0',tab='patterns',saveTimer=null,layoutFrame=0;
+ root.modeThreeSession?.dispose();let disposed=false,observer=null,selectedKey='base:0',tab='patterns',saveTimer=null,layoutFrame=0,disposeAudio=null;
  const animations=new Map(),stop=svg=>{cancelAnimationFrame(animations.get(svg));animations.delete(svg);};
- const session={dispose(){disposed=true;observer?.disconnect();animations.forEach(cancelAnimationFrame);animations.clear();clearTimeout(saveTimer);cancelAnimationFrame(layoutFrame);}};root.modeThreeSession=session;
+ const session={dispose(){disposed=true;disposeAudio?.();observer?.disconnect();animations.forEach(cancelAnimationFrame);animations.clear();clearTimeout(saveTimer);cancelAnimationFrame(layoutFrame);}};root.modeThreeSession=session;
  const alive=()=>!disposed&&root.isConnected&&root.modeThreeSession===session;
  root.className='mode-three';root.dataset.style='sticker';root.textContent='字形を準備しています…';
  try{
@@ -53,15 +55,15 @@ export async function mountModeThree(root,options={}){
   const edits=createEditHistory({capture:()=>({state,selectedKey,tab,reduction:history}),restore:s=>{state=s.state;selectedKey=s.selectedKey;tab=s.tab;Object.assign(history,s.reduction);originalSvgs.forEach((_,i)=>paint(i));refresh();}});
   root.replaceChildren();
   const bar=make('header','m3-bar'),heading=make('div','m3-heading');heading.append(make('span','m3-badge',isModeTwo?'MODE 2':'MODE 3 · LAB'),make('h1','',isModeTwo?'これ、どう聞こえる？':'ことばをつくる'));
-  const save=make('button','m3-save',isModeTwo?'こう聞こえる':'作品を保存');save.type='button';const undo=make('button','edit-undo','↶ 元に戻す');undo.type='button';undo.disabled=true;undo.onclick=()=>{if(edits.undo())status.textContent='ひとつ前に戻しました。';};bar.append(heading,undo,save);if(isModeTwo&&options.controlsElement)bar.insertBefore(options.controlsElement,undo);
+  const save=make('button','m3-save',isModeTwo?'こう聞こえる':'作品を保存');save.type='button';const undo=make('button','edit-undo','↶ 元に戻す');undo.type='button';undo.classList.add('m3-icon-undo');undo.textContent='';undo.setAttribute('aria-label','ひとつ前に戻す');undo.title='ひとつ前に戻す';const undoImage=make('img');undoImage.src=assetUrl('assets/ui/undo.png');undoImage.alt='';undo.append(undoImage);undo.disabled=true;undo.onclick=()=>{if(edits.undo())status.textContent='ひとつ前に戻しました。';};bar.append(heading,undo,save);if(isModeTwo&&options.controlsElement)bar.insertBefore(options.controlsElement,undo);
   function remember(){edits.checkpoint();undo.disabled=false;}
   const canvas=make('section','m3-canvas');canvas.setAttribute('aria-label',editingLevel.word+(readOnly?'の回答図形':'の字形編集'));
-  const tones=svgNode('svg',{'class':'m3-tones','aria-hidden':'true'}),stage=make('div','m3-stage');const accentHint=make('aside','m3-accent-overlay');accentHint.setAttribute('role','note');canvas.append(tones,accentHint,stage,make('p','m3-caption',isModeTwo?'': 'あばくらっと · 表示実験'));
+  const tones=svgNode('svg',{'class':'m3-tones','aria-hidden':'true'}),stage=make('div','m3-stage');const accentHint=make('aside','m3-accent-overlay');accentHint.setAttribute('role','note');canvas.append(tones,stage,make('p','m3-caption',isModeTwo?'': 'あばくらっと · 表示実験'));
   const editor=make('section','m3-editor'),tabs=make('div','m3-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','編集カテゴリー');
   const panel=make('div','m3-panel');panel.id='m3-panel';panel.setAttribute('role','tabpanel');
   const status=make('p','m3-status');status.setAttribute('role','status');status.textContent='文字を選んで、音のかたちをつくろう。';
   const foot=make('div','m3-foot'),reset=make('button','m3-reset','はじめのかたちへ');reset.type='button';foot.append(reset,make('small','',isModeTwo?'': 'この端末だけに保存'));
-  editor.append(tabs,panel,status,foot);root.append(bar,canvas,editor);if(isModeTwo&&!readOnly&&options.audioElement){const recording=make('div','m3-recording');recording.append(make('p','','これ、どう聞こえる？'),options.audioElement);canvas.before(recording);}if(isModeTwo&&!readOnly){const skip=make('button','m3-reset','スキップ');skip.type='button';skip.onclick=()=>options.onSubmit?.(structuredClone(state),true);foot.append(skip);}if(readOnly){bar.remove();editor.remove();root.dataset.preview='true';}
+  editor.append(tabs,accentHint,panel,status,foot);root.append(bar,canvas,editor);if(isModeTwo&&!readOnly&&options.audioElement){const questionCopy=make('p','m3-listen-question','これ、どう聞こえる？');canvas.before(questionCopy);disposeAudio=mountCompactAudio(canvas,options.audioElement,options.referenceAudioElement);}if(isModeTwo&&!readOnly){const skip=make('button','m3-reset','スキップ');skip.type='button';skip.onclick=()=>options.onSubmit?.(structuredClone(state),true);foot.append(skip);}if(readOnly){bar.remove();editor.remove();root.dataset.preview='true';}
   const originalSvgs=glyphs.map((g,i)=>{const svg=glyphSvg(g.normal,characters[i].text);svg.setAttribute('viewBox',metrics[i].box);return svg;});
   let nodes=[],buttons=new Map();const tonePrefix='m3-tone-'+(++toneId);
   function paint(i,animate=false){
@@ -85,10 +87,10 @@ export async function mountModeThree(root,options={}){
   function fit(){
    if(!alive())return;const rows=[...stage.children];if(!nodes.length){tones.replaceChildren();return;}
    const lists=rows.map(row=>[...row.children].map(b=>nodes.find(n=>n.key===b.dataset.key)));
-   const maxima=lists.map(list=>Math.max(...list.map(n=>n.kind==='base'?factor(n.index):1))),total=maxima.reduce((a,b)=>a+b,0),heightBudget=Math.max(20,canvas.clientHeight-(readOnly?16:tab==='pitch'?(isModeTwo?64:112):54)-16*(rows.length-1));
-   const layouts=rows.map((row,r)=>{const list=lists[r],aspects=list.map(n=>n.kind==='base'?(hasPattern(n.index)?metrics[n.index].aspect:metrics[n.index].normal.aspect):110/194),factors=list.map(n=>n.kind==='base'?factor(n.index):1);return {row,aspects,factors,layout:fitArtworkRow(Math.max(1,stage.clientWidth-6),heightBudget*maxima[r]/total,factors,aspects)};});
+   const maxima=lists.map(list=>Math.max(...list.map(n=>n.kind==='base'?factor(n.index):1))),total=maxima.reduce((a,b)=>a+b,0),heightBudget=Math.max(20,canvas.clientHeight-(readOnly?16:isModeTwo?28:54)-16*(rows.length-1));
+   const layouts=rows.map((row,r)=>{const list=lists[r],aspects=list.map(n=>n.kind==='base'?(hasPattern(n.index)?metrics[n.index].aspect:metrics[n.index].normal.aspect):110/194),factors=list.map(n=>n.kind==='base'?factor(n.index):1);return {row,aspects,factors,layout:fitArtworkRow(Math.max(1,stage.clientWidth-6),heightBudget*maxima[r]/total,factors,aspects,isModeTwo&&!readOnly?{maxBase:160,fill:.96}:{})};});
    const base=Math.min(...layouts.map(l=>l.layout.base));
-   for(const {row,aspects,factors,layout}of layouts){row.style.gap=layout.gap+'px';[...row.children].forEach((b,j)=>{const rate=readOnly?Math.max(b.dataset.key.startsWith('base:')?0:.18,listRate(b.dataset.key)):1;b.style.width=base*factors[j]*aspects[j]*rate+'px';b.style.marginInlineEnd=(j<layout.gapRatios.length?base*layout.gapRatios[j]:0)+'px';b.style.height=base*factors[j]+'px';b.dataset.baseSize=String(base);});}const stageBox=stage.getBoundingClientRect(),canvasBox=canvas.getBoundingClientRect();accentHint.style.top=Math.max(12,stageBox.top-canvasBox.top-50)+'px';drawTones();
+   for(const {row,aspects,factors,layout}of layouts){row.style.gap=layout.gap+'px';[...row.children].forEach((b,j)=>{const rate=readOnly?Math.max(b.dataset.key.startsWith('base:')?0:.18,listRate(b.dataset.key)):1;b.style.width=base*factors[j]*aspects[j]*rate+'px';b.style.marginInlineEnd=(j<layout.gapRatios.length?base*layout.gapRatios[j]:0)+'px';b.style.height=base*factors[j]+'px';b.dataset.baseSize=String(base);});}drawTones();
   }
   function listRate(key){return nodes.find(n=>n.key===key)?.rate??1;}
   function rerollNode(key){
@@ -115,7 +117,7 @@ export async function mountModeThree(root,options={}){
   function refresh(){renderWord();if(!readOnly)renderControls();fit();undo.disabled=!edits.canUndo;changed();}
   function choice(label,pressed,action){const b=make('button','m3-choice');b.type='button';b.setAttribute('aria-pressed',String(pressed));b.setAttribute('aria-label',label);b.onclick=action;return b;}
   function renderControls(){
-   root.dataset.tool=tab;accentHint.replaceChildren(make('b','','文字を押して、強く聞こえる音を選ぼう'),make('span','','① 最も強い音　② 次に強い音 · '+state.emphasis.length+'/2'));buttons.forEach((b,key)=>{b.setAttribute('aria-pressed',String(key===selectedKey));const n=nodes.find(n=>n.key===key);b.dataset.edited=String(n?.kind==='base'&&!!state.patterns[n.index]);});tabs.replaceChildren();
+   root.dataset.tool=tab;accentHint.textContent='強く聞こえる音があれば、文字をタップして重音を追加できます（'+state.emphasis.length+'/2）';buttons.forEach((b,key)=>{b.setAttribute('aria-pressed',String(key===selectedKey));const n=nodes.find(n=>n.key===key);b.dataset.edited=String(n?.kind==='base'&&!!state.patterns[n.index]);});tabs.replaceChildren();
    const categories=[['patterns','母音子音'],['pitch','アクセント'],['duration','拍']];
    for(const [id,label]of categories){const b=make('button','',label);b.type='button';b.id='m3-tab-'+id;b.setAttribute('role','tab');b.setAttribute('aria-controls','m3-panel');b.setAttribute('aria-selected',String(tab===id));b.tabIndex=tab===id?0:-1;b.onclick=()=>{tab=id;renderControls();fit();root.querySelector('#m3-tab-'+id).focus();};b.onkeydown=e=>{if(!['ArrowRight','ArrowLeft','Home','End'].includes(e.key))return;e.preventDefault();const ids=categories.map(c=>c[0]);tab=e.key==='Home'?ids[0]:e.key==='End'?ids[2]:ids[(ids.indexOf(tab)+(e.key==='ArrowLeft'?2:1))%3];renderControls();fit();root.querySelector('#m3-tab-'+tab).focus();};tabs.append(b);}
    panel.setAttribute('aria-labelledby','m3-tab-'+tab);panel.replaceChildren();const selected=nodes.find(n=>n.key===selectedKey);

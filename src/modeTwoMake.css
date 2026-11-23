@@ -44,3 +44,20 @@
 @media(max-width:600px){.m3-recording{flex-direction:column;gap:3px;align-items:stretch;padding:0}.m3-recording p{text-align:center;font-size:12px}.m3-recording audio{height:32px;flex:none}.mode-two-lab .m3-choice{flex-basis:85px}.mode-two-lab .m3-choice>span{font-size:9px}.mode2-result-heading h1{font-size:17px}.mode2-result-heading button{padding:5px 7px;font-size:9px}.mode2-common-list{gap:4px}}
 @media(max-height:700px){.mode-two-lab .m3-choice>svg{height:32px;width:32px}.mode-two-lab .m3-panel{min-height:88px}.mode-two-lab .m3-canvas{min-height:95px}.mode2-common-block{flex-basis:80px;min-height:64px}.mode2-answer-block{min-height:70px}}
 @media(max-height:600px) and (min-width:650px){.mode-two-lab [data-editor]>.mode-three{grid-template-rows:auto auto minmax(0,1fr)}.mode-two-lab .m3-bar{grid-row:1}.mode-two-lab .m3-recording{grid-column:1/-1;grid-row:2}.mode-two-lab .m3-canvas,.mode-two-lab .m3-editor{grid-row:3}}
+
+/* Keep the word as the primary visual, with compact transport on its left. */
+.mode-two-lab .m3-listen-question{flex:none;text-align:center;font-size:12px;font-weight:700;margin:0;line-height:1.4}
+.mode-two-lab .m3-canvas{padding:12px 8px 16px;min-height:170px}
+.mode-two-lab .m3-canvas[data-has-audio=true] .m3-stage{width:calc(100% - 40px);margin-left:40px}
+.m3-audio-rail{position:absolute;left:7px;top:50%;transform:translateY(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:12px;width:38px}
+.m3-audio-item{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}.m3-audio-item audio[hidden]{display:none!important}
+.mode-three .m3-audio-button{display:grid;place-items:center;width:38px;height:42px;min-width:38px;min-height:42px;border:1.5px solid transparent;border-radius:12px;padding:7px 3px;background:transparent}
+.m3-audio-button img{display:block;width:100%;height:auto;object-fit:contain}.mode-three .m3-audio-button[aria-pressed=true]{background:#ffe7df;border-color:#a63a25}.m3-audio-item small{font-size:8px;color:#84736c;white-space:nowrap}
+@media(max-width:600px) and (orientation:portrait){
+ .mode-two-lab .m3-canvas{flex:1 1 auto;min-height:clamp(160px,30dvh,300px);padding:10px 5px 12px}
+ .mode-two-lab .m3-panel{min-height:100px}.mode-two-lab .m3-editor{padding:7px 8px 5px}
+ .mode-two-lab .m3-tabs{margin-bottom:5px}.mode-two-lab .m3-tabs button{padding:6px 13px}
+ .mode-two-lab .m3-options{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding:4px 3px 7px;max-width:100%}
+ .mode-two-lab .m3-choice{flex:1 0 90px;max-width:180px}.mode-two-lab .m3-status{margin:2px 0!important;min-height:12px}
+}
+@media(max-height:600px) and (min-width:650px){.mode-two-lab [data-editor]>.mode-three{grid-template-rows:auto auto minmax(0,1fr)}.mode-two-lab .m3-listen-question{grid-column:1/-1;grid-row:2}.mode-two-lab .m3-canvas,.mode-two-lab .m3-editor{grid-row:3}}

@@ -1,3 +1,4 @@
+import {centerBeatMarker} from './beatMarker.js';
 import {loadGlyph} from './loadGlyph.js';
 import {libraryGlyph} from '../data/patternLibrary.js';
 import {assetUrl} from '../data/projectLibrary.js';
@@ -11,7 +12,7 @@ export function decorateSticker(svg,index=0,{aggregate=false}={}){
  svg.classList.add('sticker-glyph');svg.dataset.stickerIndex=String(index);svg.dataset.stickerAggregate=String(aggregate);
  svg.style.setProperty('--sticker-color',stickerPalette[index%stickerPalette.length]);
  for(const source of sources){source.classList.add('sticker-source');}
- for(const [color,width] of [['#282332','7.75px'],['#fff','5.17px']]){
+ for(const [color,width] of [['#282332','var(--sticker-outline-width,7.75px)'],['#fff','var(--sticker-white-width,5.17px)']]){
   const group=document.createElementNS(ns,'g');group.dataset.stickerLayer='true';group.setAttribute('aria-hidden','true');group.style.fill=color;group.style.stroke=color;group.style.strokeWidth=width;
   for(const source of sources){const copy=source.cloneNode(true);copy.removeAttribute('id');copy.classList.remove('sticker-source');group.append(copy);}
   svg.insertBefore(group,sources[0]);
@@ -20,7 +21,7 @@ export function decorateSticker(svg,index=0,{aggregate=false}={}){
 }
 export function decorateBeatMarker(span,index){
  const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 100 100');svg.setAttribute('aria-hidden','true');
- const text=document.createElementNS(ns,'text');text.textContent=span.textContent;text.setAttribute('x','50');text.setAttribute('y','50');text.setAttribute('text-anchor','middle');text.setAttribute('dominant-baseline','central');text.setAttribute('font-size','80');text.setAttribute('font-weight','900');svg.append(text);decorateSticker(svg,index);span.replaceChildren(svg);
+ const text=document.createElementNS(ns,'text');text.textContent=span.textContent;text.setAttribute('x','50');text.setAttribute('y','50');text.setAttribute('text-anchor','middle');text.setAttribute('dominant-baseline','central');text.setAttribute('font-family','Gothic A1');text.setAttribute('font-size','64');text.setAttribute('font-weight','900');svg.append(text);decorateSticker(svg,index);span.replaceChildren(svg);centerBeatMarker(svg,50,50);
 }
 export function syncSticker(svg){
  if(!svg?.classList.contains('sticker-glyph'))return;

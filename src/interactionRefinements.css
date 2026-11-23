@@ -31,3 +31,6 @@
 .mode-one-reveal{display:block;width:max-content;max-width:100%;margin:6px auto;min-height:34px;padding:6px 18px!important;border:1px solid #b70e3a!important;color:#b70e3a!important;font-size:12px!important}.mode-one-reveal[hidden]{display:none!important}.mode-one-reveal-note{font-size:12px;text-align:center}.character-button[data-answer-revealed=true]{box-shadow:inset 0 -3px #b70e3a}
 
 .lesson-beat-marks{display:flex;align-items:center;height:calc(var(--word-size,60px) + 12px)}.responsive-word .lesson-beat-marks>button.lesson-beat-mark{flex:none;display:flex;align-items:center;justify-content:center}.lesson-beat-mark>span{display:block;width:100%;height:100%}.lesson-beat-mark>span>svg{width:100%;height:100%;overflow:visible}
+
+/* Fill the beat cell; the shared 1em marker rule otherwise pins it to the top. */
+.responsive-word .lesson-beat-marks .lesson-beat-mark>span{display:flex;align-items:center;justify-content:center;height:100%;line-height:1}.responsive-word .lesson-beat-marks .lesson-beat-mark>span>svg.sticker-glyph{display:block;width:100%;height:100%;flex:none}
