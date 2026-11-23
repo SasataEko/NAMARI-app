@@ -29,7 +29,7 @@ export function createModeTwoMakeGuide({root,canvas,editor,bar,getTab,getSelecte
    else{target=root.querySelector('[data-beat-choice="long"]:not(:disabled)')||root.querySelector('[data-beat-choice="blank"]:not(:disabled)')||root.querySelector('[data-beat-choice="delete"]:not(:disabled)');copy='「ー」「ッ」で1拍追加。短くしたい拍は「−1拍」。';if(!target){target=kana();copy='長さを変えたい文字を選ぼう。';}}
   }
   else if(step==='undo'){target=root.querySelector('.m3-icon-undo');copy='最後に、ひとつ前へ戻してみよう。';}
-  overlay.show(target,{copy,highlight:step==='listen'?[canvas]:[canvas,editor,...(step==='undo'?[bar]:[])],optional,onNext:()=>notify('next'),onClose:()=>end('skipped')});
+  overlay.show(target,{copy,placement:step==='undo'?'bottom':'top',highlight:step==='listen'?[canvas]:[canvas,editor,...(step==='undo'?[bar]:[])],optional,onNext:()=>notify('next'),onClose:()=>end('skipped')});
  }
  function notify(event){if(disposed||step==='free')return;step=nextModeTwoGuideStep(step,event);if(step==='free'){end('completed');return;}refresh();}
  const audio=root.querySelector('audio'),listened=()=>notify('listened');audio?.addEventListener('ended',listened);

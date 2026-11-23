@@ -1,3 +1,4 @@
+import {decorateCardImages} from './glyph/cardGlyphPreview.js';
 import {mountAnswerReveal} from './modeOneReveal.js';
 import {decorateSticker} from './glyph/sticker.js';
 import {mountTutorialSkip} from './tutorialSkip.js';
@@ -30,7 +31,7 @@ export function mountModeOne(root,{library,question,profileId,studyMode,onSolved
  function showCard(i){if(!alive())return;const {text,pattern,group}=q.characters[i];if(!pattern)return;guide?.hide();overlay?.remove();const previous=document.activeElement;overlay=document.createElement('div');overlay.className='dialog-backdrop mode-one-card-overlay';overlay.innerHTML='<section class="mode-one-pattern-card" role="dialog" aria-modal="true" aria-label="発音パターンのカード"><button class="dialog-close" aria-label="カードを閉じる">×</button><img alt=""><b></b><h2></h2><p></p><small>どこかをタップして閉じる</small></section>';const card=overlay.firstElementChild;card.style.background=/^#[0-9a-f]{6}$/i.test(group?.color)?group.color:'#ffe08b';card.querySelector('img').src=assetUrl(pattern.svg);card.querySelector('img').alt=text+'の変形字形';card.querySelector('b').textContent=group?.title||'発音パターン';card.querySelector('h2').textContent=pattern.title;card.querySelector('p').textContent=pattern.description||group?.description||'';const currentOverlay=overlay;let closing=false;
  // Mount before starting the animation. Focusing a transformed, detached card
  // can skip its visible entrance or scroll to its offscreen start position.
- root.append(overlay);card.style.transform='translateY(120vh) scale(.92)';
+ root.append(overlay);decorateCardImages(card);card.style.transform='translateY(120vh) scale(.92)';
  const entrance=card.animate([
    {transform:'translateY(120vh) scale(.92) rotate(-2deg)',offset:0,easing:'cubic-bezier(.14,.72,.22,1)'},
    {transform:'translateY(-64px) scale(1.025) rotate(0deg)',offset:.56,easing:'cubic-bezier(.45,0,.8,.4)'},

@@ -1,10 +1,13 @@
+import {decorateCardImages} from './glyph/cardGlyphPreview.js';
+import {stickerPalette} from './glyph/sticker.js';
+import {wrapStaticWord} from './wordLayout.js';
+import {developerModeVisible} from './data/localAuthoringVisibility.js';
 import {mergeModeOneQuestions} from './data/authorQuestions.js';
 import {mountAnswerReveal} from './modeOneReveal.js';
 import './glyph/sticker.css';
 import {decorateGameLabels} from './glyph/sticker.js';
 import {installPitchConnections} from './pitchConnections.js';
 import {showCorrectDialog} from './correctDialog.js';
-import {mountModeThree} from './modeThree.js';
 import {publishDiyQuestions} from './data/publishDiy.js';
 import {applyTestReset} from './data/testReset.js';
 import {linkedMora,linkPitch} from './data/linkedPitch.js';
@@ -91,6 +94,7 @@ let diyBeatValues=[];
 let diyBlankAfter = [];
 let diyPlayerTargetIndex = null;
 let diyTargetIndexes = [];
+let diyVowelSelectedIndex=null;
 let diyPlayerLongAfter = [];
 let diyPlayerBlankAfter = [];
 let challengeChapter = 'vowelChallenge';
@@ -128,7 +132,6 @@ function render() {
     profiles: renderProfiles,
     home: renderHome,
     exploration: renderExploration,
-    modeThree: renderModeThree,
     developer: renderDeveloper,
     challenges: renderChallengeSelect,
     chapterLevels: renderChapterLevels,
@@ -145,7 +148,8 @@ function render() {
     customVowel: renderCustomVowelChallenge,
     diyRecording: renderDiyRecording,
   };
-  (pages[screen] || renderHome)();
+  if(!pages[screen])screen='home';
+  pages[screen]();
 }
 
 function profileHeader() {
@@ -157,6 +161,7 @@ function titleReturn() {
 }
 
 function bottomNav(active) {
+  if(screen!=='home')return '';
   const items = [
     ['collection', '▣', '図鑑'],
     ['diy', '✳', 'DIYモード'],
@@ -174,7 +179,6 @@ function bindNav(active) {
 }
 
 function navigate(next) {
-  app.querySelector('[data-mode-three]')?.modeThreeSession?.dispose?.();
   if(legacyModeOneStats&&next!==legacyModeOneScreen){legacyModeOneStats.leave();legacyModeOneStats=null;legacyModeOneScreen=null;}
   app.querySelector('[data-exploration]')?.explorationSession?.dispose?.();
   disposeModeOne?.();disposeModeOne=null;
@@ -209,17 +213,13 @@ function renderProfiles() {
 }
 
 function renderHome() {
-  app.innerHTML = `<main class="page-shell">${profileHeader()}<section class="cover-intro"><p class="cover-eyebrow">PHONETIC TYPO PLAY</p><h1>化ける言語</h1><p>発音のちがいを、かたちでみつける。</p></section><section class="floating-cover" aria-label="訛をテーマにしたゲームカバー"><span class="float-card float-card-yellow">高<br>低</span><span class="float-card float-card-blue">あ</span><span class="float-card float-card-pink">声</span><span class="float-card float-card-white">A</span><span class="cover-kanji">訛</span><span class="cover-spark spark-one">✳</span><span class="cover-spark spark-two">·</span></section><div class="home-mode-stack"><button class="home-mode-button home-mode-one" data-action="challenge"><span>Mode1：　訛りを見つける</span><span aria-hidden="true">↗</span></button><button class="home-mode-button home-mode-two" data-nav="exploration"><span>Mode2：　みんなと聞き比べる</span><span aria-hidden="true">↗</span></button><button class="home-mode-button home-mode-three" data-nav="modeThree"><span>Mode3：　ことばをつくる</span><span aria-hidden="true">↗</span></button><button class="home-mode-button home-mode-developer" data-nav="developer"><span>開発者モード</span><span aria-hidden="true">↗</span></button></div><button class="text-action" data-end-experience>体験を終えて感想を書く（任意）</button><section class="archive-section"><div class="section-heading"><div><p class="eyebrow">COLLECTION & MODE</p><h2>アーカイブ & モード</h2></div></div><div class="archive-circles"><button class="archive-circle circle-blue" data-nav="collection"><i>▣</i><b>図鑑</b><small>五十音・パターン</small></button><button class="archive-circle circle-lavender" data-nav="diy"><i>✳</i><b>DIYモード</b><small>字形をつくる</small></button><button class="archive-circle circle-neutral" data-nav="settings"><i>⚙</i><b>設定</b><small>音・振動</small></button></div></section>${bottomNav('')}</main>`;
+  app.innerHTML = `<main class="page-shell">${profileHeader()}<section class="cover-intro"><p class="cover-eyebrow">PHONETIC TYPO PLAY</p><h1>化ける言語</h1><p>発音のちがいを、かたちでみつける。</p></section><section class="floating-cover" aria-label="訛をテーマにしたゲームカバー"><span class="float-card float-card-yellow">高<br>低</span><span class="float-card float-card-blue">あ</span><span class="float-card float-card-pink">声</span><span class="float-card float-card-white">A</span><span class="cover-kanji">訛</span><span class="cover-spark spark-one">✳</span><span class="cover-spark spark-two">·</span></section><div class="home-mode-stack"><button class="home-mode-button home-mode-one" data-action="challenge"><span>Mode1：　訛りを見つける</span><span aria-hidden="true">↗</span></button><button class="home-mode-button home-mode-two" data-nav="exploration"><span>Mode2：　みんなと聞き比べる</span><span aria-hidden="true">↗</span></button>${developerModeVisible()?'<button class="home-mode-button home-mode-developer" data-nav="developer"><span>開発者モード</span><span aria-hidden="true">↗</span></button>':''}</div><button class="home-feedback-button" data-end-experience>感想を聞かせてください</button><section class="archive-section"><div class="section-heading"><div><p class="eyebrow">COLLECTION & MODE</p><h2>アーカイブ & モード</h2></div></div><div class="archive-circles"><button class="archive-circle circle-blue" data-nav="collection"><i>▣</i><b>図鑑</b><small>五十音・パターン</small></button><button class="archive-circle circle-lavender" data-nav="diy"><i>✳</i><b>DIYモード</b><small>字形をつくる</small></button><button class="archive-circle circle-neutral" data-nav="settings"><i>⚙</i><b>設定</b><small>音・振動</small></button></div></section>${bottomNav('')}</main>`;
   bindNav('');
   app.querySelector('[data-action="challenge"]').addEventListener('click', () => navigate('challenges'));
 }
 
-function renderModeThree() {
-  app.innerHTML=`<main class="page-shell mode-three-page">${profileHeader()}<div data-mode-three></div>${bottomNav('')}</main>`;
-  bindNav('');mountModeThree(app.querySelector('[data-mode-three]'));
-}
-
 function renderDeveloper() {
+  if(!developerModeVisible()){screen='home';renderHome();return;}
   app.innerHTML=`<main class="page-shell">${profileHeader()}${titleReturn()}<div data-studio></div>${bottomNav('')}</main>`;
   bindNav('');mountAuthor(app.querySelector('[data-studio]'));
 }
@@ -339,7 +339,7 @@ function unlockCards(ids) {
 }
 
 function renderCollection() {
-  app.innerHTML=`<main class="page-shell">${profileHeader()}${titleReturn()}<button class="text-action" data-nav="developer">図鑑を編集 ↗</button><div data-library></div>${bottomNav('collection')}</main>`;
+  app.innerHTML=`<main class="page-shell">${profileHeader()}${titleReturn()}${developerModeVisible()?'<button class="text-action" data-nav="developer">図鑑を編集 ↗</button>':''}<div data-library></div>${bottomNav('collection')}</main>`;
   bindNav('collection');mountLibrary(app.querySelector('[data-library]'));
 }
 function renderSettings() {
@@ -387,7 +387,7 @@ function resetDiyDraft() {
   diyAudioUrl = null;
   diyBuilderMorae = [];
   diyBuilderPattern = [];
-  diyTargetIndexes = [];
+  diyTargetIndexes = [];diyVowelSelectedIndex=null;
   diyPatternChoices=[];
   diyLongAfter = [];diyBeatValues=[];
   diyBlankAfter = [];
@@ -416,7 +416,7 @@ function renderDiyHome() {
 
 async function renderDiyVowelEditor(){
  diyMode='diyVowel';app.innerHTML='<main class="page-shell"><p>図鑑を読み込んでいます…</p></main>';
- try{await refreshLibrary();if(screen!=='diyVowel')return;renderDiyEditorShell('母音＆子音篇','図鑑から、文字ごとの発音パターンを選んで正解を設定します。','<div class="diy-editor-heading"><b>図鑑の字形と発音パターン</b><small>正解にする文字は複数選べます。各文字のパターンを指定してください。</small></div><div id="diy-target-morae" class="diy-glyph-assets"></div><p class="diy-material-note">字形・パターン・説明は現在の図鑑と共通です。図鑑を更新すると、作成済み問題にも反映されます。</p>','diy-vowel');renderDiyVowelOptions();}catch{app.innerHTML='<main class="page-shell"><p>図鑑を読み込めませんでした。</p><button data-nav="diy">DIYに戻る</button></main>';bindNav('diy');}
+ try{await refreshLibrary();if(screen!=='diyVowel')return;renderDiyEditorShell('母音＆子音篇','文字をタップして、候補のカードから正解を設定します。','<div class="diy-editor-heading"><b>図鑑の字形と発音パターン</b><small>正解にする文字は複数選べます。各文字のパターンを指定してください。</small></div><div id="diy-target-morae" class="diy-glyph-assets"></div><p class="diy-material-note">字形・パターン・説明は現在の図鑑と共通です。図鑑を更新すると、作成済み問題にも反映されます。</p>','diy-vowel');renderDiyVowelOptions();}catch{app.innerHTML='<main class="page-shell"><p>図鑑を読み込めませんでした。</p><button data-nav="diy">DIYに戻る</button></main>';bindNav('diy');}
 }
 
 function renderDiyRecording(){
@@ -431,7 +431,7 @@ function renderDiyAccentEditor() {
 
 function renderDiyMoraEditor() {
   diyMode = 'diyMora';
-  renderDiyEditorShell('モーラ篇', '文字を2拍にのばす・空白拍を加える・拍を減らす操作で正解を設定します。', '<p class="diy-material-note">「→ 2拍」で文字を横にのばし、「＋」で文字の間に「ッ」を加えます。</p>', 'diy-mora');
+  renderDiyEditorShell('モーラ篇', '「ー」「ッ」の追加や拍の削除で正解を設定します。', '<p class="diy-material-note">文字を選び、「ー」「ッ」で拍を追加します。「−1拍」で短くできます。</p>', 'diy-mora');
 }
 
 function renderDiyEditorShell(title, description, extra = '', editorClass = '') {
@@ -448,7 +448,7 @@ function renderDiyEditorShell(title, description, extra = '', editorClass = '') 
       diyBuilderPattern = Array(diyBuilderMorae.length).fill(null);
       diyLongAfter = Array(diyBuilderMorae.length).fill(false);diyBeatValues=Array(diyBuilderMorae.length).fill(1);
       diyBlankAfter = Array(diyBuilderMorae.length).fill(false);
-      diyTargetIndexes = [];
+      diyTargetIndexes = [];diyVowelSelectedIndex=null;
       diyPatternChoices=[];
     }
     app.querySelector('#diy-mora-preview').textContent = diyBuilderMorae.length ? `自動分割：${diyBuilderMorae.join('・')}（${diyBuilderMorae.length}拍）` : '読みを入力すると、拍を自動で区切ります。';
@@ -504,10 +504,22 @@ function renderDiyEditorShell(title, description, extra = '', editorClass = '') 
 function diyVowelValid(){return diyTargetIndexes.length>0&&diyTargetIndexes.every(i=>{const g=libraryGlyph(sharedLibrary,diyBuilderMorae[i]);return g?.normal&&g.patterns.some(p=>p.id===diyPatternChoices[i]);});}
 function renderDiyVowelOptions(){
  const grid=app.querySelector('#diy-target-morae');if(!grid)return;
- grid.innerHTML=diyBuilderMorae.length?diyBuilderMorae.map((mora,i)=>{const glyph=libraryGlyph(sharedLibrary,mora),patterns=glyph?.patterns||[],selected=diyTargetIndexes.includes(i);if(!diyPatternChoices[i]&&patterns.length)diyPatternChoices[i]=patterns[0].id;const p=patterns.find(p=>p.id===diyPatternChoices[i]);const group=sharedLibrary.groups.find(g=>g.id===p?.groupId);return `<article class="diy-glyph-asset ${selected?'target':''}"><button type="button" class="diy-mora-select ${selected?'selected':''}" data-target-mora="${i}" aria-pressed="${selected}" ${!glyph?.normal||!patterns.length?'disabled':''}>${escapeHtml(mora)}<small>${selected?'正解に設定':'正解にする'}</small></button>${patterns.length?`<label>図鑑の発音パターン<select class="design-input" data-pattern-choice="${i}">${patterns.map(p=>`<option value="${escapeHtml(p.id)}" ${p.id===diyPatternChoices[i]?'selected':''}>${escapeHtml(p.title)}</option>`).join('')}</select></label>${p?`<div class="diy-library-pattern" style="background:${/^#[0-9a-f]{6}$/i.test(group?.color)?group.color:'#ffe08b'}"><img src="${escapeHtml(assetUrl(p.svg))}" alt="${escapeHtml(mora)}の変形字形"><b>${escapeHtml(p.title)}</b></div>`:''}`:'<p>図鑑に発音パターンがありません。開発者モードで追加できます。</p>'}</article>`;}).join(''):'<p class="diy-empty-hint">先に読みを入力してください。</p>';
- grid.querySelectorAll('[data-target-mora]').forEach(b=>b.onclick=()=>{const i=Number(b.dataset.targetMora);diyTargetIndexes=diyTargetIndexes.includes(i)?diyTargetIndexes.filter(v=>v!==i):[...diyTargetIndexes,i].sort((a,b)=>a-b);renderDiyVowelOptions();updateDiySaveButton();});grid.querySelectorAll('[data-pattern-choice]').forEach(select=>select.onchange=()=>{diyPatternChoices[Number(select.dataset.patternChoice)]=select.value;renderDiyVowelOptions();updateDiySaveButton();});
- updateDiySaveButton();
+ if(!diyBuilderMorae.length){grid.innerHTML='<p class="diy-empty-hint">先に読みを入力してください。</p>';return;}
+ if(diyVowelSelectedIndex>=diyBuilderMorae.length)diyVowelSelectedIndex=null;
+ grid.innerHTML='<div class="character-row diy-vowel-word">'+diyBuilderMorae.map((mora,i)=>{const glyph=libraryGlyph(sharedLibrary,mora),selected=diyVowelSelectedIndex===i,answer=diyTargetIndexes.includes(i);return '<button type="button" class="character-button diy-vowel-kana '+(answer?'is-answer':'')+'" data-diy-kana="'+i+'" aria-label="'+escapeHtml(mora)+'を選ぶ'+(answer?'（正解に設定済み）':'')+'" aria-pressed="'+selected+'">'+(glyph?.normal?'<img src="'+escapeHtml(assetUrl(glyph.normal))+'" data-glyph-color="'+stickerPalette[i%stickerPalette.length]+'" alt="'+escapeHtml(mora)+'">':'<span class="mode-one-text">'+escapeHtml(mora)+'</span>')+'</button>';}).join('')+'</div><div data-diy-candidates></div>';
+ wrapStaticWord(grid.querySelector('.diy-vowel-word'),diyBuilderMorae);
+ const candidates=grid.querySelector('[data-diy-candidates]'),i=diyVowelSelectedIndex;
+ if(!Number.isInteger(i))candidates.innerHTML='<p class="diy-material-note">正解にする文字をタップし、候補のカードを選んでください。</p>';
+ else{
+  const glyph=libraryGlyph(sharedLibrary,diyBuilderMorae[i]),patterns=glyph?.patterns||[];
+  candidates.innerHTML='<p class="diy-material-note">「'+escapeHtml(diyBuilderMorae[i])+'」の発音パターン</p>'+(patterns.length?'<div class="diy-candidate-grid">'+patterns.map((p,j)=>{const group=sharedLibrary.groups.find(g=>g.id===p.groupId),color=/^#[0-9a-f]{6}$/i.test(group?.color)?group.color:'#ffe08b',chosen=diyTargetIndexes.includes(i)&&diyPatternChoices[i]===p.id;return '<button type="button" class="diy-library-pattern" data-diy-pattern="'+j+'" aria-pressed="'+chosen+'" style="background:'+color+'"><img src="'+escapeHtml(assetUrl(p.svg))+'" alt="'+escapeHtml(diyBuilderMorae[i]+' '+p.title)+'"><b>'+escapeHtml(p.title)+'</b><p>'+escapeHtml(p.description||group?.description||'')+'</p></button>';}).join('')+'</div>':'<p class="diy-material-note">この文字の発音パターンはまだ登録されていません。</p>')+(diyTargetIndexes.includes(i)?'<button type="button" class="text-action" data-clear-diy-target>この文字の正解を解除</button>':'');
+  candidates.querySelectorAll('[data-diy-pattern]').forEach(b=>b.onclick=()=>{diyPatternChoices[i]=patterns[Number(b.dataset.diyPattern)].id;if(!diyTargetIndexes.includes(i))diyTargetIndexes=[...diyTargetIndexes,i].sort((a,b)=>a-b);renderDiyVowelOptions();});
+  const clear=candidates.querySelector('[data-clear-diy-target]');if(clear)clear.onclick=()=>{diyTargetIndexes=diyTargetIndexes.filter(index=>index!==i);diyPatternChoices[i]=null;renderDiyVowelOptions();};
+ }
+ grid.querySelectorAll('[data-diy-kana]').forEach(b=>b.onclick=()=>{const index=Number(b.dataset.diyKana);diyVowelSelectedIndex=diyVowelSelectedIndex===index?null:index;renderDiyVowelOptions();});
+ decorateCardImages(grid);updateDiySaveButton();
 }
+
 
 function renderDiyPitchEditor() {
   if(diyMode==='diyAccent')diyBuilderPattern=linkPitch(diyBuilderMorae,diyBuilderPattern);

@@ -8,7 +8,7 @@ import './modeThreeAccent.css';
 import {createEditHistory} from './editHistory.js';
 import {mountBeatChoices} from './beatChoices.js';
 import {readLibrary,assetUrl} from './data/projectLibrary.js';
-import {modeThreeLevel,modeThreeCharacters,initialArtwork,restoreArtwork,glyphSizeFactor,fitArtworkRow,paddedViewBox,modeThreeStorageKey,artworkNodes,setArtworkPitch,deleteArtworkBeat,undoArtworkBeat,toggleArtworkEmphasis} from './data/modeThreeModel.js';
+import {initialArtwork,restoreArtwork,glyphSizeFactor,fitArtworkRow,paddedViewBox,artworkNodes,setArtworkPitch,deleteArtworkBeat,undoArtworkBeat,toggleArtworkEmphasis} from './data/modeThreeModel.js';
 import {wordRows} from './wordLayout.js';
 import {loadGlyph} from './glyph/loadGlyph.js';
 import {createMorph} from './glyph/morph.js';
@@ -33,20 +33,21 @@ function measureGlyph(data,text){
  const box=[left-7,top-16,right-left+14,bottom-top+32];const [nl,nr,nt,nb]=normalBounds,normalBox=[nl-7,nt-16,nr-nl+14,nb-nt+32];return {box:box.join(' '),aspect:box[2]/box[3],normal:{box:normalBox.join(' '),aspect:normalBox[2]/normalBox[3]}};
 }
 export async function mountModeThree(root,options={}){
+ if(!options.level)return ()=>{};
  const sourceUrl=p=>/^(https?:|blob:|data:|\/)/.test(p)?p:assetUrl(p);
- const editingLevel=options.level||modeThreeLevel,isModeTwo=Boolean(options.level),readOnly=Boolean(options.preview),preview=options.preview;
- root.modeThreeSession?.dispose();let disposed=false,observer=null,selectedKey=options.tutorial?null:'base:0',tab='patterns',saveTimer=null,layoutFrame=0,disposeAudio=null,tutorialGuide=null;
+ const editingLevel=options.level,isModeTwo=Boolean(options.level),readOnly=Boolean(options.preview),preview=options.preview;
+ root.modeThreeSession?.dispose();let disposed=false,observer=null,selectedKey=options.tutorial?null:'base:0',tab='patterns',layoutFrame=0,disposeAudio=null,tutorialGuide=null;
  const animations=new Map(),stop=svg=>{cancelAnimationFrame(animations.get(svg));animations.delete(svg);};
- const session={dispose(){disposed=true;tutorialGuide?.dispose();disposeAudio?.();observer?.disconnect();animations.forEach(cancelAnimationFrame);animations.clear();clearTimeout(saveTimer);cancelAnimationFrame(layoutFrame);}};root.modeThreeSession=session;
+ const session={dispose(){disposed=true;tutorialGuide?.dispose();disposeAudio?.();observer?.disconnect();animations.forEach(cancelAnimationFrame);animations.clear();cancelAnimationFrame(layoutFrame);}};root.modeThreeSession=session;
  const alive=()=>!disposed&&root.isConnected&&root.modeThreeSession===session;
  root.className='mode-three';root.dataset.style='sticker';root.dataset.tutorial=String(Boolean(options.tutorial));root.textContent='字形を準備しています…';
  try{
-  const library=await readLibrary(),characters=isModeTwo?editingLevel.characters.map(c=>({...c,patterns:featuresFor(c)})):modeThreeCharacters(library);
+  const library=await readLibrary(),characters=editingLevel.characters.map(c=>({...c,patterns:featuresFor(c)}));
   const glyphs=await Promise.all(characters.map(async c=>{if(!c.normal)throw Error(c.text+'の通常字形がありません。');const normal=await loadGlyph(sourceUrl(c.normal)),variants=[];for(const pattern of c.patterns){try{const glyph=await loadGlyph(sourceUrl(pattern.svg));variants.push({...pattern,glyph,morph:isSymbolSwitch(pattern)?null:createMorph(normal.shapes.map(p=>p.d),glyph.shapes.map(p=>p.d))});}catch(error){variants.push({...pattern,error:error.message});}}return {normal,variants};}));
   if(!alive())return;
   const backgrounds=await Promise.all(accentBackgroundAssets.map(p=>loadGlyph(assetUrl(p))));if(!alive())return;const rotationFor=createRotationPicker();
   const metrics=glyphs.map((g,i)=>measureGlyph(g,characters[i].text));
-  let saved=options.initialState||null;if(!isModeTwo)try{saved=JSON.parse(localStorage.getItem(modeThreeStorageKey));}catch{}
+  const saved=options.initialState||null;
   let state=restoreArtwork(saved,characters,editingLevel);state.patterns=state.patterns.map((id,i)=>glyphs[i].variants.some(v=>v.id===id&&!v.error)?id:null);
   if(readOnly)state=previewArtwork(preview,editingLevel);
   const changed=()=>{options.onChange?.(structuredClone(state));};
@@ -55,15 +56,15 @@ export async function mountModeThree(root,options={}){
   const history={history:[],hasDeleted:state.beats.includes(0)};
   const edits=createEditHistory({capture:()=>({state,selectedKey,tab,reduction:history}),restore:s=>{state=s.state;selectedKey=s.selectedKey;tab=s.tab;Object.assign(history,s.reduction);originalSvgs.forEach((_,i)=>paint(i));refresh();}});
   root.replaceChildren();
-  const bar=make('header','m3-bar'),heading=make('div','m3-heading');heading.append(make('span','m3-badge',isModeTwo?'MODE 2':'MODE 3 · LAB'),make('h1','',isModeTwo?'これ、どう聞こえる？':'ことばをつくる'));
-  const save=make('button','m3-save',isModeTwo?'こう聞こえる':'作品を保存');save.type='button';const undo=make('button','edit-undo','↶ 元に戻す');undo.type='button';undo.classList.add('m3-icon-undo');undo.textContent='';undo.setAttribute('aria-label','ひとつ前に戻す');undo.title='ひとつ前に戻す';const undoImage=make('img');undoImage.src=assetUrl('assets/ui/undo.png');undoImage.alt='';undo.append(undoImage);undo.disabled=true;undo.onclick=()=>{if(edits.undo()){status.textContent='ひとつ前に戻しました。';tutorialGuide?.notify('undo');}};bar.append(heading,undo,save);if(isModeTwo&&options.controlsElement)bar.insertBefore(options.controlsElement,undo);
+  const bar=make('header','m3-bar'),heading=make('div','m3-heading');heading.append(make('span','m3-badge','MODE 2'),make('h1','','これ、どう聞こえる？'));
+  const save=make('button','m3-save','こう聞こえる');save.type='button';const undo=make('button','edit-undo','↶ 元に戻す');undo.type='button';undo.classList.add('m3-icon-undo');undo.textContent='';undo.setAttribute('aria-label','ひとつ前に戻す');undo.title='ひとつ前に戻す';const undoImage=make('img');undoImage.src=assetUrl('assets/ui/undo.png');undoImage.alt='';undo.append(undoImage);undo.disabled=true;undo.onclick=()=>{if(edits.undo()){status.textContent='ひとつ前に戻しました。';tutorialGuide?.notify('undo');}};bar.append(heading,undo,save);if(isModeTwo&&options.controlsElement)bar.insertBefore(options.controlsElement,undo);
   function remember(){edits.checkpoint();undo.disabled=false;}
   const canvas=make('section','m3-canvas');canvas.setAttribute('aria-label',editingLevel.word+(readOnly?'の回答図形':'の字形編集'));
-  const tones=svgNode('svg',{'class':'m3-tones','aria-hidden':'true'}),stage=make('div','m3-stage');const accentHint=make('aside','m3-accent-overlay');accentHint.setAttribute('role','note');canvas.append(tones,stage,make('p','m3-caption',isModeTwo?'': 'あばくらっと · 表示実験'));
+  const tones=svgNode('svg',{'class':'m3-tones','aria-hidden':'true'}),stage=make('div','m3-stage');const accentHint=make('aside','m3-accent-overlay');accentHint.setAttribute('role','note');canvas.append(tones,stage);
   const editor=make('section','m3-editor'),tabs=make('div','m3-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','編集カテゴリー');
   const panel=make('div','m3-panel');panel.id='m3-panel';panel.setAttribute('role','tabpanel');
   const status=make('p','m3-status');status.setAttribute('role','status');status.textContent='文字を選んで、音のかたちをつくろう。';
-  const foot=make('div','m3-foot'),reset=make('button','m3-reset','はじめのかたちへ');reset.type='button';foot.append(reset,make('small','',isModeTwo?'': 'この端末だけに保存'));
+  const foot=make('div','m3-foot'),reset=make('button','m3-reset','はじめのかたちへ');reset.type='button';foot.append(reset);
   editor.append(tabs,accentHint,panel,status,foot);root.append(bar,canvas,editor);if(isModeTwo&&!readOnly&&options.audioElement){const questionCopy=make('p','m3-listen-question','これ、どう聞こえる？');canvas.before(questionCopy);disposeAudio=mountCompactAudio(canvas,options.audioElement,options.referenceAudioElement);}if(isModeTwo&&!readOnly){const skip=make('button','m3-reset','スキップ');skip.type='button';skip.onclick=()=>options.onSubmit?.(structuredClone(state),true);foot.append(skip);}if(readOnly){bar.remove();editor.remove();root.dataset.preview='true';}
   const originalSvgs=glyphs.map((g,i)=>{const svg=glyphSvg(g.normal,characters[i].text);svg.setAttribute('viewBox',metrics[i].box);return svg;});
   let nodes=[],buttons=new Map();const tonePrefix='m3-tone-'+(++toneId);
@@ -124,7 +125,7 @@ export async function mountModeThree(root,options={}){
    panel.setAttribute('aria-labelledby','m3-tab-'+tab);panel.replaceChildren();const selected=nodes.find(n=>n.key===selectedKey);
    if(tab==='patterns'){
     if(!selected){panel.append(make('p','m3-empty','文字を選んでください。'));return;}panel.append(make('div','m3-panel-label','「'+selected.text+'」のかたち'));if(selected.kind!=='base'){panel.append(make('p','m3-empty','追加した拍です。音の高さは前の拍と連動します。'));return;}
-    const i=selected.index,options=make('div','m3-options');const add=(id,label,glyph,error)=>{const b=choice(label,state.patterns[i]===id,()=>{remember();state.patterns[i]=id;if(isModeTwo)state.noticed[i]=Boolean(id);rerollNode('base:'+i);paint(i,true);renderControls();fit();changed();status.textContent=id?'かたちを変えました。':'もとのかたちに戻しました。';tutorialGuide?.notify(id?'pattern':'selection');});b.dataset.patternId=id||'';b.style.setProperty('--glyph-color',palette[i%palette.length]);if(glyph)b.append(glyphSvg(glyph,label));b.append(make('span','',label));if(error){b.disabled=true;b.title=error;}options.append(b);};add(null,'もとのかたち',glyphs[i].normal);glyphs[i].variants.forEach(v=>add(v.id,v.title,v.glyph,v.error));panel.append(options);if(!glyphs[i].variants.length)panel.append(make('small','m3-empty','この文字のパターンは準備中です。'));
+    const i=selected.index,options=make('div','m3-options');const add=(id,label,glyph,error)=>{const b=choice(label,state.patterns[i]===id,()=>{remember();state.patterns[i]=id;if(isModeTwo)state.noticed[i]=Boolean(id);rerollNode('base:'+i);paint(i,true);renderControls();fit();changed();status.textContent=id?'かたちを変えました。':'もとのかたちに戻しました。';tutorialGuide?.notify(id?'pattern':'selection');});b.dataset.patternId=id||'';const group=library.groups.find(g=>g.id===glyphs[i].variants.find(v=>v.id===id)?.groupId),cardColor=/^#[0-9a-f]{6}$/i.test(group?.color)?group.color:'#e7e2da';b.style.background=cardColor;b.style.setProperty('--glyph-color',cardColor);if(glyph)b.append(glyphSvg(glyph,label));b.append(make('span','',label));if(error){b.disabled=true;b.title=error;}options.append(b);};add(null,'もとのかたち',glyphs[i].normal);glyphs[i].variants.forEach(v=>add(v.id,v.title,v.glyph,v.error));panel.append(options);if(!glyphs[i].variants.length)panel.append(make('small','m3-empty','この文字のパターンは準備中です。'));
    }else if(tab==='pitch'){
     const box=make('div','m3-pitch-grid');box.setAttribute('aria-label','各拍の高さと重音');
     for(const indices of wordRows(nodes.map(n=>n.text))){const row=make('div','m3-control-row');row.style.gridTemplateColumns='repeat('+indices.length+',minmax(0,1fr))';for(const j of indices){const node=nodes[j],col=make('div','m3-control-column accent-dot-column');const emphasis=make('button','m3-emphasis-kana',node.text);emphasis.type='button';emphasis.setAttribute('aria-label',(j+1)+'拍目「'+node.text+'」の重音を'+(node.emphasisRank?'解除':'選択'));emphasis.setAttribute('aria-pressed',String(!!node.emphasisRank));emphasis.disabled=!node.emphasisRank&&state.emphasis.length>=2;emphasis.onclick=()=>chooseEmphasis(node.key);if(node.emphasisRank){const badge=make('span','m3-emphasis-number',String(node.emphasisRank));badge.setAttribute('aria-hidden','true');emphasis.append(badge);}col.append(emphasis);for(const [value,label]of [['high','高'],['low','低']]){const b=make('button','accent-dot');b.type='button';b.dataset.pitch=value;b.setAttribute('aria-label',(j+1)+'拍目「'+node.text+'」を'+label+'くする');b.setAttribute('aria-pressed',String(node.pitch===value));b.disabled=node.linked;if(node.linked)b.title='前の拍と連動';b.onclick=()=>{remember();rerollNode(node.key);if(setArtworkPitch(state,node,value)){refresh();status.textContent='音の高さを変えました。';tutorialGuide?.notify('pitch');}};col.append(b);}if(node.linked)col.append(make('small','','連動'));row.append(col);}box.append(row);}panel.append(box);
@@ -135,7 +136,7 @@ export async function mountModeThree(root,options={}){
       onDelete:()=>{remember();if(deleteArtworkBeat(state,selected,history)){history.hasDeleted=true;selectedKey=null;refresh();status.textContent='拍を減らしました。';tutorialGuide?.notify('beat');}}});
    }
   }
-  save.onclick=async()=>{if(isModeTwo){save.disabled=true;save.textContent='保存中…';try{await options.onSubmit?.(structuredClone(state));}catch(error){save.disabled=false;save.textContent='こう聞こえる';status.textContent=error.message;}return;}try{localStorage.setItem(modeThreeStorageKey,JSON.stringify({...state,word:modeThreeLevel.word,savedAt:new Date().toISOString()}));status.textContent='作品をこの端末に保存しました。';save.textContent='保存しました ✓';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(alive())save.textContent='作品を保存';},1800);}catch{status.textContent='保存できませんでした。端末の空き容量を確認してください。';}};
+  save.onclick=async()=>{save.disabled=true;save.textContent='保存中…';try{await options.onSubmit?.(structuredClone(state));}catch(error){save.disabled=false;save.textContent='こう聞こえる';status.textContent=error.message;}};
   reset.onclick=()=>{remember();state=initialArtwork(editingLevel);selectedKey='base:0';history.history=[];history.hasDeleted=false;originalSvgs.forEach((_,i)=>paint(i));refresh();status.textContent='はじめのかたちに戻しました。';tutorialGuide?.refresh();};
   observer=new ResizeObserver(()=>{cancelAnimationFrame(layoutFrame);layoutFrame=requestAnimationFrame(fit);});observer.observe(canvas);observer.observe(stage);
   originalSvgs.forEach((_,i)=>paint(i));refresh();

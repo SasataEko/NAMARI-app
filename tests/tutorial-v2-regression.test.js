@@ -21,7 +21,7 @@ test('real glyph selection advances to the shape tab once; redraws target the ne
  context.tutorialGuide.notify('pitch');assert.equal(overlay.target,kana);assert.equal(overlay.options.optional,true);
  overlay.options.onNext();assert.equal(overlay.target,duration);
  context.tab='duration';context.tutorialGuide.notify('tab:duration');assert.equal(overlay.target,long);
- context.tutorialGuide.notify('beat');assert.equal(overlay.target,undo);context.tutorialGuide.notify('undo');
+ context.tutorialGuide.notify('beat');assert.equal(overlay.target,undo);assert.equal(overlay.options.placement,'bottom');context.tutorialGuide.notify('undo');
  assert.match(overlay.finished,/自由に編集.*提出/);assert.equal(marks.at(-1)[2],'completed');context.tutorialGuide.dispose();assert.equal(overlay.disposed,true);
 });
 test('first submitted result explains personal then average and closes by clicking anywhere',async()=>{

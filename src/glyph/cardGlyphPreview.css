@@ -1,0 +1,16 @@
+.card-glyph-preview{display:block;overflow:visible!important;pointer-events:none}
+.library-pattern>.card-glyph-preview{width:100%;height:145px;margin:0 0 18px}
+.diy-library-pattern>.card-glyph-preview{width:100%;height:110px;margin:0 auto}
+.mode-one-pattern-card>.card-glyph-preview{width:170px;height:170px;margin:12px auto 24px}
+.diy-vowel-word{display:flex;flex-direction:column;gap:10px;margin:12px 0;width:100%;overflow:visible}
+.diy-vowel-word .diy-vowel-kana{position:relative;background:transparent;border:0;border-radius:0;padding:4px 2px 9px;cursor:pointer}
+.diy-vowel-word.static-word .diy-vowel-kana img,.diy-vowel-word.static-word .diy-vowel-kana svg{display:block;width:100%;height:clamp(48px,13vw,84px);object-fit:contain;overflow:visible}
+.diy-vowel-kana::after{content:'';position:absolute;left:25%;right:25%;bottom:0;height:3px;border-radius:3px;background:transparent}
+.diy-vowel-kana.is-answer::after{background:#e6b900}.diy-vowel-kana[aria-pressed=true]::after{background:#e5235b;height:4px}
+.diy-vowel-kana:focus-visible{outline:2px solid #e5235b;outline-offset:3px}.diy-vowel-kana:disabled{opacity:.5;cursor:default}
+.diy-candidate-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.diy-candidate-grid>.diy-library-pattern{min-width:0;border:2px solid transparent;color:var(--ink);font:inherit;cursor:pointer;gap:7px;padding:14px;border-radius:18px;text-align:center;align-content:start}
+.diy-candidate-grid>.diy-library-pattern[aria-pressed=true]{border-color:#e5235b;box-shadow:0 0 0 1px #e5235b}
+.diy-candidate-grid b{font-size:13px;line-height:1.5;overflow-wrap:anywhere}.diy-candidate-grid p{font-size:11px;line-height:1.5;margin:0;overflow-wrap:anywhere}
+.diy-candidate-grid>.diy-library-pattern img{display:block;width:100%;height:110px;object-fit:contain}
+@media(max-width:600px){.library-pattern>.card-glyph-preview{height:72px;margin-bottom:8px}.diy-candidate-grid>.diy-library-pattern{padding:10px 8px}.diy-candidate-grid .card-glyph-preview,.diy-candidate-grid>.diy-library-pattern img{height:88px}}

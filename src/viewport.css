@@ -179,3 +179,11 @@ body{padding-bottom:0}
 [data-mode-one]:has(.tutorial-skip)>[data-tutorial-cue]{padding-right:72px}
 
 .mode-one-card-overlay{z-index:80}
+
+/* Auxiliary sections are entered from the title screen only. */
+.page-shell.long-content:not(:has(>.bottom-nav)){padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+
+/* The experience-feedback action remains visible on every title-screen ratio. */
+.screen-home>[data-end-experience].home-feedback-button{display:inline-flex!important;align-items:center;justify-content:center;align-self:center;justify-self:center;grid-column:1/-1;width:min(100%,400px);min-height:46px;margin:4px 0;padding:10px 22px;border:2px solid var(--rose-deep,#b70e3a);border-radius:999px;background:#fff0f4;color:var(--rose-deep,#b70e3a);font-family:inherit;font-size:15px;font-weight:800;cursor:pointer}.home-feedback-button:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}@media(max-height:600px){.screen-home>[data-end-experience].home-feedback-button{min-height:38px;padding:7px 16px;font-size:13px;margin:0}}
+
+.screen-home>[data-end-experience].home-feedback-button{background:var(--surface-high,#eae8e1);color:var(--ink,#191919);border:0}

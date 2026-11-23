@@ -70,3 +70,6 @@
 .mode-three[data-tutorial=true] .m3-panel{height:142px;min-height:142px;overflow:auto}
 .mode-three[data-tutorial=true]:not([data-tool=pitch]) .m3-editor>.m3-accent-overlay{display:block;visibility:hidden}
 @media(max-width:600px){.m2-guide-floating{padding:11px 14px}.m2-guide-floating p{font-size:13px}.mode-three[data-tutorial=true] .m3-panel{height:132px;min-height:132px}}
+
+/* Keep the top undo control visible during its mobile tutorial step. */
+@media(max-width:600px){.m2-guide-floating[data-placement=bottom]{top:auto;bottom:max(12px,env(safe-area-inset-bottom))}}

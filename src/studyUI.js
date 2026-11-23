@@ -54,7 +54,7 @@ export async function chapterRating({gameMode,chapter,studyMode='test',localPrev
 }
 export async function experienceFeedback(studyMode='test',{localPreview=false}={}){
   const scope=crypto.randomUUID(),base={event_type:'experience_feedback',studyMode,gameMode:'overall',chapter:'experience',scope_id:scope,feedback_text:null,local_only:localPreview};saveStudyEvent({...base,response_status:'unanswered'});
-  const d=dialog('体験の感想（任意）');paragraph(d.body,'視覚表現によって気づいた発音の特徴や、わかりにくかった点があれば教えてください。');paragraph(d.body,'氏名・連絡先など個人が特定される内容は書かないでください。');
+  const d=dialog('体験の感想（任意）');const languageNote=paragraph(d.body,'用中文填写也可以哦。');languageNote.className='feedback-language-note';languageNote.lang='zh-CN';paragraph(d.body,'視覚表現によって気づいた発音の特徴や、わかりにくかった点があれば教えてください。');paragraph(d.body,'氏名・連絡先など個人が特定される内容は書かないでください。');
   const text=document.createElement('textarea');text.maxLength=2000;text.rows=5;text.setAttribute('aria-label','体験の感想');d.body.append(text);
   const save=async status=>{d.actions.querySelectorAll('button').forEach(b=>b.disabled=true);const record=await saveStudyEvent({...base,response_status:status,feedback_text:status==='answered'?text.value.trim():null});d.close(record);};
   button(d.actions,'スキップ',()=>save('skipped'));const submit=button(d.actions,'感想を送る',()=>save('answered'),true);submit.disabled=true;text.oninput=()=>submit.disabled=!text.value.trim();return d.finished;

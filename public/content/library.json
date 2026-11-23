@@ -1,11 +1,11 @@
 {
-  "revision": 37,
+  "revision": 38,
   "groups": [
     {
       "id": "existing-ku",
       "title": "「う」列が丸い発音",
       "description": "中国語の母音「u」に影響された発音傾向。",
-      "color": "#feeb71",
+      "color": "#ffe11f",
       "folderName": "pattern-U"
     },
     {
@@ -2084,7 +2084,7 @@
       ]
     }
   ],
-  "updatedAt": "2026-11-21T15:26:16.685Z",
+  "updatedAt": "2026-11-23T18:22:54.805Z",
   "archivedLevels": [
     {
       "id": "experiment-be-pe",

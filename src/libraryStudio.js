@@ -1,3 +1,4 @@
+import {decorateCardImages} from './glyph/cardGlyphPreview.js';
 import {mountModeOneAuthor} from './modeOneAuthor.js';
 import {modeTwoAuthorQuestions,upsertModeOneQuestion} from './data/authorQuestions.js';
 import {listDiyQuestions,saveDiyQuestion,reviseDiyQuestion} from './data/diyStore.js';
@@ -23,7 +24,7 @@ export async function mountLibrary(root){
  const render=()=>{
  const items=library.glyphs.flatMap(g=>g.patterns.map(p=>({glyph:g,pattern:p})));
  root.innerHTML=`<section class="library-intro"><p class="eyebrow">SOUND PATTERN LIBRARY</p><h1>訛りのかたち図鑑</h1><div class="library-tabs"><button data-view="kana" aria-pressed="${mode==='kana'}">五十音から探す</button><button data-view="pattern" aria-pressed="${mode==='pattern'}">発音パターンから探す</button></div></section>${mode==='kana'?grid():`<div class="pattern-folders">${library.groups.map(g=>`<button data-group-pick="${esc(g.id)}" aria-pressed="${g.id===groupId}">▱ ${esc(g.title)} <small>${items.filter(x=>x.pattern.groupId===g.id).length} 字形</small></button>`).join('')||'<p>発音パターンを開発者モードで追加できます。</p>'}</div>`}<h2>${esc(mode==='kana'?selected:library.groups.find(g=>g.id===groupId)?.title||'発音パターン')}</h2><div class="library-card-grid">${cards(library,items.filter(x=>mode==='kana'?x.glyph.kana===selected:x.pattern.groupId===groupId))||'<p>この文字のパターンはまだ登録されていません。</p>'}</div>`;
- root.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{mode=b.dataset.view;render();});root.querySelectorAll('[data-kana-pick]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.kanaPick===selected));b.onclick=()=>{selected=b.dataset.kanaPick;render();};});root.querySelectorAll('[data-group-pick]').forEach(b=>b.onclick=()=>{groupId=b.dataset.groupPick;render();});
+ decorateCardImages(root);root.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{mode=b.dataset.view;render();});root.querySelectorAll('[data-kana-pick]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.kanaPick===selected));b.onclick=()=>{selected=b.dataset.kanaPick;render();};});root.querySelectorAll('[data-group-pick]').forEach(b=>b.onclick=()=>{groupId=b.dataset.groupPick;render();});
  };render();}catch(e){root.textContent=e.message;}
 }
 export async function mountAuthor(root){

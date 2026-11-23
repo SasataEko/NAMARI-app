@@ -34,3 +34,6 @@
 
 /* Fill the beat cell; the shared 1em marker rule otherwise pins it to the top. */
 .responsive-word .lesson-beat-marks .lesson-beat-mark>span{display:flex;align-items:center;justify-content:center;height:100%;line-height:1}.responsive-word .lesson-beat-marks .lesson-beat-mark>span>svg.sticker-glyph{display:block;width:100%;height:100%;flex:none}
+
+/* DIY backgrounds below links; glyphs and selectable points above them. */
+.diy-pitch-editor:has([data-builder-pitch])>.pitch-choice-links{z-index:2}.diy-pitch-editor>.diy-pitch-row:has(.accent-dot){z-index:auto}.diy-pitch-editor>.diy-pitch-row:has(.accent-dot)>b,.diy-pitch-editor>.diy-pitch-row:has(.accent-dot)>button{position:relative;z-index:3}
