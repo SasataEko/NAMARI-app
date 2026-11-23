@@ -1,3 +1,4 @@
+import {mountModeTwoResultGuide} from './modeTwoResultGuide.js';
 import {mountModeThree} from './modeThree.js';
 import {toVisualPreview,visualStatistics} from './data/modeTwoVisual.js';
 import {getExplorationAggregate} from './data/explorationStore.js';
@@ -28,7 +29,7 @@ export async function mountModeTwoResult(root,{record,level,studyMode,onAgain,on
   root.querySelector('[data-common-note]').textContent=group.example?'実際の回答が集まると、よくある組み合わせを最大3つ表示します。':group.visualStatsVersion!==1?'重音・TOP 3 の集計には Apps Script の更新が必要です。':!examples.length?'表示できる回答例はまだありません。':'';
  }
  const example={...answerPreviewAggregate(record,level),...visualStatistics([record],level.characters.length),example:true,commonExamples:[],glyphAngles:record.glyphAngles,backgroundAngles:record.backgroundAngles};
- await show(aggregate||example);if(!live()||aggregate)return dispose;
+ await show(aggregate||example);if(!live())return dispose;cleanups.push(mountModeTwoResultGuide(root,record));if(aggregate)return dispose;
  getExplorationAggregate(level,{studyMode}).then(group=>{if(live()&&!group.suppressed&&group.count>0)show(group);}).catch(error=>{if(live())root.querySelector('[data-average-note]').textContent+=' · 集計を取得できませんでした。';});
  return dispose;
 }

@@ -7,3 +7,6 @@
 
 /* Uploaded drawing colors are source metadata; card previews use black ink. */
 .library-pattern img,.author-preview img{filter:brightness(0)}
+
+/* Compact catalogue cards remain three across on narrow phone screens. */
+@media(max-width:600px){.library-card-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:18px}.library-card-grid>.library-pattern{min-width:0;padding:10px 8px;border-radius:14px;overflow-wrap:anywhere}.library-card-grid .library-pattern img{height:72px;max-width:100%;margin:0 0 8px}.library-card-grid .library-pattern b{font-size:11px;line-height:1.4}.library-card-grid .library-pattern p{font-size:10px;line-height:1.5;margin:6px 0 0}.library-card-grid>p{grid-column:1/-1}}

@@ -1,6 +1,8 @@
 import {participantId} from './participantIdentity.js';
-export const APP_VERSION='2026.11.22-answer-reveal-v1';
+export const APP_VERSION='2026.11.24-mode2-tutorial-v1';
 export const TUTORIAL_VERSION='2026.11.19-guided-skippable-v5';
+export const MODE_TWO_TUTORIAL_VERSION='2026.11.24-mode2-make-guide-v2';
+const tutorialVersionFor=gameMode=>gameMode==='mode2'?MODE_TWO_TUTORIAL_VERSION:TUTORIAL_VERSION;
 let protocol=null;
 const base=()=>import.meta.env?.BASE_URL||'/NAMARI-app/';
 function read(key,fallback){try{return JSON.parse(localStorage.getItem(key)||'null')??fallback;}catch{return fallback;}}
@@ -11,11 +13,11 @@ export function storeConsent(mode,value){localStorage.setItem('kotoba-consent-'+
 export function activeConsent(mode,p=protocol){const c=consentState(mode);return !!(c&&c.participant_id===participantId()&&c.status==='consented'&&c.synced&&c.consent_version===p?.consent_version&&(mode==='test'||researchReady(p)));}
 export function markTutorial(gameMode,chapter,status){
   const key='kotoba-tutorial-status-v1',rows=read(key,[]);
-  rows.push({participant_id:participantId(),game_mode:gameMode,chapter,status,tutorial_version:TUTORIAL_VERSION,at:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(rows));
+  rows.push({participant_id:participantId(),game_mode:gameMode,chapter,status,tutorial_version:tutorialVersionFor(gameMode),at:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(rows));
 }
 export function tutorialMetadata(gameMode,chapter){
-  const rows=read('kotoba-tutorial-status-v1',[]).filter(r=>r.participant_id===participantId()&&r.game_mode===gameMode&&r.chapter===chapter&&r.tutorial_version===TUTORIAL_VERSION),last=rows.at(-1);
-  const completed=rows.some(r=>r.status==='completed');return {tutorial_version:TUTORIAL_VERSION,tutorial_completed:completed?true:last?.status==='skipped'?false:null,tutorial_status:completed?'completed':last?.status||'not_started'};
+  const rows=read('kotoba-tutorial-status-v1',[]).filter(r=>r.participant_id===participantId()&&r.game_mode===gameMode&&r.chapter===chapter&&r.tutorial_version===tutorialVersionFor(gameMode)),last=rows.at(-1);
+  const completed=rows.some(r=>r.status==='completed');return {tutorial_version:tutorialVersionFor(gameMode),tutorial_completed:completed?true:last?.status==='skipped'?false:null,tutorial_status:completed?'completed':last?.status||'not_started'};
 }
 export function studyMetadata(mode,gameMode,chapter){const c=consentState(mode);return {app_version:APP_VERSION,consent_version:c?.status==='consented'?c.consent_version:null,consented_at:c?.status==='consented'?c.consented_at:null,...tutorialMetadata(gameMode,chapter)};}
 export async function assertResearchUpload(record){

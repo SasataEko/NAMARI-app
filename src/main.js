@@ -228,7 +228,7 @@ async function renderExploration() {
   app.innerHTML=`<main class="page-shell">${profileHeader()}${titleReturn()}<div data-exploration></div>${bottomNav('')}</main>`;
   bindNav('');const root=app.querySelector('[data-exploration]');root.textContent='問題を読み込み中…';
   try{const library=await readLibrary();if(!root.isConnected)return;
-    const available=playableLevels(library).filter(l=>!l.tutorial).sort((a,b)=>Number(b.word==='かりきゅらむ')-Number(a.word==='かりきゅらむ'));
+    const available=orderedModeTwoLevels(library);
     root.innerHTML='<section class="library-intro"><h1>聴くことばを選ぼう</h1><p class="mode-explanation">このモードでは、訛りについて感じたことを自由に表現し、みんなの選択と見比べられます。正解はありません。</p><button class="text-action" data-mode-info>モードの説明をもう一度見る</button></section><div class="mode2-level-grid"></div>';
     const feedbackButton=document.createElement('button');feedbackButton.className='text-action';feedbackButton.textContent='体験を終えて感想を書く（任意）';feedbackButton.onclick=async()=>{const mode=localStorage.getItem('kotoba-last-study-mode')==='research'?'research':'test';if(mode==='research'&&!await ensureParticipation('research'))return;await experienceFeedback(mode);};root.append(feedbackButton);
     root.querySelector('[data-mode-info]').onclick=()=>showModeIntro('mode2',{force:true});
