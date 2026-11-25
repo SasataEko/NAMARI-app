@@ -32,7 +32,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "c45bd2d374cfda80"
+    "levelVersion": "2b87a87e96488783"
   },
   {
     "levelId": "9e584fe5-6873-4db1-9b09-d75c806d5bb4",
@@ -79,7 +79,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "ca2c90604c58b404"
+    "levelVersion": "78f09354599994a6"
   },
   {
     "levelId": "130bfe9f-865c-4bf5-a2de-30e514330402",
@@ -127,7 +127,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "ac090d17a34ae1ee"
+    "levelVersion": "dce852f943f2bdf2"
   },
   {
     "levelId": "ccb4f0b9-8e27-4cbf-9998-37ce23e56908",
@@ -158,7 +158,8 @@
       {
         "text": "だ",
         "patterns": [
-          "seidaku-da-to-ta"
+          "seidaku-da-to-ta",
+          "pattern-souki-da"
         ]
       },
       {
@@ -170,7 +171,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "782d494d7be94feb"
+    "levelVersion": "bdfbda5e78f51db9"
   },
   {
     "levelId": "0d3eb58f-7be3-4d09-aaf3-ecbb7f9e3254",
@@ -207,7 +208,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "196c4f5c134fca9c"
+    "levelVersion": "913bc75da0737910"
   },
   {
     "levelId": "b106206b-f825-464f-8cdc-bcd665c2c591",
@@ -267,7 +268,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "af6d880ea85205fa"
+    "levelVersion": "d27eaa30bef5c045"
   },
   {
     "levelId": "723b0cae-9b95-47ff-895b-cc458170fe9f",
@@ -328,7 +329,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "ec4e3e916cbfa549"
+    "levelVersion": "37ae8d87e9a9e7d5"
   },
   {
     "levelId": "748ed832-3394-4d4f-98b2-530859285522",
@@ -374,7 +375,7 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "4928ffe74faa759d"
+    "levelVersion": "bca0920bf85ddbb8"
   },
   {
     "levelId": "tutorial-mode2-curriculum",
@@ -422,6 +423,6 @@
       }
     ],
     "qualityCheck": null,
-    "levelVersion": "34825bac05b37536"
+    "levelVersion": "11aebdde9e366df1"
   }
 ]

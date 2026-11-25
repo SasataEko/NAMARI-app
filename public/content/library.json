@@ -1,5 +1,5 @@
 {
-  "revision": 38,
+  "revision": 40,
   "groups": [
     {
       "id": "existing-ku",
@@ -20,7 +20,7 @@
       "title": "送気音が現れる発音",
       "folderName": "pattern-souki",
       "description": "子音に送気音が強くなりがちの発音",
-      "color": "#94e6c6"
+      "color": "#4199af"
     },
     {
       "id": "pattern-seidaku",
@@ -88,7 +88,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「か」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/ka-NM2.svg"
+          "svg": "assets/namari/pattern-souki/ka-NM2-morph.svg",
+          "sourceSvg": "assets/namari/pattern-souki/ka-NM2.svg"
         },
         {
           "id": "seidaku-ka-to-ga",
@@ -118,7 +119,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「き」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/ki-NM2.svg"
+          "svg": "assets/namari/pattern-souki/ki-NM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/ki-NM2.svg"
         },
         {
           "id": "seidaku-ki-to-gi",
@@ -140,7 +142,7 @@
           "id": "ku-custom",
           "groupId": "existing-ku",
           "title": "丸くなった「く」",
-          "description": "「う」の発音が中国語のuになっているから、重く聞こえるよね",
+          "description": "中国語の母音「u」に影響された発音傾向。",
           "svg": "assets/namari/pattern-U/ku-NM.svg"
         },
         {
@@ -148,7 +150,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「く」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/ku-NM2.svg"
+          "svg": "assets/namari/pattern-souki/ku-NM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/ku-NM2.svg"
         },
         {
           "id": "seidaku-ku-to-gu",
@@ -169,7 +172,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「け」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/ke-NM2.svg"
+          "svg": "assets/namari/pattern-souki/ke-NM2-morph.svg",
+          "sourceSvg": "assets/namari/pattern-souki/ke-NM2.svg"
         },
         {
           "id": "seidaku-ke-to-ge",
@@ -191,7 +195,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「こ」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/ko-NM2.svg"
+          "svg": "assets/namari/pattern-souki/ko-NM2-morph.svg",
+          "sourceSvg": "assets/namari/pattern-souki/ko-NM2.svg"
         },
         {
           "id": "seidaku-ko-to-go",
@@ -213,7 +218,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「さ」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/sa-NM2.svg"
+          "svg": "assets/namari/pattern-souki/sa-MM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/sa-MM2.svg"
         },
         {
           "id": "seidaku-sa-to-za",
@@ -243,7 +249,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「し」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/shi-NM2.svg"
+          "svg": "assets/namari/pattern-souki/shi-NM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/shi-NM2.svg"
         },
         {
           "id": "seidaku-shi-to-ji",
@@ -273,7 +280,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「す」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/su-NM2.svg"
+          "svg": "assets/namari/pattern-souki/su-NM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/su-NM2.svg"
         },
         {
           "id": "seidaku-su-to-zu",
@@ -294,7 +302,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「せ」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/se-NM2.svg"
+          "svg": "assets/namari/pattern-souki/se-NM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/se-NM2.svg"
         },
         {
           "id": "seidaku-se-to-ze",
@@ -316,7 +325,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「そ」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/so-NM2.svg"
+          "svg": "assets/namari/pattern-souki/so-NM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/so-NM2.svg"
         },
         {
           "id": "seidaku-so-to-zo",
@@ -338,7 +348,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「た」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/ta-NM2.svg"
+          "svg": "assets/namari/pattern-souki/ta-NM2-morph.svg",
+          "sourceSvg": "assets/namari/pattern-souki/ta-NM2.svg"
         },
         {
           "id": "seidaku-ta-to-da",
@@ -368,7 +379,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「ち」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/chi-NM2.svg"
+          "svg": "assets/namari/pattern-souki/chi-NM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/chi-NM2.svg"
         },
         {
           "id": "seidaku-chi-to-di",
@@ -397,7 +409,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「つ」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/tsu-NM2.svg"
+          "svg": "assets/namari/pattern-souki/tsu-NM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/tsu-NM2.svg"
         },
         {
           "id": "seidaku-tsu-to-du",
@@ -419,7 +432,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「て」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/te-NM2.svg"
+          "svg": "assets/namari/pattern-souki/te-NM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/te-NM2.svg"
         },
         {
           "id": "seidaku-te-to-de",
@@ -441,7 +455,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「と」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/to-NM2.svg"
+          "svg": "assets/namari/pattern-souki/to-NM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/to-NM2.svg"
         },
         {
           "id": "seidaku-to-to-do",
@@ -548,7 +563,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「は」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/ha-NM2.svg"
+          "svg": "assets/namari/pattern-souki/ha-NM2-morph.svg",
+          "sourceSvg": "assets/namari/pattern-souki/ha-NM2.svg"
         },
         {
           "id": "seidaku-ha-to-ba",
@@ -587,7 +603,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「ひ」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/hi-NM2.svg"
+          "svg": "assets/namari/pattern-souki/hi-NM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/hi-NM2.svg"
         },
         {
           "id": "seidaku-hi-to-bi",
@@ -625,7 +642,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「ふ」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/fu-NM2.svg"
+          "svg": "assets/namari/pattern-souki/fu-NM2-morph.svg",
+          "sourceSvg": "assets/namari/pattern-souki/fu-NM2.svg"
         },
         {
           "id": "seidaku-hu-to-bu",
@@ -656,7 +674,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「へ」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/he-NM2.svg"
+          "svg": "assets/namari/pattern-souki/he-NM2.svg",
+          "sourceSvg": "assets/namari/pattern-souki/he-NM2.svg"
         },
         {
           "id": "seidaku-he-to-be",
@@ -687,7 +706,8 @@
           "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
           "title": "送気の強い「ほ」",
           "description": "子音に送気音が強くなりがちの発音",
-          "svg": "assets/namari/pattern-souki/ho-NM2.svg"
+          "svg": "assets/namari/pattern-souki/ho-NM2-morph.svg",
+          "sourceSvg": "assets/namari/pattern-souki/ho-NM2.svg"
         },
         {
           "id": "seidaku-ho-to-bo",
@@ -1070,6 +1090,14 @@
           "svg": "assets/namari/pattern-seidaku/da-to-ta.svg",
           "renderMode": "symbol-switch",
           "targetKana": "た"
+        },
+        {
+          "id": "pattern-souki-da",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「だ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "sourceSvg": "assets/namari/pattern-souki/da-NM2.svg",
+          "svg": "assets/namari/pattern-souki/da-NM2-morph.svg"
         }
       ],
       "normal": "assets/normal/da.svg"
@@ -1290,6 +1318,14 @@
           "svg": "assets/namari/pattern-seidaku/pa-to-ba.svg",
           "renderMode": "symbol-switch",
           "targetKana": "ば"
+        },
+        {
+          "id": "pattern-souki-pa",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「ぱ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "sourceSvg": "assets/namari/pattern-souki/pa-NM2.svg",
+          "svg": "assets/namari/pattern-souki/pa-NM2-morph.svg"
         }
       ],
       "normal": "assets/normal/pa.svg"
@@ -1346,6 +1382,14 @@
           "description": "中国語の母音「u」に影響された発音傾向。",
           "svg": "assets/namari/pattern-U/pu-NM-morph.svg",
           "sourceSvg": "assets/namari/pattern-U/pu-NM.svg"
+        },
+        {
+          "id": "pattern-souki-pu",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「ぷ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "sourceSvg": "assets/namari/pattern-souki/pu-NM2.svg",
+          "svg": "assets/namari/pattern-souki/pu-NM2-morph.svg"
         }
       ],
       "normal": "assets/normal/pu.svg"
@@ -1370,6 +1414,14 @@
           "svg": "assets/namari/pattern-seidaku/pe-to-be.svg",
           "renderMode": "symbol-switch",
           "targetKana": "べ"
+        },
+        {
+          "id": "pattern-souki-pe",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「ぺ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "sourceSvg": "assets/namari/pattern-souki/pe-NM2.svg",
+          "svg": "assets/namari/pattern-souki/pe-NM2.svg"
         }
       ],
       "normal": "assets/normal/pe.svg"
@@ -1394,6 +1446,14 @@
           "svg": "assets/namari/pattern-seidaku/po-to-bo.svg",
           "renderMode": "symbol-switch",
           "targetKana": "ぼ"
+        },
+        {
+          "id": "pattern-souki-po",
+          "groupId": "99b93944-37ba-49c1-b304-fcddd20ff8ef",
+          "title": "送気の強い「ぽ」",
+          "description": "子音に送気音が強くなりがちの発音",
+          "sourceSvg": "assets/namari/pattern-souki/po-NM2.svg",
+          "svg": "assets/namari/pattern-souki/po-NM2-morph.svg"
         }
       ],
       "normal": "assets/normal/po.svg"
@@ -2084,7 +2144,7 @@
       ]
     }
   ],
-  "updatedAt": "2026-11-23T18:22:54.805Z",
+  "updatedAt": "2026-11-24T15:06:36.539Z",
   "archivedLevels": [
     {
       "id": "experiment-be-pe",
