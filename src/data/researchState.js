@@ -1,6 +1,6 @@
 import {surveySession} from './surveySession.js';
 import {participantId} from './participantIdentity.js';
-export const APP_VERSION='2026.11.28-mora-large-v1';
+export const APP_VERSION='2026.11.28-mode2-group-v2';
 export const TUTORIAL_VERSION='2026.11.28-mode1-cards-v5';
 export const MODE_TWO_TUTORIAL_VERSION='2026.11.26-sequential-guide-v4';
 const tutorialVersionFor=gameMode=>gameMode==='mode2'?MODE_TWO_TUTORIAL_VERSION:TUTORIAL_VERSION;

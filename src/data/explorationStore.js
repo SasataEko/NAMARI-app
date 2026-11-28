@@ -1,3 +1,4 @@
+import {participantExpressions,groupPolicy} from './groupResults.js';
 import {rememberDelivery} from './deliveryReport.js';
 import {visualStatistics,validVisualMetadata} from './modeTwoVisual.js';
 import {linkPitch} from './linkedPitch.js';
@@ -62,10 +63,11 @@ export async function saveExploration(record, level) {
   try{saved.sync=await queueAndSend(saved,level);}catch(e){saved.sync={status:'pending',error:e.message};}
   return saved;
 }
+const optionsVersion=level=>level.levelVersion;
 export function includedResponses(records, level, { studyMode = 'test', excludeParticipantId = null, rules = studyConfig.qualityRules } = {}) {
   const latest = new Map();
   for (const r of records) {
-    if (r.schemaVersion !== 3 || r.studyMode !== studyMode || r.recordingId !== recordingIdFor(level) || r.levelId !== level.id || r.participantId === excludeParticipantId) continue;
+    if (r.schemaVersion !== 3 || r.studyMode !== studyMode || r.recordingId !== recordingIdFor(level) || r.levelId !== level.id || (optionsVersion(level)&&r.levelVersion!==optionsVersion(level)) || r.participantId === excludeParticipantId) continue;
     // Repeat controls have their own slot so they cannot overwrite the main recording response.
     const slot = r.id; // One explicit submission is one response; retransmissions retain the same ID.
     latest.set(slot,r);
@@ -79,8 +81,8 @@ export function includedResponses(records, level, { studyMode = 'test', excludeP
   return eligible;
 }
 export function aggregateExplorations(records, level, options = {}) {
-  const defaults = defaultAccent(level), rows = includedResponses(records,level,options), count = rows.length;
-  const result = { count, participantCount:new Set(rows.map(r=>r.participantId)).size, aggregationPolicy:'all_submissions_v1', features:[], noticed:[], noticedRates:[], unspecifiedRates:[], pattern:[], intensity:[], featureRates:[], pitch:[], beats:[], omissionRates:[], blanks:[], aggregation:'mean' };
+  const defaults = defaultAccent(level), rows = participantExpressions(includedResponses(records,level,options)), count = rows.length;
+  const result = { count, participantCount:new Set(rows.map(r=>r.participantId)).size, aggregationPolicy:groupPolicy, features:[], noticed:[], noticedRates:[], unspecifiedRates:[], pattern:[], intensity:[], featureRates:[], pitch:[], beats:[], omissionRates:[], blanks:[], aggregation:'mean' };
   const mean = (values,fallback) => count ? values.reduce((a,b)=>a+b,0)/count : fallback;
   level.characters.forEach((c,i) => {
     const rates = Object.fromEntries(featuresFor(c).map(v => [v.id,mean(rows.map(r=>!r.skipped&&r.pattern[i]===v.id?1:0),0)]));
@@ -92,9 +94,10 @@ export function aggregateExplorations(records, level, options = {}) {
     result.pitch.push(mean(rows.map(r=>pitchValue(r.skipped?defaults[i]:r.pitch[i])),pitchValue(defaults[i])));
     result.beats.push(mean(rows.map(r=>r.skipped?1:r.beats[i]),1));result.omissionRates.push(mean(rows.map(r=>!r.skipped&&r.beats[i]===0?1:0),0));
     if(i<level.characters.length-1)result.blanks.push(mean(rows.map(r=>!r.skipped&&r.blanks[i]?1:0),0));
-  }); return Object.assign(result,visualStatistics(rows,level.characters.length));
+  }); result.noticedCounts=result.noticedRates.map(v=>Math.round(v*count));result.unspecifiedCounts=result.unspecifiedRates.map(v=>Math.round(v*count));result.patternCounts=result.featureRates.map(r=>Object.fromEntries(Object.entries(r).map(([id,v])=>[id,Math.round(v*count)])));result.suppressed=!count;result.includesViewer=rows.some(r=>r.participantId===(options.viewerId||participantId()));result.otherAnswersAvailable=rows.some(r=>r.participantId!==(options.viewerId||participantId()));return Object.assign(result,visualStatistics(rows,level.characters.length));
 }
 export async function getExplorationAggregate(level, options = {}) {
+  if(import.meta.env?.DEV&&new URLSearchParams(globalThis.location?.search||'').has('qa-local'))return {...aggregateExplorations(readRawResponses(),level,options),source:'local-qa'};
   if(level.visualExperiment)return {...aggregateExplorations(readRawResponses(),level,{...options,studyMode:'test',rules:experimentRules}),source:'local-experiment'};
   const config=await collectionConfig();if(config.enabled&&!level.tutorial)return cloudAggregate(level,options);
   return { ...aggregateExplorations(readRawResponses(),level,options), source:'local', studyMode:options.studyMode || 'test', qualityRulesVersion:studyConfig.qualityRules.version };

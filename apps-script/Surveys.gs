@@ -7,6 +7,7 @@ function validateSurvey_(p){
  var ids=SURVEY_QUESTIONS_[p.survey_type==='chapter'?p.chapter:p.gameMode];
  if(!['mode1','mode2'].includes(p.gameMode)||!['chapter','overall'].includes(p.survey_type)||(p.survey_type==='chapter'&&(p.gameMode!=='mode1'||!['vowelChallenge','accent','mora'].includes(p.chapter)))||(p.survey_type==='overall'&&p.chapter!=='not_applicable')||!/^[a-zA-Z0-9-]{16,80}$/.test(p.session_id||'')||p.scope_id!==p.session_id||p.question_version!=='2026-11-28-v1'||!ids||!Array.isArray(p.answers)||p.answers.length!==ids.length||!Number.isInteger(p.completed_level_count)||p.completed_level_count<0||typeof p.free_text!=='string'||p.free_text.length>2000)throw new Error('INVALID_SURVEY');
  if(p.gameMode==='mode2'&&(p.comparison_viewed!==true||![true,false,null].includes(p.other_answers_available)))throw new Error('INVALID_COMPARISON');
+ if(p.full_comparison_viewed!==undefined&&p.full_comparison_viewed!==null&&typeof p.full_comparison_viewed!=='boolean')throw new Error('INVALID_COMPARISON');
  p.answers.forEach(function(a,i){if(a.question_id!==ids[i]||(p.response_status==='answered'?!(a.answer_value==='cannot_judge'||Number.isInteger(a.answer_value)&&a.answer_value>=1&&a.answer_value<=5):a.answer_value!=='unanswered'))throw new Error('INVALID_SURVEY_ANSWER');});
 }
 function saveSurveyRows_(p){

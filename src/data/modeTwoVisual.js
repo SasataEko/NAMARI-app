@@ -14,12 +14,13 @@ export function previewArtwork(data,level){
  return state;
 }
 export function averageGlyphPaths(data,rates,interpolate){
- const symbols=data.variants.filter(v=>v.renderMode==='symbol-switch'&&!v.error);
- const winner=symbols.reduce((best,v)=>rate(rates[v.id])>best.rate?{glyph:v.glyph,rate:rate(rates[v.id])}:best,{glyph:data.normal,rate:Math.max(0,1-symbols.reduce((sum,v)=>sum+rate(rates[v.id]),0))});
- if(winner.glyph!==data.normal)return winner.glyph.shapes.map(p=>p.d);
- const variants=data.variants.filter(v=>v.morph&&v.renderMode!=='symbol-switch'&&!v.error);let current=data.normal.shapes.map(p=>p.d),weight=Math.max(0,1-variants.reduce((sum,v)=>sum+rate(rates[v.id]),0));
- for(const variant of variants){const amount=rate(rates[variant.id]);if(!amount)continue;const total=weight+amount;current=weight===0?variant.morph.to:interpolate(current,variant.morph.to).map(fn=>fn(amount/total));weight=total;}
- return current;
+ // Incompatible alternatives are never blended into an invented contour.
+ const variants=data.variants.filter(v=>!v.error&&(v.morph||v.renderMode==='symbol-switch'));
+ const chosen=variants.reduce((best,v)=>rate(rates[v.id])>best.amount?{variant:v,amount:rate(rates[v.id])}:best,{variant:null,amount:0});
+ if(!chosen.variant)return data.normal.shapes.map(p=>p.d);
+ const {variant,amount}=chosen;
+ if(variant.renderMode==='symbol-switch')return (amount>.5?variant.glyph:data.normal).shapes.map(p=>p.d);
+ return amount===1?variant.morph.to:variant.morph.map(fn=>fn(amount));
 }
 export function averageEmphasisVisual(node,data){
  const selected=data.emphasisRates?.[node.key]||{},first=rate(selected.first),second=Math.min(1-first,rate(selected.second)),probability=first+second;
@@ -30,11 +31,11 @@ export function averageEmphasisVisual(node,data){
 export function toVisualPreview(answer,level){
  return {...answer,featureRates:answer.featureRates||level.characters.map((c,i)=>Object.fromEntries((c.features||[]).map(f=>[f.id,answer.pattern?.[i]===f.id?1:0]))),longRates:answer.longRates||answer.beats.map(b=>Number(b===2)),omissionRates:answer.omissionRates||answer.beats.map(b=>Number(b===0)),emphasisRates:answer.emphasisRates||Object.fromEntries((answer.emphasis||[]).map((key,i)=>[key,{first:Number(i===0),second:Number(i===1)}]))};
 }
-export function visualAnswerKey(answer){return JSON.stringify([answer.pattern,answer.pitch,answer.beats,answer.blanks,answer.emphasis||[]]);}
+export function visualAnswerKey(answer){return JSON.stringify([answer.noticed||[],answer.pattern,answer.pitch,answer.beats,answer.blanks,answer.emphasis||[]]);}
 // Only eligible rows may be passed here. No identifiers or event metadata leave this projection.
 export function visualStatistics(rows,n){
  const count=rows.length,covered=rows.filter(r=>r.interactionVersion===modeTwoInteractionVersion&&Array.isArray(r.emphasis)),emphasisRates={},answers=new Map();
  for(const row of covered)if(!row.skipped)row.emphasis.slice(0,2).forEach((key,i)=>{const item=emphasisRates[key]||{first:0,second:0};item[i?'second':'first']+=1/covered.length;emphasisRates[key]=item;});
- for(const row of rows){if(row.skipped)continue;const key=visualAnswerKey(row),entry=answers.get(key)||{count:0,answer:{pattern:[...row.pattern],pitch:[...row.pitch],beats:[...row.beats],blanks:[...row.blanks],emphasis:[...(row.emphasis||[])]}};entry.count++;answers.set(key,entry);}
- return {visualStatsVersion:1,emphasisCount:covered.length,emphasisRates,longRates:Array.from({length:n},(_,i)=>count?rows.reduce((s,r)=>s+Number(!r.skipped&&r.beats[i]===2),0)/count:0),commonExamples:[...answers.entries()].sort((a,b)=>b[1].count-a[1].count||(a[0]<b[0]?-1:a[0]>b[0]?1:0)).slice(0,3).map(([,entry])=>({...entry,share:count?entry.count/count:0}))};
+ for(const row of rows){if(row.skipped)continue;const key=visualAnswerKey(row),entry=answers.get(key)||{count:0,answer:{noticed:[...(row.noticed||row.pattern.map(Boolean))],glyphAngles:{...(row.glyphAngles||{})},backgroundAngles:{...(row.backgroundAngles||{})},pattern:[...row.pattern],pitch:[...row.pitch],beats:[...row.beats],blanks:[...row.blanks],emphasis:[...(row.emphasis||[])]}};entry.count++;answers.set(key,entry);}
+ const result={visualStatsVersion:1,emphasisCount:covered.length,emphasisRates,longRates:Array.from({length:n},(_,i)=>count?rows.reduce((s,r)=>s+Number(!r.skipped&&r.beats[i]===2),0)/count:0),expressionExamples:[...answers.entries()].sort((a,b)=>b[1].count-a[1].count||(a[0]<b[0]?-1:a[0]>b[0]?1:0)).map(([,entry])=>({...entry,share:count?entry.count/count:0}))};return {...result,commonExamples:result.expressionExamples.slice(0,3)};
 }

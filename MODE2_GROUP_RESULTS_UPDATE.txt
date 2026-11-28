@@ -1,0 +1,58 @@
+NAMARI Mode2 群体结果更新｜2026-11-28-group-v2
+
+一、需要再次部署 Apps Script
+这次在刚追加问卷的版本上继续修改，没有退回旧版。
+推荐使用 NAMARI-AppsScript-2026-11-28-group-v2.gs 全文替换原项目的一份主脚本。
+采用合并版时请移除重复的其他 .gs 文件；采用分文件包时则分别替换7份文件，不要混用。
+保留脚本属性、原Google表格和原Web App网址。
+运行 setup（没有下划线），然后 verifySetup：result_version 应为 2026-11-28-group-v2。
+管理部署 → 编辑现有Web App → 新版本 → 部署。GitHub推送不能替代此步骤。
+
+二、群体统计规则
+aggregationPolicy = latest_completed_participant_v2。
+按study_mode、recording_id、level_id、level_version严格隔离。
+先应用既有质量纳入规则及research同意状态，再从每个匿名participant_id选取最新一份已完成且未跳过的有效提交。
+同一参与者多次作答仍全部保留Raw和Audit，只在当前结果图中每人计一次；相同submission_id重试仍幂等。
+明确提交没有差异、noticed全false的回答仍有效。未提交、skipped、completed=false不进入图形分母。
+删除最新记录后，剩下的最新有效记录会作为该参与者的表达；删除全部记录后移除其统计。
+当前玩家的有效回答包含在内，接口includesViewer明确返回是否计入。
+count/participantCount均为当前有效回答人数，不是点击或提交次数。
+Mode1计数逻辑不变。Mode2Summary保留既有按提交次数的管理汇总；新的玩家比例以stats接口的policy为准，不能直接用Summary.responses作分母。
+
+三、标记、颜色、变形互相独立
+noticedCounts[i]/count → 假名下百分比与黑色#1a1b1d至红色#e5235b插值。
+patternCounts[i][id]/count → featureRates，分母为全体有效回答者。
+unspecifiedCounts[i] → 标记但pattern=null的人数。不会虚构变形。
+详情同时显示人数和分母；没有有效数据时为未集計，不显示0%。
+现有Mode2没有手动Morph强度滑块或连续强度字段；未覆盖/重写历史字段。
+不同Pattern不混合轮廓：主字形显示选择率最高的具体Pattern，按其全体选择率从normal插值；每个其他Pattern的人数和相同比例预览在详情中可查看。
+清浊/半浊的symbol-switch保持单一完整符号状态，比例大于50%时切换，避免不同符号长期重叠；精确比例始终显示于详情。
+Accent高低和Mora继续按有效玩家平均；历史没有重音字段的回答仍按原逻辑不进入重音子分母，emphasisCount保留可追溯。
+个人字形直接使用原提交的Pattern、音高、拍、重音与角度，不用群体平均覆盖。
+完整比较按表达内容归组，但每个组均保留，无TOP3截断；少数表达可翻页查看。角度作为组的代表表达保存，不参与同形归组。
+
+四、数据库与新增字段
+没有新增、删除或改动任何已有工作表列，也没有清空数据。
+Raw/Audit游戏字段不变。接口新增noticedCounts、unspecifiedCounts、patternCounts、includesViewer、expressionExamples（公开匿名图形汇总，不含ID、时间、原始行或凭据）。
+ResearchAudit新增event_type=comparison_view，只在真正打开完整比较时写入。
+其payload_json包含session_id、levelId、recordingId、levelVersion、full_comparison_viewed、other_answers_available、valid_participant_count、aggregation_policy。
+同一session/回答的打开事件用稳定ID防止重复；网络重试继续使用原有发送队列和receipt确认。
+SurveyResponses列结构不变；payload_json新增full_comparison_viewed，comparison_views各关记录fullComparisonViewed和时间。
+原comparison_viewed仍表示主页面群体图确实进入视野；不要求打开完整比较。other_answers_available仍严格区分仅本人/其他人。
+问卷题目、版本、规定关卡数(3)和触发条件均不变。
+
+五、验证与本地预览
+scripts/group-results-preview.html?qa-local 为纯模拟20人预览，case=one / zero / symbols用于单人、空数据、清浊字形检查。
+模拟页面不调用游戏保存，不上传Google。qa-local普通游戏也已隔离线上读写。
+20人中15人标记、8人选Pattern：75% / 40%；7人未选Pattern：35%。
+测试覆盖重复提交、模式隔离、删除、未完成/跳过、没有差异、多Pattern与少数表达、同意撤回、比较事件、问卷去重及失败保留。
+本次未向真实Google表格写入测试回答。实际部署后仍需在test通道确认线上receipt及新统计policy。
+
+六、修改的文件
+结果页：src/modeTwoResult.js、src/modeTwoResults.css、src/modeThree.js、src/modeTwoJourney.js。
+前端统计与发送：src/data/groupResults.js、src/data/explorationStore.js、src/data/modeTwoVisual.js、src/data/cloudCollection.js、src/data/researchState.js。
+问卷与比较记录：src/data/surveySession.js、src/surveyUI.js。
+Apps Script：Code.gs、Mode2Visual.gs、Research.gs、Surveys.gs（Levels等其余现有文件随完整包保留）。
+验证：tests/groupResults.test.js、tests/appsScript.test.js、tests/explorationStore.test.js、tests/modeTwoMake.test.js、scripts/group-results-preview.html/js。
+开发日志：DEV_LOG.md。
+

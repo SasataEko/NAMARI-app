@@ -74,6 +74,6 @@ export function mountModeTwoJourney(root,{audio,onState}={}){
  return {notify,dispose,refresh:()=>layer.refresh(),blocked:(play,error)=>layer.blocked(play,error),started:()=>layer.started(),get phase(){return model.phase;}};
 }
 export function mountModeTwoResultJourney(root,onComplete=()=>{}){
- let index=0;const items=[{text:'上は、きみがつくった聞こえ方だよ。',point:'[data-personal-preview] .m3-word-row',highlight:['.mode2-answer-block:has([data-personal-preview])']},{text:root.querySelector('.mode2-average-block h2')?.textContent.includes('表示例')?'下は、みんなの平均が出るところだよ。今はきみの作品を例として表示しているよ。':'下は、みんなの聞こえ方の平均だよ。',point:'[data-average-preview] .m3-word-row',highlight:['.mode2-average-block']}];
+ let index=0;const items=[{text:'上は、みんなの聞こえ方。文字を押すと内訳を見られるよ。',point:'[data-average-preview] .m3-word-row',highlight:['.mode2-average-block']},{text:'下は、きみがつくった聞こえ方だよ。',point:'[data-personal-preview] .m3-word-row',highlight:['.mode2-answer-block:has([data-personal-preview])']}];
  const layer=mountJourneyLayer(root,{result:true,step:()=>items[index],onAdvance:()=>{if(++index===items.length){onComplete();layer.dispose();}else layer.refresh();}});return ()=>layer.dispose();
 }

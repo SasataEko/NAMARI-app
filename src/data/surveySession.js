@@ -11,7 +11,9 @@ export function surveySession(mode='test'){
 }
 export function updateSurveySession(mode,fn){const state=surveySession(mode);fn(state);const all=read();all[lane(mode)]=state;localStorage.setItem(KEY,JSON.stringify(all));return state;}
 export function rememberModeOneCompletion(record){if(record.completed||record.answerRevealed)updateSurveySession(record.studyMode,s=>{s.completed[record.levelId]={chapter:record.chapter,answer_revealed:!!record.answerRevealed};});}
-export function rememberComparison(mode,levelId,{otherAnswersAvailable=null,source='unknown'}={}){return updateSurveySession(mode,s=>{s.mode2Views[levelId]={viewed:true,otherAnswersAvailable,source,viewedAt:new Date().toISOString()};});}
+export function rememberComparison(mode,levelId,{otherAnswersAvailable=null,source='unknown'}={}){return updateSurveySession(mode,s=>{s.mode2Views[levelId]={...s.mode2Views[levelId],viewed:true,otherAnswersAvailable,source,viewedAt:new Date().toISOString()};});}
 export function surveyDraft(mode,chapter,gameMode='mode1'){let draft;updateSurveySession(mode,s=>{const key=surveyKey(gameMode,chapter);draft=s.surveys[key]||{id:crypto.randomUUID(),answers:{},freeText:'',done:false};s.surveys[key]=draft;});return draft;}
 export function saveSurveyDraft(mode,chapter,draft,gameMode='mode1'){return updateSurveySession(mode,s=>{s.surveys[surveyKey(gameMode,chapter)]=structuredClone(draft);});}
 
+
+export function rememberFullComparison(mode,levelId){return updateSurveySession(mode,s=>{s.mode2Views[levelId]={...s.mode2Views[levelId],fullComparisonViewed:true,fullComparisonViewedAt:new Date().toISOString()};});}

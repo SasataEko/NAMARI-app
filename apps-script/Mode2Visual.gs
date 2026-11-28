@@ -11,7 +11,7 @@ function mode2VisualExtras_(p,l){validateMode2Visual_(p,l);if(p.interactionVersi
 function mode2VisualStats_(g,rows,l){
  var covered=rows.filter(function(p){return p.interactionVersion===MODE2_VISUAL_VERSION_&&Array.isArray(p.emphasis);}),rates={},answers={};
  covered.forEach(function(p){if(p.skipped)return;p.emphasis.forEach(function(key,i){var r=rates[key]||(rates[key]={first:0,second:0});r[i?'second':'first']+=1/covered.length;});});
- rows.forEach(function(p){if(p.skipped)return;var key=JSON.stringify([p.pattern,p.pitch,p.beats,p.blanks,p.emphasis||[]]);if(!answers[key])answers[key]={count:0,answer:{pattern:p.pattern,pitch:p.pitch,beats:p.beats,blanks:p.blanks,emphasis:p.emphasis||[]}};answers[key].count++;});
+ rows.forEach(function(p){if(p.skipped)return;var key=JSON.stringify([p.noticed||p.pattern.map(Boolean),p.pattern,p.pitch,p.beats,p.blanks,p.emphasis||[]]);if(!answers[key])answers[key]={count:0,answer:{noticed:p.noticed||p.pattern.map(Boolean),glyphAngles:p.glyphAngles||{},backgroundAngles:p.backgroundAngles||{},pattern:p.pattern,pitch:p.pitch,beats:p.beats,blanks:p.blanks,emphasis:p.emphasis||[]}};answers[key].count++;});
  g.visualStatsVersion=1;g.emphasisCount=covered.length;g.emphasisRates=rates;g.longRates=l.characters.map(function(_,i){return rows.length?rows.reduce(function(s,p){return s+Number(!p.skipped&&p.beats[i]===2);},0)/rows.length:0;});
- g.commonExamples=Object.keys(answers).sort(function(a,b){return answers[b].count-answers[a].count||(a<b?-1:a>b?1:0);}).slice(0,3).map(function(k){return {count:answers[k].count,share:answers[k].count/rows.length,answer:answers[k].answer};});return g;
+ g.expressionExamples=Object.keys(answers).sort(function(a,b){return answers[b].count-answers[a].count||(a<b?-1:a>b?1:0);}).map(function(k){return {count:answers[k].count,share:answers[k].count/rows.length,answer:answers[k].answer};});g.commonExamples=g.expressionExamples.slice(0,3);return g;
 }

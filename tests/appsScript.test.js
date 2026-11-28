@@ -111,10 +111,10 @@ test('Sheets preserves zero beats, averages omitted durations, and rejects value
  assert.doesNotThrow(()=>c.mode1Validate_(p,definition));assert.equal(c.mode1Metrics_(p,definition).completed,true);assert.throws(()=>c.mode1Validate_({...p,events:[{kind:'rhythm',beats:[1,-1,1],blanks:[false,false],atMs:5000}]},definition),/INVALID_EVENTS/);
 });
 
-test('repeated answers count independently, but same-submission retries and same-attempt updates do not',()=>{
+test('Mode2 uses latest participant expression while raw repetitions and Mode1 attempts remain preserved',()=>{
  const {c,sheets}=server(),key=crypto.randomUUID(),p=record(c,crypto.randomUUID(),'test');
  p.beats[0]=0;c.save_({response:p,participantKey:key});const second={...p,id:crypto.randomUUID(),beats:p.beats.map(()=>1)};c.save_({response:second,participantKey:key});c.save_({response:second,participantKey:key});
- const g=c.stats_(p);assert.equal(g.count,2);assert.equal(g.participantCount,1);assert.equal(g.beats[0],.5);assert.equal(sheets.get('Raw').data.length,3);assert.equal(sheets.get('Audit').data.length,3);assert.equal(sheets.get('Mode2Summary').data[1][4],1);assert.equal(sheets.get('Mode2Summary').data[1][11],2);
+ const g=c.stats_(p);assert.equal(g.count,1);assert.equal(g.participantCount,1);assert.equal(g.beats[0],1);assert.equal(sheets.get('Raw').data.length,3);assert.equal(sheets.get('Audit').data.length,3);assert.equal(sheets.get('Mode2Summary').data[1][4],1);assert.equal(sheets.get('Mode2Summary').data[1][11],2);
  const m=mode1Record(c,crypto.randomUUID(),'test'),mkey=crypto.randomUUID();c.saveMode1_({response:m,participantKey:mkey});c.saveMode1_({response:{...m,id:crypto.randomUUID()},participantKey:mkey});const replay={...m,id:crypto.randomUUID(),attemptId:crypto.randomUUID()};c.saveMode1_({response:replay,participantKey:mkey});
  const mstats=c.mode1Aggregate_(m,false);assert.equal(mstats.count,2);assert.equal(mstats.participantCount,1);assert.equal(sheets.get('Mode1Raw').data.length,3);assert.equal(sheets.get('Mode1Summary').data[1][4],1);assert.equal(sheets.get('Mode1Summary').data[1][15],2);
 });
@@ -122,7 +122,7 @@ test('repeated answers count independently, but same-submission retries and same
 test('Mode2 visual JSON round-trips without column changes; deletion updates emphasis and common examples',()=>{
  const {c,sheets}=server(),person=crypto.randomUUID(),key=crypto.randomUUID();
  for(let i=0;i<3;i++){
-  const p=record(c,person,'test');p.interactionVersion='mode2-make-v1';p.emphasis=i<2?['base:0','long:0']:['base:1'];p.glyphAngles={'base:0':-7};p.backgroundAngles={'base:0':180};c.save_({response:p,participantKey:key});
+  const p=record(c,i?crypto.randomUUID():person,'test');p.interactionVersion='mode2-make-v1';p.emphasis=i<2?['base:0','long:0']:['base:1'];p.glyphAngles={'base:0':-7};p.backgroundAngles={'base:0':180};c.save_({response:p,participantKey:key});
  }
  const sample=JSON.parse(sheets.get('Raw').data[1][15]),g=c.stats_(sample);
  assert.equal(sample.interactionVersion,'mode2-make-v1');assert.deepEqual(sample.emphasis,['base:0','long:0']);assert.equal(sample.glyphAngles['base:0'],-7);assert.equal(sheets.get('Raw').data[0].length,21);
@@ -165,4 +165,16 @@ test('public setup is idempotent, preserves data and extra columns, and checks e
 });
 test('Mode2 owner summary respects consent withdrawal just like the public aggregate and keeps raw history',()=>{
  const {c,sheets}=server(),p=record(c),key=crypto.randomUUID();c.save_({response:p,participantKey:key});c.saveStudyEvent_({response:studyEvent('withdrawal',{participantId:p.participantId,studyMode:'research',gameMode:'participation',chapter:'participant'}),participantKey:key});c.refreshMode2Summary_();assert.equal(sheets.get('Mode2Summary').data.length,1);assert.equal(sheets.get('Raw').data.length,2);assert.equal(sheets.get('Audit').data.length,2);
+});
+test('20 participants yield 75% marked, 40% Pattern and 35% unspecified; retries/versions/skips never inflate denominator',()=>{
+ const {c,sheets}=server();let query;
+ for(let i=0;i<20;i++){const p=record(c,crypto.randomUUID(),'test'),key=crypto.randomUUID();p.noticed=p.noticed.map((_,j)=>j===0&&i<15);p.pattern=p.pattern.map((_,j)=>j===0&&i<8?c.LEVEL_MANIFEST[0].characters[0].patterns[0]:null);query=p;c.save_({response:p,participantKey:key});if(i===0){const newer={...p,id:crypto.randomUUID(),createdAt:new Date(Date.parse(p.createdAt)+1).toISOString()};c.save_({response:newer,participantKey:key});c.save_({response:newer,participantKey:key});}}
+ const skip=record(c,crypto.randomUUID(),'test');skip.skipped=true;c.save_({response:skip,participantKey:crypto.randomUUID()});const excluded=record(c,crypto.randomUUID(),'test');excluded.audioPlayed=false;c.save_({response:excluded,participantKey:crypto.randomUUID()});
+ const g=c.stats_({...query,viewerId:query.participantId});assert.equal(g.count,20);assert.equal(g.noticedCounts[0],15);assert.equal(g.noticedRates[0],.75);assert.equal(Object.values(g.patternCounts[0])[0],8);assert.equal(Object.values(g.featureRates[0])[0],.4);assert.equal(g.unspecifiedCounts[0],7);assert.equal(g.includesViewer,true);assert.equal(g.otherAnswersAvailable,true);assert.ok(g.expressionExamples.some(e=>e.answer.pattern[0]===null));assert.equal(sheets.get('Raw').data.length,24);assert.equal(sheets.get('Audit').data.length,24);assert.equal(c.stats_({...query,studyMode:'research'}).count,0);
+});
+test('one completed no-difference expression is valid, includes self; zero completed responses stay uncollected',()=>{
+ const {c}=server(),p=record(c,crypto.randomUUID(),'test');p.noticed=p.noticed.map(()=>false);p.pattern=p.pattern.map(()=>null);p.answerStatus='no_difference';assert.equal(c.stats_(p).count,0);c.save_({response:p,participantKey:crypto.randomUUID()});const g=c.stats_({...p,viewerId:p.participantId});assert.equal(g.count,1);assert.equal(g.includesViewer,true);assert.equal(g.otherAnswersAvailable,false);assert.equal(g.noticedRates[0],0);assert.equal(g.expressionExamples.length,1);
+});
+test('comparison view uses independent ResearchAudit with opaque receipt and leaves survey/game tables intact',()=>{
+ const {c,sheets}=server(),l=c.LEVEL_MANIFEST[0],p=studyEvent('comparison_view',{gameMode:'mode2',chapter:'exploration',session_id:crypto.randomUUID(),levelId:l.levelId,recordingId:l.recordingId,levelVersion:l.levelVersion,full_comparison_viewed:true,other_answers_available:false,valid_participant_count:1,aggregation_policy:'latest_completed_participant_v2'}),key=crypto.randomUUID();c.saveStudyEvent_({response:p,participantKey:key});c.saveStudyEvent_({response:p,participantKey:key});assert.equal(sheets.get('ResearchAudit').data.length,2);assert.equal(sheets.get('SurveyResponses').data.length,1);assert.equal(sheets.get('Raw').data.length,1);assert.equal(JSON.parse(sheets.get('ResearchAudit').data[1][9]).full_comparison_viewed,true);assert.throws(()=>c.researchValidateEvent_({...p,valid_participant_count:0}),/INVALID_COMPARISON_VIEW/);
 });

@@ -15,7 +15,7 @@ test('shared artwork supports arbitrary mora counts and links original small-tsu
 });
 test('emphasis means exclude unrecorded historical fields; examples ignore cosmetic rotation and expose no identity',()=>{
  const a={...answer(),participantId:'secret',emphasis:['base:0'],beats:[2,1,1],glyphAngles:{'base:0':8}},b={...a,glyphAngles:{'base:0':-8}},old={...answer()};delete old.interactionVersion;delete old.emphasis;
- const g=visualStatistics([a,b,old],3);assert.equal(g.emphasisCount,2);assert.equal(g.emphasisRates['base:0'].first,1);assert.equal(g.longRates[0],2/3);assert.equal(g.commonExamples[0].count,2);assert.equal(g.commonExamples.length,2);assert.equal(JSON.stringify(g).includes('secret'),false);assert.equal(JSON.stringify(g.commonExamples).includes('glyphAngles'),false);
+ const g=visualStatistics([a,b,old],3);assert.equal(g.emphasisCount,2);assert.equal(g.emphasisRates['base:0'].first,1);assert.equal(g.longRates[0],2/3);assert.equal(g.commonExamples[0].count,2);assert.equal(g.commonExamples.length,2);assert.equal(JSON.stringify(g).includes('secret'),false);assert.equal(g.commonExamples[0].answer.glyphAngles['base:0'],8);
 });
 test('all-skipped answers do not invent frequent examples or emphasis',()=>{
  const g=visualStatistics([{...answer(),skipped:true}],3);assert.deepEqual(g.commonExamples,[]);assert.deepEqual(g.emphasisRates,{});assert.deepEqual(g.longRates,[0,0,0]);
