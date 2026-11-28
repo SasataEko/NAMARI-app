@@ -14,3 +14,8 @@ test('study events use their own submit action; historical research without cons
  const before=posted.length;await assert.rejects(queueAndSend({id:crypto.randomUUID(),studyMode:'research',gameMode:'mode2',levelId:'kusuri',recordingId:'kusuri-recording-v1'},{id:'kusuri'}),/研究説明|研究同意/);assert.equal(posted.length,before);
  const event={id:crypto.randomUUID(),schemaType:'study_event',studyMode:'test',gameMode:'overall',app_version:'test-app',event_type:'chapter_rating'};await queueAndSend(event,{id:'study-event'});assert.equal(posted.at(-1).action,'submit_study_event');assert.equal(readOutbox().length,0);
 });
+
+test('survey transport uses simple POST and receipt acknowledgement; a rejected attempt retains exact payload for retry',async()=>{
+ const event={id:crypto.randomUUID(),schemaType:'study_event',studyMode:'test',gameMode:'mode2',app_version:'test-app',event_type:'survey',session_id:crypto.randomUUID(),answers:[{question_id:'m2_express',answer_value:'cannot_judge'}]};
+ reject=true;await assert.rejects(queueAndSend(event,{id:'study-event'}));assert.equal(readOutbox().find(r=>r.id===event.id).answers[0].answer_value,'cannot_judge');const before=posted.at(-1);assert.equal(before.action,'submit_study_event');reject=false;await retryAllPending();assert.equal(posted.at(-1).response.id,event.id);assert.deepEqual(posted.at(-1).response.answers,before.response.answers);assert.equal(readOutbox().length,0);
+});

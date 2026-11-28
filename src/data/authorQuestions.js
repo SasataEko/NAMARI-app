@@ -2,7 +2,7 @@ import {tutorials} from './tutorials.js';
 import {levels} from './levels.js';
 import {projectModeOneDefinition} from './projectModeOne.js';
 export function mergeModeOneQuestions(library,locals=[],deleted=[]){
- const hidden=new Set(deleted.map(q=>q.id)),map=new Map((library.modeOneLevels||[]).map(q=>[q.id,q]));
+ const hidden=new Set([...deleted,...(library.archivedModeOneLevels||[])].map(q=>q.id)),map=new Map((library.modeOneLevels||[]).map(q=>[q.id,q]));
  for(const q of locals){const saved=map.get(q.id);if(!saved||String(q.updatedAt||q.createdAt||'')>String(saved.updatedAt||saved.createdAt||''))map.set(q.id,q);}
  return [...map.values()].filter(q=>!hidden.has(q.id));
 }

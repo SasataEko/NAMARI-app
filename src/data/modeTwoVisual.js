@@ -17,7 +17,7 @@ export function averageGlyphPaths(data,rates,interpolate){
  const symbols=data.variants.filter(v=>v.renderMode==='symbol-switch'&&!v.error);
  const winner=symbols.reduce((best,v)=>rate(rates[v.id])>best.rate?{glyph:v.glyph,rate:rate(rates[v.id])}:best,{glyph:data.normal,rate:Math.max(0,1-symbols.reduce((sum,v)=>sum+rate(rates[v.id]),0))});
  if(winner.glyph!==data.normal)return winner.glyph.shapes.map(p=>p.d);
- const variants=data.variants.filter(v=>v.morph&&!v.error);let current=data.normal.shapes.map(p=>p.d),weight=Math.max(0,1-variants.reduce((sum,v)=>sum+rate(rates[v.id]),0));
+ const variants=data.variants.filter(v=>v.morph&&v.renderMode!=='symbol-switch'&&!v.error);let current=data.normal.shapes.map(p=>p.d),weight=Math.max(0,1-variants.reduce((sum,v)=>sum+rate(rates[v.id]),0));
  for(const variant of variants){const amount=rate(rates[variant.id]);if(!amount)continue;const total=weight+amount;current=weight===0?variant.morph.to:interpolate(current,variant.morph.to).map(fn=>fn(amount/total));weight=total;}
  return current;
 }

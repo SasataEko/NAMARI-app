@@ -1,0 +1,2 @@
+export const modeTwoStages=[{id:'pitch',title:'アクセント',next:'母音・子音の判断へ'},{id:'patterns',title:'母音・子音',next:'モーラの判断へ'},{id:'duration',title:'モーラ',next:'こう聞こえた'}];
+export function createModeTwoSequence(){let index=0;return {get current(){return modeTwoStages[index];},get index(){return index;},get final(){return index===modeTwoStages.length-1;},next(){if(index<modeTwoStages.length-1)index++;return this.current;},previous(){if(index>0)index--;return this.current;}};}

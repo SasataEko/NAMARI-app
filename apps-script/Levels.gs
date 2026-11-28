@@ -754,70 +754,6 @@ var MODE1_MANIFEST = [
     }
   },
   {
-    "levelId": "ea472ee3-9db9-43e2-b787-d7fa42009799",
-    "recordingId": "83781f7b-313c-4c51-9b4d-2859f5a3d667",
-    "levelVersion": "f92e59fc8147d31c",
-    "definition": {
-      "scoring": "pattern",
-      "characters": [
-        {
-          "text": "と"
-        },
-        {
-          "text": "お"
-        },
-        {
-          "text": "り"
-        },
-        {
-          "text": "み"
-        },
-        {
-          "text": "ち"
-        }
-      ],
-      "pitch": [
-        "high",
-        "high",
-        "low",
-        "low",
-        "low"
-      ]
-    }
-  },
-  {
-    "levelId": "3ed1e5ee-cf5a-457b-be09-f398937cb33f",
-    "recordingId": "35ff9d0b-927b-4971-ae16-e0b5a476e271",
-    "levelVersion": "15f0bc4988c0c3ec",
-    "definition": {
-      "scoring": "pattern",
-      "characters": [
-        {
-          "text": "き"
-        },
-        {
-          "text": "ん"
-        },
-        {
-          "text": "め"
-        },
-        {
-          "text": "だ"
-        },
-        {
-          "text": "る"
-        }
-      ],
-      "pitch": [
-        "low",
-        "high",
-        "low",
-        "high",
-        "low"
-      ]
-    }
-  },
-  {
     "levelId": "141f19c3-1774-46f8-8079-f16c48841e3d",
     "recordingId": "b09e8944-6553-48c8-9d92-d580048969bd",
     "levelVersion": "c0d67468da094e3f",
@@ -846,78 +782,6 @@ var MODE1_MANIFEST = [
         "high",
         "high",
         "low"
-      ]
-    }
-  },
-  {
-    "levelId": "fecffa51-4a70-4f17-8ef0-d7d1948f4f8f",
-    "recordingId": "948b3934-48ed-4a6f-afd6-f27d7bc9c02a",
-    "levelVersion": "4765ae8cf5918716",
-    "definition": {
-      "scoring": "pattern",
-      "characters": [
-        {
-          "text": "じゅ"
-        },
-        {
-          "text": "う"
-        },
-        {
-          "text": "み"
-        },
-        {
-          "text": "ん"
-        }
-      ],
-      "pitch": [
-        "low",
-        "low",
-        "high",
-        "high"
-      ]
-    }
-  },
-  {
-    "levelId": "77701bec-890c-40b5-a506-5fc07d31edf5",
-    "recordingId": "77701bec-890c-40b5-a506-5fc07d31edf5-recording-v1",
-    "levelVersion": "fa37b821591aade7",
-    "definition": {
-      "scoring": "selection",
-      "characters": [
-        {
-          "text": "え"
-        },
-        {
-          "text": "ん"
-        },
-        {
-          "text": "ぴ"
-        },
-        {
-          "text": "つ"
-        },
-        {
-          "text": "け"
-        },
-        {
-          "text": "ず"
-        },
-        {
-          "text": "り"
-        }
-      ],
-      "targets": [
-        2,
-        4
-      ],
-      "patternChoices": [
-        null,
-        null,
-        "seidaku-pi-to-bi",
-        null,
-        "seidaku-ke-to-ge",
-        null,
-        null
       ]
     }
   },
@@ -957,26 +821,32 @@ var MODE1_MANIFEST = [
     }
   },
   {
-    "levelId": "8309efe1-c7f2-48ba-84e5-9ea0d8e7ab42",
-    "recordingId": "8309efe1-c7f2-48ba-84e5-9ea0d8e7ab42-recording-v1",
-    "levelVersion": "e5939eeeb5f6c59e",
+    "levelId": "77701bec-890c-40b5-a506-5fc07d31edf5",
+    "recordingId": "77701bec-890c-40b5-a506-5fc07d31edf5-recording-v1",
+    "levelVersion": "3ef4e01de664aeec",
     "definition": {
       "scoring": "selection",
       "characters": [
         {
-          "text": "ゆ"
+          "text": "え"
         },
         {
-          "text": "で"
+          "text": "ん"
         },
         {
-          "text": "た"
+          "text": "ぴ"
         },
         {
-          "text": "ま"
+          "text": "つ"
         },
         {
-          "text": "ご"
+          "text": "け"
+        },
+        {
+          "text": "ず"
+        },
+        {
+          "text": "り"
         }
       ],
       "targets": [
@@ -985,44 +855,189 @@ var MODE1_MANIFEST = [
       "patternChoices": [
         null,
         null,
-        "seidaku-ta-to-da",
+        "seidaku-pi-to-bi",
+        null,
+        null,
         null,
         null
       ]
     }
   },
   {
-    "levelId": "39f2954e-39e4-4d47-a36d-a6988bd5c6f8",
-    "recordingId": "39f2954e-39e4-4d47-a36d-a6988bd5c6f8-recording-v1",
-    "levelVersion": "6f9848da0ad2e8e1",
+    "levelId": "3ed1e5ee-cf5a-457b-be09-f398937cb33f",
+    "recordingId": "35ff9d0b-927b-4971-ae16-e0b5a476e271",
+    "levelVersion": "92f3221bc9f6db88",
+    "definition": {
+      "scoring": "pattern",
+      "characters": [
+        {
+          "text": "き"
+        },
+        {
+          "text": "ん"
+        },
+        {
+          "text": "め"
+        },
+        {
+          "text": "だ"
+        },
+        {
+          "text": "る"
+        }
+      ],
+      "pitch": [
+        "low",
+        "high",
+        "high",
+        "high",
+        "low"
+      ]
+    }
+  },
+  {
+    "levelId": "19026ae6-0e0d-4ade-b6c5-5133fb0c7a4e",
+    "recordingId": "b0f8089d-0dbc-41c2-b202-97434aa09582",
+    "levelVersion": "87b4fcc7f8245dff",
     "definition": {
       "scoring": "selection",
       "characters": [
         {
-          "text": "ゆ"
-        },
-        {
-          "text": "で"
-        },
-        {
           "text": "た"
+        },
+        {
+          "text": "か"
         },
         {
           "text": "ま"
         },
         {
-          "text": "ご"
+          "text": "っ"
+        },
+        {
+          "text": "て"
+        },
+        {
+          "text": "い"
+        },
+        {
+          "text": "る"
         }
       ],
       "targets": [
-        0
+        0,
+        2,
+        4
       ],
       "patternChoices": [
-        "pattern-u-yu",
+        "pattern-souki-ta",
         null,
+        "pattern-a-ma",
+        null,
+        "seidaku-te-to-de",
+        null,
+        null
+      ]
+    }
+  },
+  {
+    "levelId": "bdc876d0-13be-424f-b700-ba542120b1c3",
+    "recordingId": "eef6a689-4ebe-49a4-80cb-f5f71765ef1a",
+    "levelVersion": "f98a9dd19cbe81e0",
+    "definition": {
+      "scoring": "selection",
+      "characters": [
+        {
+          "text": "で"
+        },
+        {
+          "text": "て"
+        },
+        {
+          "text": "い"
+        },
+        {
+          "text": "ま"
+        },
+        {
+          "text": "す"
+        }
+      ],
+      "targets": [
+        0,
+        1
+      ],
+      "patternChoices": [
+        "seidaku-de-to-te",
+        "pattern-souki-te",
         null,
         null,
         null
+      ]
+    }
+  },
+  {
+    "levelId": "ea472ee3-9db9-43e2-b787-d7fa42009799",
+    "recordingId": "83781f7b-313c-4c51-9b4d-2859f5a3d667",
+    "levelVersion": "f7fc6b06e59914bc",
+    "definition": {
+      "scoring": "pattern",
+      "characters": [
+        {
+          "text": "と"
+        },
+        {
+          "text": "お"
+        },
+        {
+          "text": "り"
+        },
+        {
+          "text": "み"
+        },
+        {
+          "text": "ち"
+        }
+      ],
+      "pitch": [
+        "high",
+        "low",
+        "low",
+        "low",
+        "low"
+      ]
+    }
+  },
+  {
+    "levelId": "fecffa51-4a70-4f17-8ef0-d7d1948f4f8f",
+    "recordingId": "948b3934-48ed-4a6f-afd6-f27d7bc9c02a",
+    "levelVersion": "9cfe4dbe89911359",
+    "definition": {
+      "scoring": "rhythm",
+      "characters": [
+        {
+          "text": "じゅ"
+        },
+        {
+          "text": "う"
+        },
+        {
+          "text": "み"
+        },
+        {
+          "text": "ん"
+        }
+      ],
+      "beats": [
+        1,
+        0,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false
       ]
     }
   }

@@ -1,4 +1,5 @@
-// Additive research extension. Run setupResearchExtension_ explicitly as the owner.
+function setupResearchExtension(){return setupResearchExtension_();}
+// Additive research extension. Run setupResearchExtension explicitly as the owner.
 // Never changes the columns of Raw, Audit, Mode1Raw, Mode1Audit or the existing summaries.
 var RESEARCH_HEADERS_={
  Participants:['participant_id','study_mode','consent_version','consented_at','consent_status','withdrawn_at','language_background','japanese_learning_experience','background_status','updated_at','app_version','payload_json'],
@@ -22,8 +23,9 @@ function researchSafe_(v){return typeof v==='string'&&/^[=+@\-\t\r\n]/.test(v)?"
 function researchUpsert_(name,row,match,timeIndex){var s=sheet_(name),data=s.getDataRange().getValues();for(var i=1;i<data.length;i++)if(match(data[i])){if(!timeIndex||String(row[timeIndex])>=String(data[i][timeIndex]))s.getRange(i+1,1,1,row.length).setValues([row.map(researchSafe_)]);return;}s.appendRow(row.map(researchSafe_));}
 function researchValidateEvent_(p){
  if(p.schemaType!=='study_event'||!/^[a-zA-Z0-9-]{16,80}$/.test(p.id||'')||!/^[a-zA-Z0-9-]{16,80}$/.test(p.participantId||'')||!['test','research'].includes(p.studyMode)||!['mode1','mode2','overall','participation'].includes(p.gameMode)||typeof p.chapter!=='string'||p.chapter.length>64||typeof p.app_version!=='string'||p.app_version.length>80||!Number.isFinite(Date.parse(p.submitted_at))||Date.parse(p.submitted_at)>Date.now()+300000||!['answered','skipped','unanswered'].includes(p.response_status))throw new Error('INVALID_STUDY_EVENT');
- if(!['consent','background','chapter_rating','experience_feedback','withdrawal'].includes(p.event_type))throw new Error('INVALID_STUDY_EVENT');
+ if(!['consent','background','chapter_rating','experience_feedback','withdrawal','survey'].includes(p.event_type))throw new Error('INVALID_STUDY_EVENT');
  if(['chapter_rating','experience_feedback'].includes(p.event_type)&&!/^[a-zA-Z0-9-]{16,80}$/.test(p.scope_id||''))throw new Error('INVALID_SCOPE');
+ if(p.event_type==='survey')validateSurvey_(p);
  if(p.event_type==='chapter_rating'&&(p.response_status==='answered'?(!Number.isInteger(p.visual_helpfulness)||p.visual_helpfulness<1||p.visual_helpfulness>5):p.visual_helpfulness!==null))throw new Error('INVALID_RATING');
  if(p.event_type==='experience_feedback'&&(p.response_status==='answered'?(typeof p.feedback_text!=='string'||!p.feedback_text.trim()||p.feedback_text.length>2000):p.feedback_text!==null))throw new Error('INVALID_FEEDBACK');
  if(p.event_type==='background'){
@@ -44,7 +46,8 @@ function saveStudyEvent_(request){
   if(!identity)sheet_('_Identities').appendRow([p.participantId,hashed]);
   if(rows_('ResearchAudit').some(function(r){return r[0]===p.id;}))return;
   var clean=JSON.parse(JSON.stringify(p));delete clean.local_only;delete clean.sync;
-  if(['consent','background','withdrawal'].includes(p.event_type)){
+  if(p.event_type==='survey')saveSurveyRows_(p);
+  else if(['consent','background','withdrawal'].includes(p.event_type)){
    var prior=researchParticipant_(p.participantId,p.studyMode)||{},state=Object.assign({},prior,{participant_id:p.participantId,study_mode:p.studyMode,app_version:p.app_version});
    if(p.event_type==='consent'&&String(p.submitted_at)>=String(prior.consent_event_at||prior.withdrawn_at||'')){state.consent_version=p.consent_version;state.consented_at=p.consented_at;state.consent_status='consented';state.withdrawn_at=null;state.consent_event_at=p.submitted_at;}
    if(p.event_type==='withdrawal'&&String(p.submitted_at)>=String(prior.consent_event_at||'')){state.consent_status='withdrawn';state.withdrawn_at=p.submitted_at;state.consent_event_at=p.submitted_at;}
@@ -57,7 +60,7 @@ function saveStudyEvent_(request){
  }finally{lock.releaseLock();}
 }
 function researchTrialExtras_(p){
- var out={};['startedAt','consent_version','consented_at','app_version','tutorial_completed','tutorial_version','tutorial_status','reference_audio_play_count','learner_audio_play_count','reference_comparison_used','reference_before_visual_count','reference_after_visual_count','learner_before_visual_count','learner_after_visual_count'].forEach(function(key){if(p[key]!==undefined)out[key]=p[key];});return out;
+ var out={};['session_id','startedAt','consent_version','consented_at','app_version','tutorial_completed','tutorial_version','tutorial_status','reference_audio_play_count','learner_audio_play_count','reference_comparison_used','reference_before_visual_count','reference_after_visual_count','learner_before_visual_count','learner_after_visual_count'].forEach(function(key){if(p[key]!==undefined)out[key]=p[key];});return out;
 }
 function targetClickAnalysis_(p,d){
  var rows=[],seen={},errors=0,order=0;var targets=d.targets||[];

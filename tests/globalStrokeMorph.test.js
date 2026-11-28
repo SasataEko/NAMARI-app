@@ -1,0 +1,17 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import flubber from 'flubber';import {rectanglePath} from '../src/glyph/rectanglePath.js';import {crc32,zipFiles,morphExportSteps} from '../src/glyph/morphPreviewExport.js';
+const {splitPathString,interpolateAll}=flubber,context=vm.createContext({splitPathString,interpolateAll,syncSticker(){}});new vm.Script(fs.readFileSync('src/glyph/morph.js','utf8').replace(/^import .*$/gm,'').replace(/^export /gm,'')+'\nthis.createMorph=createMorph;').runInContext(context);const {createMorph}=context;
+function paths(p){const s=fs.readFileSync('public/'+p,'utf8'),list=[...s.matchAll(/<path\b[^>]*\bd="([^"]+)"/g)].map(m=>m[1]);for(const m of s.matchAll(/<rect\b([^>]+)\/?\s*>/g))list[0]+=' '+rectanglePath(Object.fromEntries([...m[1].matchAll(/([\w-]+)="([^"]*)"/g)].map(m=>[m[1],m[2]])));return list;}
+const library=JSON.parse(fs.readFileSync('public/content/library.json','utf8'));
+test('all registered glyph directions keep exact endpoints, finite intermediate contours and every authored component',()=>{
+ let count=0;for(const g of library.glyphs)for(const p of g.patterns){const a=paths(g.normal),b=paths(p.svg),m=createMorph(a,b);count++;for(const t of [0,.001,.1,.25,.5,.75,.9,.999,1]){const d=m.map(f=>f(t));assert.equal(d.length,a.length,p.id);assert.ok(d.every(s=>!(/NaN|Infinity|undefined/.test(s))),p.id);if(t===0)assert.deepEqual([...d],a);if(t===1)assert.deepEqual([...d],b);}
+  m.correspondence.forEach((pairs,i)=>{if(a[i]===b[i])return;assert.deepEqual([...pairs.filter(p=>p.from!==null).map(p=>p.from).sort((a,b)=>a-b)],Array.from({length:splitPathString(a[i]).length},(_,i)=>i),p.id);assert.deepEqual([...pairs.filter(p=>p.to!==null).map(p=>p.to).sort((a,b)=>a-b)],Array.from({length:splitPathString(b[i]).length},(_,i)=>i),p.id);});
+ }assert.equal(count,155);
+});
+test('automatic correspondence reproduces approved bu pilot and keeps holes separate from solid strokes',()=>{
+ const m=createMorph(paths('assets/normal/bu.svg'),paths('assets/namari/pattern-U/bu-NM-morph.svg'));assert.deepEqual([...m.correspondence[0].map(p=>p.to)],[2,0,3,4,1,5]);
+ const ring='M0,0L100,0L100,100L0,100Z M30,30L30,70L70,70L70,30Z',target='M0,0L110,0L110,100L0,100Z M35,30L35,70L75,70L75,30Z',morph=createMorph([ring],[target]),parts=splitPathString(morph[0](.5));assert.equal(parts.length,2);assert.equal(morph.correspondence[0].filter(p=>p.hole).length,1);
+ const signed=s=>{const pts=splitPathString(s)[0].match(/-?\d+(?:\.\d+)?(?:e[+-]?\d+)?/gi).map(Number);let a=0;for(let i=0;i<pts.length;i+=2){let j=(i+2)%pts.length;a+=pts[i]*pts[j+1]-pts[j]*pts[i+1];}return Math.sign(a);};assert.notEqual(signed(parts[0]),signed(parts[1]));
+});
+test('report ZIP keeps Unicode filenames, CRC, directory offsets and the five requested frames',async()=>{
+ assert.equal(crc32(new TextEncoder().encode('123456789')),0xcbf43926);assert.deepEqual(morphExportSteps,[0,.25,.5,.75,1]);const zip=await zipFiles([{name:'ぶ/pattern-u-bu/050.png',bytes:Uint8Array.of(1,2,3)}]).arrayBuffer(),v=new DataView(zip);assert.equal(v.getUint32(0,true),0x04034b50);assert.equal(v.getUint16(6,true),0x800);const length=v.getUint16(26,true),name=new TextDecoder().decode(new Uint8Array(zip,30,length));assert.equal(name,'ぶ/pattern-u-bu/050.png');assert.equal(v.getUint32(30+length+3,true),0x02014b50);assert.equal(v.getUint32(zip.byteLength-22,true),0x06054b50);assert.equal(v.getUint16(zip.byteLength-12,true),1);
+});

@@ -1,5 +1,5 @@
 {
-  "revision": 40,
+  "revision": 52,
   "groups": [
     {
       "id": "existing-ku",
@@ -2144,7 +2144,7 @@
       ]
     }
   ],
-  "updatedAt": "2026-11-24T15:06:36.539Z",
+  "updatedAt": "2026-11-27T16:03:10.571Z",
   "archivedLevels": [
     {
       "id": "experiment-be-pe",
@@ -2395,90 +2395,6 @@
       "source": "diy-project"
     },
     {
-      "id": "ea472ee3-9db9-43e2-b787-d7fa42009799",
-      "mode": "diyAccent",
-      "chapter": "accent",
-      "word": "とおりみち",
-      "reading": [
-        "と",
-        "お",
-        "り",
-        "み",
-        "ち"
-      ],
-      "pattern": [
-        "high",
-        "high",
-        "low",
-        "low",
-        "low"
-      ],
-      "targetIndexes": [],
-      "patternChoices": [],
-      "beats": [
-        1,
-        1,
-        1,
-        1,
-        1
-      ],
-      "blanks": [
-        false,
-        false,
-        false,
-        false
-      ],
-      "audio": "uploads/audio/0b63df6c-49db-4d86-bc55-e2a58d3a09f5.wav",
-      "audioHash": "261de6038980b4ccc4428240533434edad8282abc0f9c3a74801517b44347f21",
-      "audioName": "15号　通り道.wav",
-      "recordingId": "83781f7b-313c-4c51-9b4d-2859f5a3d667",
-      "createdAt": "2026-11-19T02:55:14.124Z",
-      "updatedAt": "2026-11-19T02:55:14.124Z",
-      "source": "diy-project"
-    },
-    {
-      "id": "3ed1e5ee-cf5a-457b-be09-f398937cb33f",
-      "mode": "diyAccent",
-      "chapter": "accent",
-      "word": "きんめだる",
-      "reading": [
-        "き",
-        "ん",
-        "め",
-        "だ",
-        "る"
-      ],
-      "pattern": [
-        "low",
-        "high",
-        "low",
-        "high",
-        "low"
-      ],
-      "targetIndexes": [],
-      "patternChoices": [],
-      "beats": [
-        1,
-        1,
-        1,
-        1,
-        1
-      ],
-      "blanks": [
-        false,
-        false,
-        false,
-        false
-      ],
-      "audio": "uploads/audio/7cc5974e-b8fa-4f21-9d7a-d19668eb35c7.wav",
-      "audioHash": "c03e1040f96eb407099b3d7c1d6e867e20c26d13521933b049fe2cf708d61c7d",
-      "audioName": "９号金メダル.wav",
-      "recordingId": "35ff9d0b-927b-4971-ae16-e0b5a476e271",
-      "createdAt": "2026-11-19T02:54:18.636Z",
-      "updatedAt": "2026-11-19T02:54:18.636Z",
-      "source": "diy-project"
-    },
-    {
       "id": "141f19c3-1774-46f8-8079-f16c48841e3d",
       "mode": "diyAccent",
       "chapter": "accent",
@@ -2518,104 +2434,6 @@
       "recordingId": "b09e8944-6553-48c8-9d92-d580048969bd",
       "createdAt": "2026-11-19T02:53:00.660Z",
       "updatedAt": "2026-11-19T02:53:00.660Z",
-      "source": "diy-project"
-    },
-    {
-      "id": "fecffa51-4a70-4f17-8ef0-d7d1948f4f8f",
-      "mode": "diyAccent",
-      "chapter": "accent",
-      "word": "じゅうみん",
-      "reading": [
-        "じゅ",
-        "う",
-        "み",
-        "ん"
-      ],
-      "pattern": [
-        "low",
-        "low",
-        "high",
-        "high"
-      ],
-      "targetIndexes": [],
-      "patternChoices": [],
-      "beats": [
-        1,
-        1,
-        1,
-        1
-      ],
-      "blanks": [
-        false,
-        false,
-        false
-      ],
-      "audio": "uploads/audio/73a649ad-123c-4281-a669-b136fc8e144b.wav",
-      "audioHash": "e6891f9db22d8485dc6916e6006e58ba4fcf9e71ca72d4a4fafc3137c5a11161",
-      "audioName": "1号小岚-住民.wav",
-      "recordingId": "948b3934-48ed-4a6f-afd6-f27d7bc9c02a",
-      "createdAt": "2026-11-19T02:50:40.588Z",
-      "updatedAt": "2026-11-19T02:50:40.589Z",
-      "source": "diy-project"
-    },
-    {
-      "id": "77701bec-890c-40b5-a506-5fc07d31edf5",
-      "mode": "diyVowel",
-      "chapter": "vowelChallenge",
-      "word": "えんぴつけずり",
-      "reading": [
-        "え",
-        "ん",
-        "ぴ",
-        "つ",
-        "け",
-        "ず",
-        "り"
-      ],
-      "pattern": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "targetIndexes": [
-        2,
-        4
-      ],
-      "patternChoices": [
-        null,
-        null,
-        "seidaku-pi-to-bi",
-        "pattern-u-tsu",
-        "seidaku-ke-to-ge",
-        "seidaku-zu-to-su"
-      ],
-      "beats": [
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1
-      ],
-      "blanks": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      "audio": "uploads/audio/98c749e2-9dac-46f4-9a32-9d6a3b95e4f3.wav",
-      "audioHash": "e43dcfbe02fedd096f71da8d66964772f3d240a2f42c414d33a4fc67b0975040",
-      "audioName": "11号えんぴつ.wav",
-      "recordingId": "77701bec-890c-40b5-a506-5fc07d31edf5-recording-v1",
-      "createdAt": "2026-11-18T14:57:17.480Z",
-      "updatedAt": "2026-11-18T14:57:17.480Z",
       "source": "diy-project"
     },
     {
@@ -2669,6 +2487,320 @@
       "source": "diy-project"
     },
     {
+      "id": "77701bec-890c-40b5-a506-5fc07d31edf5",
+      "word": "えんぴつけずり",
+      "reading": [
+        "え",
+        "ん",
+        "ぴ",
+        "つ",
+        "け",
+        "ず",
+        "り"
+      ],
+      "mode": "diyVowel",
+      "chapter": "vowelChallenge",
+      "pattern": [
+        "low",
+        "low",
+        "low",
+        "low",
+        "low",
+        "low",
+        "low"
+      ],
+      "targetIndexes": [
+        2
+      ],
+      "patternChoices": [
+        null,
+        null,
+        "seidaku-pi-to-bi",
+        "pattern-u-tsu",
+        null,
+        "seidaku-zu-to-su",
+        null
+      ],
+      "beats": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/98c749e2-9dac-46f4-9a32-9d6a3b95e4f3.wav",
+      "audioHash": "e43dcfbe02fedd096f71da8d66964772f3d240a2f42c414d33a4fc67b0975040",
+      "audioName": "11号えんぴつ.wav",
+      "recordingId": "77701bec-890c-40b5-a506-5fc07d31edf5-recording-v1",
+      "createdAt": "2026-11-18T14:57:17.480Z",
+      "updatedAt": "2026-11-27T13:28:58.361Z",
+      "source": "project-author"
+    },
+    {
+      "id": "3ed1e5ee-cf5a-457b-be09-f398937cb33f",
+      "word": "きんめだる",
+      "reading": [
+        "き",
+        "ん",
+        "め",
+        "だ",
+        "る"
+      ],
+      "mode": "diyAccent",
+      "chapter": "accent",
+      "pattern": [
+        "low",
+        "high",
+        "high",
+        "high",
+        "low"
+      ],
+      "targetIndexes": [],
+      "patternChoices": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "beats": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/7cc5974e-b8fa-4f21-9d7a-d19668eb35c7.wav",
+      "audioHash": "c03e1040f96eb407099b3d7c1d6e867e20c26d13521933b049fe2cf708d61c7d",
+      "audioName": "９号金メダル.wav",
+      "recordingId": "35ff9d0b-927b-4971-ae16-e0b5a476e271",
+      "createdAt": "2026-11-19T02:54:18.636Z",
+      "updatedAt": "2026-11-27T13:29:20.943Z",
+      "source": "project-author"
+    },
+    {
+      "id": "19026ae6-0e0d-4ade-b6c5-5133fb0c7a4e",
+      "word": "たかまっている",
+      "reading": [
+        "た",
+        "か",
+        "ま",
+        "っ",
+        "て",
+        "い",
+        "る"
+      ],
+      "mode": "diyVowel",
+      "chapter": "vowelChallenge",
+      "pattern": [
+        "low",
+        "low",
+        "low",
+        "low",
+        "low",
+        "low",
+        "low"
+      ],
+      "targetIndexes": [
+        0,
+        2,
+        4
+      ],
+      "patternChoices": [
+        "pattern-souki-ta",
+        null,
+        "pattern-a-ma",
+        null,
+        "seidaku-te-to-de",
+        null,
+        null
+      ],
+      "beats": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/1ec07677-48e4-4207-9aee-19452178cc16.wav",
+      "audioHash": null,
+      "audioName": "4号ダーミング‐たかまっている.wav",
+      "recordingId": "b0f8089d-0dbc-41c2-b202-97434aa09582",
+      "createdAt": "2026-11-27T13:28:35.077Z",
+      "updatedAt": "2026-11-27T13:36:18.650Z",
+      "source": "project-author"
+    },
+    {
+      "id": "bdc876d0-13be-424f-b700-ba542120b1c3",
+      "word": "でています",
+      "reading": [
+        "で",
+        "て",
+        "い",
+        "ま",
+        "す"
+      ],
+      "mode": "diyVowel",
+      "chapter": "vowelChallenge",
+      "pattern": [
+        "low",
+        "low",
+        "low",
+        "low",
+        "low"
+      ],
+      "targetIndexes": [
+        0,
+        1
+      ],
+      "patternChoices": [
+        "seidaku-de-to-te",
+        "pattern-souki-te",
+        null,
+        null,
+        null
+      ],
+      "beats": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/948be9d5-9aea-45b9-b0e0-7c0e7553b0ae.wav",
+      "audioHash": null,
+      "audioName": "15号織雪文章_出ています.wav",
+      "recordingId": "eef6a689-4ebe-49a4-80cb-f5f71765ef1a",
+      "updatedAt": "2026-11-27T15:39:15.635Z",
+      "createdAt": "2026-11-27T15:39:15.635Z",
+      "source": "project-author"
+    },
+    {
+      "id": "ea472ee3-9db9-43e2-b787-d7fa42009799",
+      "word": "とおりみち",
+      "reading": [
+        "と",
+        "お",
+        "り",
+        "み",
+        "ち"
+      ],
+      "mode": "diyAccent",
+      "chapter": "accent",
+      "pattern": [
+        "high",
+        "low",
+        "low",
+        "low",
+        "low"
+      ],
+      "targetIndexes": [],
+      "patternChoices": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "beats": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/0b63df6c-49db-4d86-bc55-e2a58d3a09f5.wav",
+      "audioHash": "261de6038980b4ccc4428240533434edad8282abc0f9c3a74801517b44347f21",
+      "audioName": "15号　通り道.wav",
+      "recordingId": "83781f7b-313c-4c51-9b4d-2859f5a3d667",
+      "createdAt": "2026-11-19T02:55:14.124Z",
+      "updatedAt": "2026-11-27T16:02:15.735Z",
+      "source": "project-author"
+    },
+    {
+      "id": "fecffa51-4a70-4f17-8ef0-d7d1948f4f8f",
+      "word": "じゅうみん",
+      "reading": [
+        "じゅ",
+        "う",
+        "み",
+        "ん"
+      ],
+      "mode": "diyMora",
+      "chapter": "mora",
+      "pattern": [
+        "low",
+        "high",
+        "high",
+        "high"
+      ],
+      "targetIndexes": [],
+      "patternChoices": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "beats": [
+        1,
+        0,
+        1,
+        1
+      ],
+      "blanks": [
+        false,
+        false,
+        false
+      ],
+      "audio": "uploads/audio/73a649ad-123c-4281-a669-b136fc8e144b.wav",
+      "audioHash": "e6891f9db22d8485dc6916e6006e58ba4fcf9e71ca72d4a4fafc3137c5a11161",
+      "audioName": "1号小岚-住民.wav",
+      "recordingId": "948b3934-48ed-4a6f-afd6-f27d7bc9c02a",
+      "createdAt": "2026-11-19T02:50:40.588Z",
+      "updatedAt": "2026-11-27T16:03:10.545Z",
+      "source": "project-author"
+    }
+  ],
+  "archivedModeOneLevels": [
+    {
       "id": "8309efe1-c7f2-48ba-84e5-9ea0d8e7ab42",
       "mode": "diyVowel",
       "chapter": "vowelChallenge",
@@ -2716,7 +2848,9 @@
       "recordingId": "8309efe1-c7f2-48ba-84e5-9ea0d8e7ab42-recording-v1",
       "createdAt": "2026-11-18T14:55:42.368Z",
       "updatedAt": "2026-11-18T14:55:42.368Z",
-      "source": "diy-project"
+      "source": "diy-project",
+      "localOnly": false,
+      "deletedAt": "2026-11-27T13:43:45.374Z"
     },
     {
       "id": "39f2954e-39e4-4d47-a36d-a6988bd5c6f8",
@@ -2766,7 +2900,9 @@
       "recordingId": "39f2954e-39e4-4d47-a36d-a6988bd5c6f8-recording-v1",
       "createdAt": "2026-11-18T14:54:52.121Z",
       "updatedAt": "2026-11-18T14:54:52.121Z",
-      "source": "diy-project"
+      "source": "diy-project",
+      "localOnly": false,
+      "deletedAt": "2026-11-27T15:40:18.480Z"
     }
   ]
 }

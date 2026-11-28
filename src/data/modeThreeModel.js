@@ -40,7 +40,7 @@ export const glyphSizeFactor=edited=>edited?1.45:1;
 // Ink-based widths tighten the word without changing any beat duration.
 export function fitArtworkRow(width,height,factors,aspects=factors.map(()=>1),{maxBase=90,fill=.82}={}){
  // Overlap only ordinary neighbours; an enlarged Pattern gets breathing room.
- const gapRatios=factors.slice(0,-1).map((factor,i)=>Math.max(factor,factors[i+1])>1?Math.max(factor,factors[i+1])*.045:-.10);
+ const gapRatios=factors.slice(0,-1).map((factor,i)=>Math.max(factor,factors[i+1])>1?Math.max(factor,factors[i+1])*-.025:-.10);
  const cost=Math.max(.1,factors.reduce((sum,f,i)=>sum+f*aspects[i],0)+gapRatios.reduce((a,b)=>a+b,0));
  const base=Math.max(1,Math.min(maxBase,width*fill/cost,height/Math.max(...factors)));
  return {gap:0,base,gapRatios,gaps:gapRatios.map(r=>base*r),sizes:factors.map(f=>base*f),widths:factors.map((f,i)=>base*f*aspects[i])};

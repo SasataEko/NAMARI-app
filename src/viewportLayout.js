@@ -12,11 +12,11 @@ export function installViewportLayout(app) {
     if(diyCategories&&saved&&!main.querySelector('.diy-home-tabs')){const tabs=document.createElement('div');tabs.className='settings-tabs diy-home-tabs';tabs.setAttribute('role','group');tabs.setAttribute('aria-label','DIYモードの分類');['問題をつくる','作成した問題'].forEach((text,i)=>{const b=document.createElement('button');b.type='button';b.textContent=text;b.setAttribute('aria-pressed',String(i===0));b.onclick=()=>{diyCategories.hidden=i!==0;saved.hidden=i===0;schedule();[...tabs.children].forEach((e,j)=>e.setAttribute('aria-pressed',String(i===j)));};tabs.append(b);});diyCategories.before(tabs);saved.hidden=true;}
     // Settings has two compact panels. Moving nodes keeps existing listeners intact.
     if(main.classList.contains('settings-page')&&!main.querySelector('.settings-tabs')){
-      const research=main.querySelector('.study-settings'),basic=document.createElement('div');basic.className='settings-basic';
-      main.querySelectorAll('.settings-panel,.settings-profile,.settings-footnote').forEach(e=>basic.append(e));
+      const research=main.querySelector('.study-settings'),report=main.querySelector('.delivery-report'),basic=document.createElement('div');basic.className='settings-basic';
+      main.querySelectorAll('.settings-panel:not(.delivery-report),.settings-profile,.settings-footnote').forEach(e=>basic.append(e));
       const tabs=document.createElement('div');tabs.className='settings-tabs';tabs.setAttribute('role','group');tabs.setAttribute('aria-label','設定の分類');
-      ['音とプロフィール','研究参加'].forEach((label,i)=>{const b=document.createElement('button');b.textContent=label;b.type='button';b.setAttribute('aria-pressed',String(i===0));b.onclick=()=>{basic.hidden=i!==0;if(research)research.hidden=i===0;[...tabs.children].forEach((e,j)=>e.setAttribute('aria-pressed',String(i===j)));};tabs.append(b);});
-      main.querySelector('.page-heading')?.after(tabs,basic);if(research)research.hidden=true;
+      ['音とプロフィール','研究参加','送信レポート'].forEach((label,i)=>{const b=document.createElement('button');b.textContent=label;b.type='button';b.setAttribute('aria-pressed',String(i===0));b.onclick=()=>{basic.hidden=i!==0;if(research)research.hidden=i!==1;if(report)report.hidden=i!==2;[...tabs.children].forEach((e,j)=>e.setAttribute('aria-pressed',String(i===j)));};tabs.append(b);});
+      main.querySelector('.page-heading')?.after(tabs,basic);if(research)research.hidden=true;if(report)report.hidden=true;
     }
   };
   const schedule=()=>{if(!frame){frame=1;queueMicrotask(update);}};

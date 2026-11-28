@@ -62,14 +62,14 @@
 }
 @media(max-height:600px) and (min-width:650px){.mode-two-lab [data-editor]>.mode-three{grid-template-rows:auto auto minmax(0,1fr)}.mode-two-lab .m3-listen-question{grid-column:1/-1;grid-row:2}.mode-two-lab .m3-canvas,.mode-two-lab .m3-editor{grid-row:3}}
 
-.m2-make-tour{display:flex;align-items:center;gap:8px;padding:6px 8px;margin:0 0 6px;background:#fff7da;border-radius:12px;flex:none}.m2-make-tour p{flex:1;min-width:0;margin:0;font-size:12px;line-height:1.45;font-weight:600;color:#3a302a}.mode-three .m2-make-tour button{flex:none;border:0;background:transparent;font-size:10px;text-decoration:underline;text-underline-offset:3px;color:#71605b;padding:6px 2px;min-height:30px}.m2-make-tour button[hidden]{display:none!important}@media(max-width:600px){.m2-make-tour{gap:5px;padding:5px 7px}.m2-make-tour p{font-size:11px}.mode-three .m2-make-tour button{font-size:9px}}
 
 /* The guide is outside flex layout and above the viewport shade. */
-.m2-guide-floating{position:fixed;z-index:75;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 28px));box-sizing:border-box;padding:14px 18px;border:1px solid #e7d5a5;border-radius:18px;background:#fff9e9;color:#302826;box-shadow:0 8px 28px #17131d33;pointer-events:auto}
-.m2-guide-floating p{margin:0;font:700 14px/1.55 inherit;line-height:1.55;font-size:14px;font-weight:700}.m2-guide-floating>div{display:flex;justify-content:flex-end;gap:18px;margin-top:6px}.m2-guide-floating button{min-height:30px;border:0;padding:4px 0;background:transparent;font:inherit;font-size:11px;color:#78625c;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.m2-guide-floating[hidden],.m2-guide-floating button[hidden]{display:none!important}
-.mode-three[data-tutorial=true] .m3-panel{height:142px;min-height:142px;overflow:auto}
-.mode-three[data-tutorial=true]:not([data-tool=pitch]) .m3-editor>.m3-accent-overlay{display:block;visibility:hidden}
-@media(max-width:600px){.m2-guide-floating{padding:11px 14px}.m2-guide-floating p{font-size:13px}.mode-three[data-tutorial=true] .m3-panel{height:132px;min-height:132px}}
 
 /* Keep the top undo control visible during its mobile tutorial step. */
-@media(max-width:600px){.m2-guide-floating[data-placement=bottom]{top:auto;bottom:max(12px,env(safe-area-inset-bottom))}}
+
+.mode-three .m3-step-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:0 3px}.m3-step-heading h2{font-size:16px;margin:0}.m3-step-heading>span{font-size:12px;color:#827877}
+.m3-sequence-actions{display:flex;gap:8px;align-items:center;margin-top:8px}.m3-sequence-actions .m3-save{flex:1;min-height:42px;white-space:normal}.m3-previous{border:0;border-radius:999px;background:#e7e2da;color:#292333;padding:10px 13px;font:inherit;font-size:11px;min-height:42px}.m3-previous[hidden]{display:none!important}
+.mode-two-lab .m3-panel{min-height:124px}.mode-two-lab .m3-status:empty{display:none}.mode-two-lab .m3-control-column>small{display:none}
+@media(max-width:600px){.m3-step-heading h2{font-size:14px}.m3-sequence-actions .m3-save{font-size:12px;padding:9px 12px}.m3-previous{font-size:10px;padding:9px 10px}}
+
+.mode2-answer-title{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none;min-height:24px}.mode2-answer-title h2{margin:0}.result-png-button{border:0;border-radius:999px;background:#e7e2da;color:#524b48;font:inherit;font-size:10px;padding:4px 9px;min-height:24px;cursor:pointer;white-space:nowrap}.result-png-button:disabled{opacity:.4}.mode2-common-example>.result-png-button{align-self:flex-end;font-size:8px;min-height:18px;padding:2px 7px;margin-top:2px}

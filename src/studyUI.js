@@ -1,3 +1,4 @@
+import {showSurvey} from './surveyUI.js';
 import {participantId} from './data/participantIdentity.js';
 import {loadResearchProtocol,researchReady,activeConsent,storeConsent,consentState,APP_VERSION} from './data/researchState.js';
 import {saveStudyEvent} from './data/studyEvents.js';
@@ -43,15 +44,7 @@ async function backgroundForm(mode,preview){
   const save=async status=>{d.actions.querySelectorAll('button').forEach(b=>b.disabled=true);await saveStudyEvent({event_type:'background',studyMode:mode,gameMode:'participation',chapter:'participant',scope_id:scope,response_status:status,language_background:status==='answered'?language.value||null:null,japanese_learning_experience:status==='answered'?experience.value||null:null,local_only:preview});const c=consentState(mode);if(c)storeConsent(mode,{...c,background_status:status});d.close(true);};
   button(d.actions,'スキップ',()=>save('skipped'));button(d.actions,'保存して進む',()=>save('answered'),true);await d.finished;
 }
-export async function chapterRating({gameMode,chapter,studyMode='test',localPreview=false}){
-  const scope=crypto.randomUUID(),base={event_type:'chapter_rating',studyMode,gameMode,chapter,scope_id:scope,visual_helpfulness:null,local_only:localPreview};
-  saveStudyEvent({...base,response_status:'unanswered'});
-  const d=dialog('この篇の感想（任意）');paragraph(d.body,'文字の形態変化を見ることで、音声の特徴に気づきやすくなりましたか？');paragraph(d.body,'1＝まったくそう思わない　5＝非常にそう思う');
-  const ratings=document.createElement('div');ratings.className='study-rating';d.body.append(ratings);let value=null;
-  for(let i=1;i<=5;i++){const b=button(ratings,String(i),()=>{value=i;ratings.querySelectorAll('button').forEach((e,j)=>e.setAttribute('aria-pressed',String(j+1===i)));submit.disabled=false;});b.setAttribute('aria-pressed','false');}
-  const save=async status=>{d.actions.querySelectorAll('button').forEach(b=>b.disabled=true);const record=await saveStudyEvent({...base,response_status:status,visual_helpfulness:status==='answered'?value:null});d.close(record);};
-  button(d.actions,'スキップ',()=>save('skipped'));const submit=button(d.actions,'回答して進む',()=>save('answered'),true);submit.disabled=true;return d.finished;
-}
+export async function chapterRating({gameMode='mode1',chapter='vowelChallenge',studyMode='test',localPreview=false}){return showSurvey({gameMode,chapter:chapter==='preview'?'vowelChallenge':chapter,studyMode,localPreview});}
 export async function experienceFeedback(studyMode='test',{localPreview=false}={}){
   const scope=crypto.randomUUID(),base={event_type:'experience_feedback',studyMode,gameMode:'overall',chapter:'experience',scope_id:scope,feedback_text:null,local_only:localPreview};saveStudyEvent({...base,response_status:'unanswered'});
   const d=dialog('体験の感想（任意）');const languageNote=paragraph(d.body,'用中文填写也可以哦。');languageNote.className='feedback-language-note';languageNote.lang='zh-CN';paragraph(d.body,'視覚表現によって気づいた発音の特徴や、わかりにくかった点があれば教えてください。');paragraph(d.body,'氏名・連絡先など個人が特定される内容は書かないでください。');

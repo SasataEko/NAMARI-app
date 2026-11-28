@@ -1,7 +1,7 @@
 {
   "registries": {
     "public/content/study-manifest.json": "a36482ace597bc19abd6923b3f677a2fe339b4cf9a8f22177d10e28c21b5c425",
-    "public/content/mode-one-manifest.json": "cf51a5999d9c72b7505ab8ba905aabc89838efac52ead99a734db3ed5cdba458"
+    "public/content/mode-one-manifest.json": "66559c2cb921476b2b40d5a05c2d48cd922487636f6e8d373db4a9f0df4c7cb6"
   },
   "assets": {
     "assets/audio/tutorial-karada.wav": "f28fa5dfb56cfd9ed81aae288762f53caa1093cfff39cb916eef2c4fbbc0486e",
@@ -267,6 +267,7 @@
     "assets/normal/zu.svg": "53181ce3fc1186d1ae5281f8ea097b2fd3524e70aa678887e56dc10210858055",
     "uploads/audio/000f04c7-ed67-46f9-ba0e-03d7a16b6666.wav": "57d27ee7f89bf54745f069b0bcee2f61f6a3a228b524aaa2dd6800787fb7372b",
     "uploads/audio/0b63df6c-49db-4d86-bc55-e2a58d3a09f5.wav": "261de6038980b4ccc4428240533434edad8282abc0f9c3a74801517b44347f21",
+    "uploads/audio/1ec07677-48e4-4207-9aee-19452178cc16.wav": "f4a261b53faba6578087b007865cb1b32ff5b869d6f3e51c836b2bb60702f6a0",
     "uploads/audio/31e302b9-b36f-400c-8d81-8cf62ed75db9.wav": "6f9314bc0855f0dec843af711c8b845a57486975cee32d80d5ff36fe1b2a3f54",
     "uploads/audio/5591134f-413f-418f-ab7d-efe28ba45ab5.wav": "7e3968a0306ab09445e279a8601a744724f4c4aa739e6a917f4a9656c5fc4741",
     "uploads/audio/712c0329-f587-48ba-a3ae-627fe71e4abe.wav": "ecceaa8be92eb2889e48fd1f0053131977bbed8cb40bc8cebec7e78cec104ee7",
@@ -274,13 +275,12 @@
     "uploads/audio/7cc5974e-b8fa-4f21-9d7a-d19668eb35c7.wav": "c03e1040f96eb407099b3d7c1d6e867e20c26d13521933b049fe2cf708d61c7d",
     "uploads/audio/8325cb06-86b6-4c98-af59-01978e984878.wav": "6c91df51e175d37eb1a50e5e19dde7b998073481a50b2233cff62ed670b64053",
     "uploads/audio/83b5b997-b49d-4f06-bb48-6783fc51c65a.wav": "ac693178960c8800d9f23f937cacae8e4149a7a6df105d27e47dffd78fb83c92",
-    "uploads/audio/883062f1-99c3-4c85-a0e7-21d47cd5674f.wav": "696bb031402ab793c0fd1e2a1e1ff91c29707a997dc954d2e3da06885dd4f001",
     "uploads/audio/92d1d38b-a476-4ab0-80dd-1cd798437ce1.wav": "696bb031402ab793c0fd1e2a1e1ff91c29707a997dc954d2e3da06885dd4f001",
+    "uploads/audio/948be9d5-9aea-45b9-b0e0-7c0e7553b0ae.wav": "cbcac739f28d77107ab0e55f8d387139a8f9a6f2bdb29784e175a153f7e51ffc",
     "uploads/audio/98c749e2-9dac-46f4-9a32-9d6a3b95e4f3.wav": "e43dcfbe02fedd096f71da8d66964772f3d240a2f42c414d33a4fc67b0975040",
     "uploads/audio/9cadcfeb-71fa-4600-a46e-1ba10f66d5d9.wav": "e5331f866f7efb8f24789b08d24a2f5530724db931ed62082e99d2da0fe3f307",
     "uploads/audio/a4817a5b-8b5d-48a5-95e8-68682719540f.wav": "ac693178960c8800d9f23f937cacae8e4149a7a6df105d27e47dffd78fb83c92",
     "uploads/audio/b4a97e38-032d-4396-a11d-20dbe87248fc.wav": "853c7082af1ecf5c401ed4049a3b034c59d267c7c3f586eafe349c76f964bcab",
-    "uploads/audio/c325d94e-68c9-4488-90c5-b707e675012c.wav": "ff45a0dc4d446d21b94dc2bef657229cc81a4f6a2074d4eb511ea55fa59d6088",
     "uploads/audio/cbc9fb5d-e353-47f1-bc0b-b102f875ee32.wav": "c03e1040f96eb407099b3d7c1d6e867e20c26d13521933b049fe2cf708d61c7d",
     "uploads/audio/ddc3f2ae-7d61-4208-b4de-0c24b35322e4.wav": "37530c2ea1d43af1331568a8dd85a7dc1a0b6bff37a780313da19024238ec074",
     "uploads/audio/e1494519-3987-4966-86df-6f0f0184ba0d.wav": "6da0279beedb9a6476beb60e0998b6a6d9c59aa36494c435d4186a690771990c",

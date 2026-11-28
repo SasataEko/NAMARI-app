@@ -1,3 +1,4 @@
+import {rememberDelivery} from './deliveryReport.js';
 import { assertResearchUpload } from './researchState.js';
 import { directoryConnected } from './directoryProject.js';
 let configPromise;
@@ -38,13 +39,13 @@ export async function sendPending(id){
  while(Date.now()<deadline){
    try{const receipt=await jsonp(config.endpoint,{action:'receipt',submissionId:id},Math.min(10000,Math.max(500,deadline-Date.now())));
    if(receipt.rejected)throw Object.assign(new Error('回答を受け付けられませんでした。問題バージョン・サーバー設定を管理者に確認してください。'),{rejected:true});
-   if(receipt.ok&&receipt.received){writeOutbox(readOutbox().filter(r=>r.id!==id));return {status:'synced'};}
+   if(receipt.ok&&receipt.received){rememberDelivery(item,'synced');writeOutbox(readOutbox().filter(r=>r.id!==id));return {status:'synced'};}
    }catch(e){lastError=e;if(e.rejected)throw e;}
    await new Promise(resolve=>setTimeout(resolve,1000));
  }
  throw lastError||new Error('保存の確認がまだ取れていません。回答は端末に保管され、再送できます。');
 }
-export async function queueAndSend(record,level){
+async function queueAndSendInternal(record,level){
  if(record.visualExperiment||level?.visualExperiment)return {status:'local',visualExperiment:true};
  await assertResearchUpload(record);
  let config;try{config=await collectionConfig();}catch(e){const queue=readOutbox();if(!queue.some(r=>r.id===record.id)){queue.push({...record,levelVersion:null});writeOutbox(queue);}throw e;}if(!config.enabled)return {status:'local'};
@@ -61,7 +62,7 @@ export async function retryPending(record,level){
 }
 export async function cloudAggregate(level,options){
  const config=await collectionConfig();const request=await attachLevelVersion({recordingId:level.recordingId||`${level.id}-recording-v1`},level);
- const result=await jsonp(config.endpoint,{action:'stats',levelId:level.id,recordingId:request.recordingId,levelVersion:request.levelVersion,studyMode:options.studyMode||'test'},config.timeoutMs||30000);
+ const result=await jsonp(config.endpoint,{action:'stats',levelId:level.id,recordingId:request.recordingId,levelVersion:request.levelVersion,studyMode:options.studyMode||'test',viewerId:localStorage.getItem('kotoba-anonymous-participant-v1')||''},config.timeoutMs||30000);
  if(!result.ok)throw new Error('集団データを取得できませんでした');if(result.aggregate?.aggregationPolicy!=='all_submissions_v1')throw new Error('Google Sheets側の更新が必要です。管理者がApps Scriptを再デプロイしてください。');return result.aggregate;
 }
 
@@ -69,4 +70,9 @@ export async function retryAllPending(){
  const rows=[...readOutbox()];let synced=0;
  for(const row of rows){const result=await retryPending(row,{id:row.levelId,recordingId:row.recordingId});if(result.status==='synced')synced++;}
  return synced;
+}
+
+export async function queueAndSend(record,level){
+ try{const result=await queueAndSendInternal(record,level);rememberDelivery(record,result.status);return result;}
+ catch(error){rememberDelivery(record,'pending',error.message);throw error;}
 }

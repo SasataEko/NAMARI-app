@@ -1,0 +1,12 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {normalAccent,accentProgress,accentColor,accentConnections,accentGlyphAngles} from '../src/data/accentBaseline.js';import {linkPitch} from '../src/data/linkedPitch.js';import {tutorials} from '../src/data/tutorials.js';
+test('karada starts LHH independent of HLL, count and colour revert when changed back',()=>{const q=tutorials[1],normal=normalAccent(q),pitch=[...normal];assert.deepEqual(normal,['low','high','high']);assert.equal(accentProgress(q.reading,normal,q.pattern,pitch).total,3);assert.equal(accentProgress(q.reading,normal,q.pattern,pitch).correct,0);pitch[0]='high';assert.equal(accentProgress(q.reading,normal,q.pattern,pitch).correct,1);assert.equal(accentColor(pitch[0],normal[0]),'#e5235b');pitch[0]='low';assert.equal(accentProgress(q.reading,normal,q.pattern,pitch).correct,0);assert.equal(accentColor(pitch[0],normal[0]),'#80bedb');});
+test('linked small-tsu does not count twice and SVG gradients interpolate both endpoint colours',()=>{const reading=['ぱ','い','ろ','っ','と'],normal=normalAccent({reading}),target=linkPitch(reading,['low','low','high','high','low']);assert.deepEqual(normal,['high','low','low','low','low']);assert.deepEqual(accentProgress(reading,normal,target,normal).positions,[0,2]);const svg=accentConnections([0,1],['low','low'],normal,'test');assert.ok(svg.includes('stop-color="#e5235b"'));assert.ok(svg.includes('stop-color="#80bedb"'));assert.ok(svg.includes('gradientUnits="userSpaceOnUse"'));});
+test('current words have reference defaults; explicit per-level normal accent wins',()=>{for(const [word,expected]of [['くすり','LHH'],['きんめだる','LHHLL'],['とおりみち','LHHLL']])assert.equal(normalAccent({reading:[...word]}).map(p=>p==='high'?'H':'L').join(''),expected);assert.deepEqual(normalAccent({reading:['か','ら','だ'],normalAccent:['high','low','low']}),['high','low','low']);});
+test('edited glyph poses stay within ten degrees, stay stable across redraws, and reset on restoring reference pitch',()=>{
+ const normal=['low','high','high'],changed=['high','high','high'];
+ const angles=accentGlyphAngles(changed,normal,normal,[0,0,0],()=>0.75);
+ assert.equal(angles[1],0);assert.equal(angles[2],0);assert.ok(Math.abs(angles[0])>0&&Math.abs(angles[0])<=10);
+ assert.deepEqual(accentGlyphAngles(changed,normal,changed,angles,()=>0),angles);
+ assert.deepEqual(accentGlyphAngles(normal,normal,changed,angles),[0,0,0]);
+ assert.ok(accentGlyphAngles(changed,normal,normal,[0,0,0],()=>0.1)[0]<0);
+});

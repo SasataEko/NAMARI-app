@@ -1,4 +1,4 @@
-import {centerBeatMarker} from './beatMarker.js';
+import {beatMarkerPath} from './beatMarker.js';
 import {loadGlyph} from './loadGlyph.js';
 import {libraryGlyph} from '../data/patternLibrary.js';
 import {assetUrl} from '../data/projectLibrary.js';
@@ -21,7 +21,7 @@ export function decorateSticker(svg,index=0,{aggregate=false}={}){
 }
 export function decorateBeatMarker(span,index){
  const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 100 100');svg.setAttribute('aria-hidden','true');
- const text=document.createElementNS(ns,'text');text.textContent=span.textContent;text.setAttribute('x','50');text.setAttribute('y','50');text.setAttribute('text-anchor','middle');text.setAttribute('dominant-baseline','central');text.setAttribute('font-family','Gothic A1');text.setAttribute('font-size','64');text.setAttribute('font-weight','900');svg.append(text);decorateSticker(svg,index);span.replaceChildren(svg);centerBeatMarker(svg,50,50);
+ svg.append(beatMarkerPath(span.textContent,{x:50,y:50,fontSize:64,drop:span.textContent==='ー'?5:0}));decorateSticker(svg,index);span.replaceChildren(svg);
 }
 export function syncSticker(svg){
  if(!svg?.classList.contains('sticker-glyph'))return;

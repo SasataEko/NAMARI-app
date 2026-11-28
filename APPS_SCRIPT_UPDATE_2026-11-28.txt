@@ -1,0 +1,56 @@
+NAMARI Apps Script 更新说明｜2026-11-28
+
+本次必须更新 Apps Script。GitHub推送只更新网页，不会替你更新 Google Apps Script。
+
+一、需要运行的函数名字
+setup
+注意：没有下划线。
+verifySetup：只检查工作表和关卡清单，结果显示在执行日志。
+setupResearchExtension、setupSurveyExtension：两个单独扩展入口也不带下划线。
+代码中保留 setup_ 等旧别名，仅用于兼容；不用选择这些旧名字。
+
+二、推荐更新方式（整合脚本）
+1. 打开原 Google 表格 → 扩展程序 → Apps Script。
+2. 下载本次提供的 NAMARI-AppsScript-2026-11-28.gs，复制全文。
+3. 在原项目中仅保留一份完整脚本内容：清除原 Code.gs 内容后粘贴整合脚本。
+   如果原项目还留有 Levels、Mode1、Research、Surveys 等独立 .gs 文件，请移除这些重复脚本文件，避免旧同名函数或旧关卡白名单覆盖新版。
+   这只是替换程序文件，不删除 Google 表格或其中的数据。
+4. 保留原“项目设置 → 脚本属性”，包括 SPREADSHEET_ID、SERVER_PEPPER 及既有研究设置，不重新生成或公开已有密钥。
+5. 保存，在函数列表选 setup，运行并完成必要授权。
+6. 运行 verifySetup，查看执行日志：mode1_registry_count 应为19，mode2_registry_count 应为9。
+7. 部署 → 管理部署 → 编辑原Web App → 选择新版本 → 部署。
+   保持原 /exec URL，不需要新建另一个部署，也不必改网页接口URL。
+
+如果更喜欢分文件：更新包内有全部7个 .gs 文件，分别替换同名文件即可，不要同时再粘贴整合脚本。appsscript.json为现有V8权限配置；不用修改Google表格的共享权限。
+
+三、最新关卡范围
+Mode1 项目普通关卡13题，另有3个教程；玩家可玩共16题。
+比上次推送新增“たかまっている”“でています”，并包含项目文件中对“えんぴつけずり”“きんめだる”“とおりみち”“じゅうみん”的修改。
+Mode2 当前可玩8题。
+服务端19/9条注册记录还包括历史/兼容关卡，因此不等于界面可玩数量。
+清单从当前public/content/library.json和实际录音/SVG重新生成，前后端level_id、recording_id、level_version保持一致。
+
+四、初始化会做什么
+只创建缺失的工作表和空表表头，保留现有回答、Audit、表头和附加列。
+如果发现现有表头与预期不一致，会在修改任何表格前报错 HEADER_MISMATCH；请将错误发给开发者，勿手动删除旧表。
+新增 SurveyResponses 逐题保存问卷，ResearchAudit记录原始提交，不覆盖游戏回答表。
+不会自动启用research，不会把test转换成research，不会清空旧数据，不会改变共享权限。
+
+五、本次核查重点
+- test/research严格分开，research仍受已审核说明和有效同意限制。
+- 同一回答UUID重传不重复计数；重复游玩按既有规则保存。
+- 问卷同一体验、模式、题目、版本去重；“判断できない”和未回答不当作数值评分。
+- 问卷发送失败保留本地队列，继续按钮不等回执。
+- Mode2仅公开汇总和不含个人资料的回执，不提供原始回答读取、修改或删除接口。
+- 修正Mode2Summary对撤回同意的过滤，使它与公开统计一致；Raw/Audit保留原始历史。
+- Mode1保留正误、尝试、放弃、反馈；Mode2不增加正确率判断。
+- 真实Google Sheets新问卷写入仍需要你部署新版后，以test模式验收。自动检查使用内存测试表，没有往线上插入虚构参与者记录。
+
+六、如果仍有发送失败
+1. 确认更新的是原 /exec 对应的部署，且选择了“新版本”。
+2. 核对verifySetup中的19/9。
+3. 执行身份用你自己的账户，访问权限保持现有匿名Web App配置。
+4. 打开最新网页，先用test完成一题，检查对应Raw/Mode1Raw及ResearchAudit/SurveyResponses。
+5. 不要为了让玩家提交而公开整个Google表格。
+
+如果某些新题仍只存在浏览器DIY存档，尚未使用“プロジェクトへ保存”，它们不会凭空进入GitHub或脚本。以上数量是本次实际项目文件核对结果。

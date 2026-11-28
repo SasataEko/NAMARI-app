@@ -37,3 +37,35 @@
 
 /* DIY backgrounds below links; glyphs and selectable points above them. */
 .diy-pitch-editor:has([data-builder-pitch])>.pitch-choice-links{z-index:2}.diy-pitch-editor>.diy-pitch-row:has(.accent-dot){z-index:auto}.diy-pitch-editor>.diy-pitch-row:has(.accent-dot)>b,.diy-pitch-editor>.diy-pitch-row:has(.accent-dot)>button{position:relative;z-index:3}
+
+.mode-one-found-count{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;text-align:center;margin:0 0 10px;color:var(--ink)}
+
+.correct-question{display:flex;align-items:center;justify-content:center;gap:6px;margin:16px auto 0;padding:8px;background:transparent;border:0;color:#64635d;font:inherit;font-size:12px;cursor:pointer}.correct-question-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:1px solid currentColor;border-radius:50%;font-size:11px;font-weight:700}.correct-question:disabled{opacity:.6;cursor:default}.correct-question:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+
+/* The same supplied audio icon and playback nodes in every Mode1 chapter. */
+.morph-stage:has(>.m3-audio-rail),.mode-one-audio-stage,.diy-play-card:has(>.m3-audio-rail){position:relative;padding-left:52px;min-height:64px}.mode-one-audio-stage>.m3-audio-rail,.morph-stage>.m3-audio-rail,.diy-play-card>.m3-audio-rail{left:6px;top:50%;width:38px}.morph-stage .m3-audio-button,.mode-one-audio-stage .m3-audio-button,.diy-play-card .m3-audio-button{display:grid;place-items:center;width:38px;height:42px;min-width:38px;min-height:42px;border:1.5px solid transparent;border-radius:12px;padding:7px 3px;background:transparent;cursor:pointer}.morph-stage .m3-audio-button[aria-pressed=true],.mode-one-audio-stage .m3-audio-button[aria-pressed=true],.diy-play-card .m3-audio-button[aria-pressed=true]{background:#ffe7df;border-color:#a63a25}.mode-one-audio[hidden]{display:none!important}
+
+.lesson-answer .pitch-column>b.sticker-label{font-size:clamp(42px,9vw,54px)!important;line-height:1}.lesson-answer .pitch-column>b.sticker-label svg{width:1.05em;height:1.05em;max-width:100%}
+
+.correct-dialog:has(>.m2-journey){overflow:visible}
+
+/* Mode1 reference accent: unchanged blue, deviation rose; shared geometry is untouched. */
+.mode-one-accent .pitch-choice.selected::before{background:var(--accent-state-color)!important;border-color:var(--accent-state-color)!important;box-shadow:0 0 0 1.5px var(--accent-state-color)!important}
+
+
+.mode-one-accent .accent-reference-segment{fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.mode-one-accent .pitch-path{z-index:0}.mode-one-accent .pitch-column{position:relative;z-index:1;background:transparent}
+.mode-one-accent [data-accent-count]{text-align:center;margin:4px 0 8px;font-size:18px;font-weight:800}
+
+.mode-one-accent .pitch-column>b{transform:rotate(var(--accent-glyph-angle,0deg));transform-origin:center center}
+
+/* Mode1 mora keeps the visible word between fixed, centred ink margins. */
+.mode-one-mora .lesson-beat-stage.responsive-word{width:100%;max-width:760px;margin:0 auto;overflow:visible;padding:16px 8px}
+.mode-one-mora .lesson-beat-stage .word-row{width:100%;box-sizing:border-box;justify-content:space-between;align-items:center;padding:0 8px;min-height:calc(var(--word-size,100px) + 20px)}
+.mode-one-mora .lesson-beat-stage .word-row[data-visible-units="1"]{justify-content:center}
+.mode-one-mora .lesson-beat-stage [hidden]{display:none!important}
+.mode-one-mora .lesson-answer.explore-scroll{overflow:visible}
+.mode-one-mora .lesson-beat-stage .lesson-kana-text{display:block;text-align:center}
+.mode-one-mora .beat-choices:empty{display:none}
+/* Slight ink overlap keeps Mode1 consonant/vowel glyphs readable on narrow screens. */
+@media(max-width:600px){.mode-one-characters.static-word .character-button svg{width:calc(100% + 14px);max-width:none;margin-left:-7px}.mode-one-characters.static-word .word-row{padding-inline:8px;box-sizing:border-box;gap:0}}

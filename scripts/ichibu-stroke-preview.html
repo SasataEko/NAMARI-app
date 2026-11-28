@@ -1,0 +1,10 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>いちぶ・筆画Morph確認（送信なし）</title><div id="app"><main class="page-shell"><h1>いちぶ</h1><p>筆画ごとの変形・表示確認（記録しない）</p><div class="character-row" data-word></div><button class="judge-button" data-play>変形をもう一度見る</button></main></div><script type="module">
+import '/src/style.css';import '/src/glyph/sticker.css';import {loadGlyph} from '/src/glyph/loadGlyph.js';import {decorateSticker} from '/src/glyph/sticker.js';import {animateMorph} from '/src/glyph/morph.js';import {ichibuMorphOptions} from '/src/glyph/ichibuStrokeMap.js';
+(async()=>{
+
+const ns='http://www.w3.org/2000/svg',word=document.querySelector('[data-word]'),glyphs=await Promise.all(['i','chi','bu'].map(n=>loadGlyph('/NAMARI-app/assets/normal/'+n+'.svg'))),target=await loadGlyph('/NAMARI-app/assets/namari/pattern-U/bu-NM-morph.svg');let cancel;
+for(const [i,g]of glyphs.entries()){const b=document.createElement('div');b.className='character-button';const s=document.createElementNS(ns,'svg');s.classList.add('character-svg');s.setAttribute('viewBox',g.viewBox);for(const shape of g.shapes){const p=document.createElementNS(ns,'path');p.setAttribute('d',shape.d);s.append(p);}b.append(s);word.append(b);decorateSticker(s,i);}
+const svg=word.children[2].querySelector('svg'),source=[...svg.querySelectorAll(':scope>path')],options=ichibuMorphOptions({word:'いちぶ'},{text:'ぶ',pattern:{id:'pattern-u-bu'}});document.querySelector('[data-play]').onclick=()=>{cancel?.();cancel=animateMorph(source,glyphs[2].shapes.map(s=>s.d),target.shapes.map(s=>s.d),1800,()=>{},options);};
+
+})().catch(error=>{const status=document.querySelector("#status");if(status)status.textContent=error.message;console.error(error);});
+</script>

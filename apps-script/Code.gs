@@ -3,14 +3,35 @@ var RAW_HEADERS_=['submission_id','received_at','participant_id','study_mode','r
 var RULES_={version:'2026-11-11-v1',minResponseMs:1500,maxResponseMs:3600000,minListenedMs:500,excludeFlags:['invalid_response','audio_not_played','too_fast','insufficient_listening','control_trial','diagnostic'],includeSkipped:true,includeUncertain:true};
 function spreadsheet_(){var id=PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');if(!id)throw new Error('OWNER_SETUP_REQUIRED');return SpreadsheetApp.openById(id);}
 function sheet_(name){var s=spreadsheet_().getSheetByName(name);if(!s)throw new Error('OWNER_SETUP_REQUIRED');return s;}
-function setup_(){
- var props=PropertiesService.getScriptProperties();if(!props.getProperty('SERVER_PEPPER'))props.setProperty('SERVER_PEPPER',Utilities.getUuid()+Utilities.getUuid());
- var ss=spreadsheet_();['Raw','Audit'].forEach(function(name){var s=ss.getSheetByName(name)||ss.insertSheet(name);if(!s.getLastRow()){s.appendRow(RAW_HEADERS_);s.setFrozenRows(1);s.getRange(1,1,1,RAW_HEADERS_.length).setFontWeight('bold');}});
- ['Raw','Audit'].forEach(function(name){sheet_(name).getRange(1,1,1,RAW_HEADERS_.length).setValues([RAW_HEADERS_]);});
- if(typeof mode1Setup_==='function'){mode1Setup_();mode2SummarySetup_();}
- var ids=ss.getSheetByName('_Identities')||ss.insertSheet('_Identities');if(!ids.getLastRow())ids.appendRow(['participant_id','key_hash']);
- // Do not change sharing here: confirm General access = Restricted in Google Sheets.
+// Owner editor entry points have no trailing underscore. Internal compatibility aliases remain private.
+function setupSpecs_(){
+ var specs={Raw:RAW_HEADERS_,Audit:RAW_HEADERS_,_Identities:['participant_id','key_hash']};
+ if(typeof MODE1_HEADERS_!=='undefined'){
+  specs.Mode1Raw=MODE1_HEADERS_;specs.Mode1Audit=MODE1_HEADERS_;
+  specs.Mode1Summary=['study_mode','recording_id','level_id','level_version','participants','completed','completion_rate','attempts','correct','errors','accuracy','first_attempt_accuracy','unclear_feedback_count','unclear_feedback_rate','updated_at'];
+  specs.Mode2Summary=['study_mode','recording_id','level_id','level_version','participants','completed','skipped','completion_rate','accuracy','error_count','updated_at'];
+ }
+ if(typeof RESEARCH_HEADERS_!=='undefined')Object.keys(RESEARCH_HEADERS_).forEach(function(name){specs[name]=RESEARCH_HEADERS_[name];});
+ if(typeof SURVEY_HEADERS_!=='undefined')specs.SurveyResponses=SURVEY_HEADERS_;
+ return specs;
 }
+function validateSetupHeaders_(ss,specs){
+ Object.keys(specs).forEach(function(name){var s=ss.getSheetByName(name);if(!s||!s.getLastRow())return;var actual=s.getDataRange().getValues()[0],expected=specs[name];if(JSON.stringify(actual.slice(0,expected.length))!==JSON.stringify(expected))throw new Error('HEADER_MISMATCH:'+name+'; existing cells were not changed');});
+}
+function setup(){
+ var ss=spreadsheet_(),specs=setupSpecs_();validateSetupHeaders_(ss,specs);
+ // Preflight every existing header before any sheet/property mutation; never rewrite populated headers.
+ var props=PropertiesService.getScriptProperties();if(!props.getProperty('SERVER_PEPPER'))props.setProperty('SERVER_PEPPER',Utilities.getUuid()+Utilities.getUuid());
+ Object.keys(specs).forEach(function(name){var s=ss.getSheetByName(name)||ss.insertSheet(name);if(!s.getLastRow()){s.appendRow(specs[name]);s.setFrozenRows(1);}});
+ return verifySetup();
+}
+function verifySetup(){
+ var ss=spreadsheet_(),specs=setupSpecs_();validateSetupHeaders_(ss,specs);
+ var missing=Object.keys(specs).filter(function(name){var s=ss.getSheetByName(name);return !s||!s.getLastRow();});if(missing.length)throw new Error('SETUP_REQUIRED:'+missing.join(','));
+ var report={ok:true,mode1_registry_count:typeof MODE1_MANIFEST==='undefined'?0:MODE1_MANIFEST.length,mode2_registry_count:typeof LEVEL_MANIFEST==='undefined'?0:LEVEL_MANIFEST.length,sheets:Object.keys(specs),research_enabled:typeof researchEnabled_==='function'?researchEnabled_():false};
+ console.log(JSON.stringify(report));return report;
+}
+function setup_(){return setup();}
 function rows_(name){var data=sheet_(name).getDataRange().getValues();return data.slice(1).filter(function(r){return r[0];});}
 function hex_(bytes){return bytes.map(function(b){return ('0'+((b+256)%256).toString(16)).slice(-2);}).join('');}
 function hash_(value){return hex_(Utilities.computeHmacSha256Signature(value,PropertiesService.getScriptProperties().getProperty('SERVER_PEPPER')));}
@@ -53,7 +74,7 @@ function stats_(q){
  var values=Object.keys(latest).map(function(k){return latest[k];}).filter(function(p){return (p.studyMode!=='research'||(typeof hasResearchConsent_==='function'&&hasResearchConsent_(p)))&&p.qualityRulesVersion===RULES_.version&&!flags_(p,l).some(function(f){return RULES_.excludeFlags.includes(f);})&&(RULES_.includeSkipped||!p.skipped)&&(RULES_.includeUncertain||p.answerStatus!=='uncertain');});
  var count=values.length,participantIds={};values.forEach(function(p){participantIds[p.participantId]=true;});var participantCount=Object.keys(participantIds).length; // Mode2 may show an aggregate from one eligible participant, including self.
  if(count<1)return {count:count,participantCount:participantCount,aggregationPolicy:'all_submissions_v1',suppressed:true,source:'google-sheets',aggregation:'mean'};
- var g={count:count,participantCount:participantCount,aggregationPolicy:'all_submissions_v1',source:'google-sheets',aggregation:'mean',features:[],pattern:[],noticed:[],noticedRates:[],unspecifiedRates:[],intensity:[],featureRates:[],pitch:[],beats:[],omissionRates:[],blanks:[]};
+ var g={count:count,participantCount:participantCount,aggregationPolicy:'all_submissions_v1',source:'google-sheets',aggregation:'mean',otherAnswersAvailable:values.some(function(p){return p.participantId!==q.viewerId;}),features:[],pattern:[],noticed:[],noticedRates:[],unspecifiedRates:[],intensity:[],featureRates:[],pitch:[],beats:[],omissionRates:[],blanks:[]};
  var avg=function(fn){return values.reduce(function(sum,p){return sum+fn(p);},0)/count;};
  l.characters.forEach(function(c,i){var rates={};c.patterns.forEach(function(id){rates[id]=avg(function(p){return !p.skipped&&p.pattern[i]===id?1:0;});});g.features.push(null);g.pattern.push(null);g.featureRates.push(rates);g.intensity.push(Object.keys(rates).reduce(function(sum,k){return sum+rates[k];},0));var noticed=avg(function(p){return !p.skipped&&p.noticed[i]?1:0;});g.noticed.push(noticed>0);g.noticedRates.push(noticed);g.unspecifiedRates.push(avg(function(p){return !p.skipped&&p.noticed[i]&&p.pattern[i]===null?1:0;}));g.pitch.push(avg(function(p){return (p.skipped?l.defaultAccent[i]:p.pitch[i])==='high'?1:0;}));g.beats.push(avg(function(p){return p.skipped?1:p.beats[i];}));g.omissionRates.push(avg(function(p){return !p.skipped&&p.beats[i]===0?1:0;}));if(i<l.characters.length-1)g.blanks.push(avg(function(p){return !p.skipped&&p.blanks[i]?1:0;}));});return typeof mode2VisualStats_==='function'?mode2VisualStats_(g,values,l):g;
 }

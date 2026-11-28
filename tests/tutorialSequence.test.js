@@ -5,9 +5,9 @@ import {createModeOneSession} from '../src/data/modeOneStats.js';
 import {tutorials,tutorialDefinition} from '../src/data/tutorials.js';
 import {tutorialMetadata} from '../src/data/researchState.js';
 const memory=new Map();globalThis.localStorage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)};globalThis.fetch=async()=>({ok:true,json:async()=>({enabled:false})});
-test('Mode2 starts with the curriculum tutorial and kusuri, with only one curriculum tile',async()=>{
+test('Mode2 starts with ordinary curriculum and kusuri, with no guided tutorial tile',async()=>{
  const library=JSON.parse(await fs.readFile('public/content/library.json','utf8')),levels=orderedModeTwoLevels(library),source=library.levels.find(l=>l.word==='かりきゅらむ');
- assert.equal(levels[0].id,'tutorial-mode2-curriculum');assert.equal(levels[0].tutorial,true);assert.equal(levels[0].word,'かりきゅらむ');assert.equal(levels[1].word,'くすり');assert.equal(levels.filter(l=>l.word==='かりきゅらむ').length,1);assert.equal(levels.some(l=>l.id===source.id),false);
+ assert.equal(levels[0].id,source.id);assert.ok(!levels[0].tutorial);assert.equal(levels[0].word,'かりきゅらむ');assert.equal(levels[1].word,'くすり');assert.equal(levels.filter(l=>l.word==='かりきゅらむ').length,1);assert.equal(levels.filter(l=>l.id===source.id).length,1);
  assert.equal(levels.length,library.levels.length+1);assert.equal(source.id,library.levels.find(l=>l.word==='かりきゅらむ').id);
 });
 test('a catalogue without the tutorial source still exposes its ordinary levels',()=>{const levels=orderedModeTwoLevels({glyphs:[],groups:[],levels:[]});assert.equal(levels[0].word,'くすり');assert.equal(levels.some(l=>l.tutorial),false);});

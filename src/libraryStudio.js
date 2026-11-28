@@ -1,10 +1,11 @@
+import {kanaColumn,findKanaGlyphs,normalizeKanaSearch} from './data/librarySearch.js';
 import {decorateCardImages} from './glyph/cardGlyphPreview.js';
 import {mountModeOneAuthor} from './modeOneAuthor.js';
 import {modeTwoAuthorQuestions,upsertModeOneQuestion} from './data/authorQuestions.js';
-import {listDiyQuestions,saveDiyQuestion,reviseDiyQuestion} from './data/diyStore.js';
+import {listDiyQuestions,saveDiyQuestion,reviseDiyQuestion,deleteDiyQuestion,restoreDiyQuestion} from './data/diyStore.js';
 import {linkedMora,linkPitch} from './data/linkedPitch.js';
 import {confirmQuestionDeletion} from './authorConfirmation.js';
-import {archiveLevel,restoreLevel} from './data/levelManagement.js';
+import {archiveLevel,restoreLevel,archiveModeOneLevel,restoreModeOneLevel} from './data/levelManagement.js';
 import { normalizePatternFolders, remapDraftAssets } from './data/assetOrganization.js';
 import { connectDirectory, disconnectDirectory, directoryConnected, directoryName } from './data/directoryProject.js';
 import { readLibrary,writeLibrary,uploadAsset,assetUrl } from './data/projectLibrary.js';
@@ -20,12 +21,23 @@ function grid(){return `<div class="kana-grid">${rows.map(row=>(Array.isArray(ro
 function cards(library,items){return items.map(({glyph,pattern})=>{const group=library.groups.find(g=>g.id===pattern.groupId);return `<article class="library-pattern" style="background:${/^#[0-9a-f]{6}$/i.test(group?.color)?group.color:'#ffe08b'}">${image(pattern.svg,glyph.kana+' '+pattern.title)}<b>${esc(glyph.kana)} · ${esc(pattern.title)}</b><p>${esc(pattern.description)}</p></article>`;}).join('');}
 export async function mountLibrary(root){
  root.innerHTML='<p>図鑑を読み込み中…</p>';
- try{const library=await readLibrary();if(!root.isConnected)return;let mode='kana',selected='あ',groupId=library.groups[0]?.id;
- const render=()=>{
+ try{const library=await readLibrary();if(!root.isConnected)return;let mode='kana',selected='あ',column='あ',query='',groupId=library.groups[0]?.id;
  const items=library.glyphs.flatMap(g=>g.patterns.map(p=>({glyph:g,pattern:p})));
- root.innerHTML=`<section class="library-intro"><p class="eyebrow">SOUND PATTERN LIBRARY</p><h1>訛りのかたち図鑑</h1><div class="library-tabs"><button data-view="kana" aria-pressed="${mode==='kana'}">五十音から探す</button><button data-view="pattern" aria-pressed="${mode==='pattern'}">発音パターンから探す</button></div></section>${mode==='kana'?grid():`<div class="pattern-folders">${library.groups.map(g=>`<button data-group-pick="${esc(g.id)}" aria-pressed="${g.id===groupId}">▱ ${esc(g.title)} <small>${items.filter(x=>x.pattern.groupId===g.id).length} 字形</small></button>`).join('')||'<p>発音パターンを開発者モードで追加できます。</p>'}</div>`}<h2>${esc(mode==='kana'?selected:library.groups.find(g=>g.id===groupId)?.title||'発音パターン')}</h2><div class="library-card-grid">${cards(library,items.filter(x=>mode==='kana'?x.glyph.kana===selected:x.pattern.groupId===groupId))||'<p>この文字のパターンはまだ登録されていません。</p>'}</div>`;
- decorateCardImages(root);root.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{mode=b.dataset.view;render();});root.querySelectorAll('[data-kana-pick]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.kanaPick===selected));b.onclick=()=>{selected=b.dataset.kanaPick;render();};});root.querySelectorAll('[data-group-pick]').forEach(b=>b.onclick=()=>{groupId=b.dataset.groupPick;render();});
- };render();}catch(e){root.textContent=e.message;}
+ function results(){
+  const matches=query?findKanaGlyphs(library.glyphs,query):library.glyphs.filter(g=>g.kana===selected),keys=new Set(matches.map(g=>g.kana));
+  const found=items.filter(x=>mode==='kana'?keys.has(x.glyph.kana):x.pattern.groupId===groupId),heading=root.querySelector('[data-result-heading]'),area=root.querySelector('[data-library-results]');
+  heading.textContent=mode==='pattern'?(library.groups.find(g=>g.id===groupId)?.title||'パターン'):query?'「'+normalizeKanaSearch(query)+'」の検索結果':selected?'「'+selected+'」のパターン':'文字を選んでね';
+  area.innerHTML=cards(library,found)||(mode==='kana'&&!query&&!selected?'':mode==='kana'&&query&&!matches.length?'<p>この文字は見つからなかったよ。</p>':'<p>この文字のパターンはまだ登録されていません。</p>');decorateCardImages(area);
+ }
+ function render(){
+ const choices=library.glyphs.filter(g=>kanaColumn(g.kana)===column);
+ root.innerHTML=`<section class="library-intro"><p class="eyebrow">SOUND PATTERN LIBRARY</p><h1>訛りのかたち図鑑</h1><div class="library-tabs"><button data-view="kana" aria-pressed="${mode==='kana'}">かな</button><button data-view="pattern" aria-pressed="${mode==='pattern'}">パターン</button></div></section>${mode==='kana'?`<section class="library-search"><label for="library-kana-search">かなで検索</label><div class="library-search-row"><input id="library-kana-search" type="search" placeholder="例：く、ぎょ" autocomplete="off" value="${esc(query)}"><button type="button" data-search-clear>クリア</button></div><div class="library-vowels" aria-label="母音の列を選ぶ">${['あ','い','う','え','お','その他'].map(k=>`<button type="button" data-column="${k}" aria-pressed="${column===k}">${k}</button>`).join('')}</div><div class="library-kana-options" aria-label="文字を選ぶ">${choices.map(g=>`<button type="button" data-kana-pick="${esc(g.kana)}" aria-pressed="${g.kana===selected&&!query}">${esc(g.kana)}</button>`).join('')}</div></section>`:`<div class="pattern-folders">${library.groups.map(g=>`<button data-group-pick="${esc(g.id)}" aria-pressed="${g.id===groupId}">▱ ${esc(g.title)} <small>${items.filter(x=>x.pattern.groupId===g.id).length} 字形</small></button>`).join('')}</div>`}<h2 class="library-results-heading" data-result-heading></h2><div class="library-card-grid" data-library-results aria-live="polite"></div>`;
+ root.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{mode=b.dataset.view;render();});
+ root.querySelectorAll('[data-column]').forEach(b=>b.onclick=()=>{column=b.dataset.column;selected=null;query='';render();});
+ root.querySelectorAll('[data-kana-pick]').forEach(b=>b.onclick=()=>{selected=b.dataset.kanaPick;query='';render();root.querySelector('[data-library-results]').scrollIntoView({block:'nearest',behavior:'smooth'});});
+ root.querySelectorAll('[data-group-pick]').forEach(b=>b.onclick=()=>{groupId=b.dataset.groupPick;render();});
+ const input=root.querySelector('#library-kana-search');if(input){const search=()=>{query=input.value;root.querySelectorAll('[data-kana-pick]').forEach(b=>b.setAttribute('aria-pressed','false'));results();};input.oninput=event=>{if(!event.isComposing)search();};input.oncompositionend=search;root.querySelector('[data-search-clear]').onclick=()=>{query='';input.value='';selected=null;results();input.focus();};}results();
+ }render();}catch(e){root.textContent=e.message;}
 }
 export async function mountAuthor(root){
  root.innerHTML='<p>プロジェクトを読み込んでいます…</p>';
@@ -72,7 +84,13 @@ export async function mountAuthor(root){
  const draft=normalizePatternFolders(library.groups);const draw=()=>{body.querySelector('[data-groups]').innerHTML=draft.map((g,i)=>`<fieldset data-group-index="${i}"><label>名称<input data-group-title value="${esc(g.title)}" required></label><label>保存フォルダー名（英字）<input data-group-folder value="${esc(g.folderName)}" placeholder="pattern-U" pattern="[A-Za-z][A-Za-z0-9_-]{0,63}" maxlength="64" required><small>保存先：assets/namari/${esc(g.folderName)} ／ 英数字・ハイフン・アンダースコア</small></label><label>説明<input data-group-description value="${esc(g.description)}"></label><label>カードの色<input type="color" data-group-color value="${esc(g.color)}"></label></fieldset>`).join('');body.querySelectorAll('[data-group-index]').forEach(row=>{const g=draft[Number(row.dataset.groupIndex)];row.querySelector('[data-group-title]').oninput=e=>g.title=e.target.value;row.querySelector('[data-group-folder]').oninput=e=>g.folderName=e.target.value;row.querySelector('[data-group-description]').oninput=e=>g.description=e.target.value;row.querySelector('[data-group-color]').oninput=e=>g.color=e.target.value;});};draw();body.querySelector('[data-add-group]').onclick=()=>{draft.push({id:uid(),title:'',folderName:'pattern-'+(draft.length+1),description:'',color:'#ffe08b'});draw();};body.querySelector('form').onsubmit=async e=>{e.preventDefault();try{library.groups=normalizePatternFolders(draft);await commit();render();message('グループと保存フォルダーを保存しました。');}catch(e){message(e.message);}};
  }
  function oneEditor(){
-  disposeOne=mountModeOneAuthor(root.querySelector('[data-editor-body]'),{library,locals:localQuestions,initialId:editingOne,onUpload:uploading,onError:message,onSave:async draft=>{
+  disposeOne=mountModeOneAuthor(root.querySelector('[data-editor-body]'),{library,locals:localQuestions,initialId:editingOne,onUpload:uploading,onError:message,onDelete:async question=>{
+   if(savingLevel||!await confirmQuestionDeletion(question.word))return;savingLevel=true;const previous=library;
+   try{library=archiveModeOneLevel(library,question);await commit();if(localQuestions.some(q=>q.id===question.id)){try{await deleteDiyQuestion(question.id);}catch{}}localQuestions=await listDiyQuestions();editingOne=null;render();message('問題を削除しました。下の一覧から復元できます。');}catch(e){library=previous;message(e.message);}finally{savingLevel=false;}
+  },onRestore:async id=>{
+   if(savingLevel)return;savingLevel=true;const previous=library;
+   try{const deleted=await listDiyQuestions({deleted:true}),record=library.archivedModeOneLevels.find(q=>q.id===id);if(record?.localOnly&&!deleted.some(q=>q.id===id))throw Error('このブラウザーに元のDIY問題がありません。作成したブラウザーで復元してください。');if(deleted.some(q=>q.id===id))await restoreDiyQuestion(id);library=restoreModeOneLevel(library,id);await commit();localQuestions=await listDiyQuestions();editingOne=id;render();message('問題を復元しました。');}catch(e){library=previous;message(e.message);}finally{savingLevel=false;}
+  },onSave:async draft=>{
    if(savingLevel)return;savingLevel=true;const previous=library;let committed=false;
    root.querySelectorAll('button').forEach(b=>b.disabled=true);
    try{

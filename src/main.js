@@ -1,3 +1,10 @@
+import {showSurvey,showModeOneOverallIfDue} from './surveyUI.js';
+import {surveySession,updateSurveySession} from './data/surveySession.js';
+import {chapterFinished} from './data/surveyConfig.js';
+import {mountCompactAudio} from './compactAudio.js';
+import {nextModeOneChapter,modeOneChapterLabel} from './data/modeOneChapterFlow.js';
+import {startLevelAudio} from './levelAudio.js';
+import {mountDeliverySettings} from './deliverySettings.js';
 import {decorateCardImages} from './glyph/cardGlyphPreview.js';
 import {stickerPalette} from './glyph/sticker.js';
 import {wrapStaticWord} from './wordLayout.js';
@@ -45,7 +52,7 @@ installPitchConnections(app);
 const level = levels[0];
 let sharedLibrary=null;
 let activeTutorial=null;
-let disposeModeOne=null;
+let disposeModeOne=null;const legacyAutoplaySessions=new WeakSet();let disposeLegacyAutoplay=null,disposeLegacyCompact=null;
 let modeOneCurrentId=null;
 let legacyModeOneStats=null,legacyModeOneScreen=null;
 let modeOneStudyMode=localStorage.getItem('kotoba-mode1-study-mode')==='research'?'research':'test';
@@ -60,7 +67,8 @@ let activeProfileId = localStorage.getItem('kotoba-active-profile');
 let activeProfile = profiles.find(({ id }) => id === activeProfileId) || null;
 let profileData = activeProfile ? readProfile(activeProfile.id) : null;
 let settings = loadSettings();
-let screen = activeProfile ? 'home' : 'profiles';
+const requestedCollection=new URLSearchParams(location.search).get('view')==='collection';
+let screen = activeProfile ? (requestedCollection?'collection':'home') : 'profiles';
 
 
 let pitchPattern = Array(5).fill(null);
@@ -127,6 +135,7 @@ function profileRecordCount(data = profileData) {
 function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
 function render() {
+  if(!activeProfile)screen='profiles';
   const pages = {
     tutorial: renderTutorial,
     profiles: renderProfiles,
@@ -179,9 +188,10 @@ function bindNav(active) {
 }
 
 function navigate(next) {
+  if(!activeProfile&&next!=='profiles')next='profiles';
   if(legacyModeOneStats&&next!==legacyModeOneScreen){legacyModeOneStats.leave();legacyModeOneStats=null;legacyModeOneScreen=null;}
   app.querySelector('[data-exploration]')?.explorationSession?.dispose?.();
-  disposeModeOne?.();disposeModeOne=null;
+  disposeModeOne?.();disposeModeOne=null;disposeLegacyAutoplay?.();disposeLegacyAutoplay=null;disposeLegacyCompact?.();disposeLegacyCompact=null;
   if (isAnimating && next !== 'vowelChallenge') stopAnimation();
   screen = next;
 
@@ -193,12 +203,13 @@ function navigate(next) {
 }
 
 function renderProfiles() {
-  app.innerHTML = `<main class="page-shell profile-page"><div class="profile-top"><span class="brand-mark">訛</span><span class="serif-label">Learning Profile / SLOT</span></div><section class="profile-intro"><p class="eyebrow">SAVE DATA SELECTION</p><h1>学習プロフィールを<br>選んでください</h1><p>選んだプロフィールごとに、学習状況と図鑑の記録を保存します。<br>チャレンジ内容はどちらも同じです。</p></section><div class="profile-options">${profiles.map((profile) => {
+  app.innerHTML = `<main class="page-shell profile-page">${activeProfile?'<button class="title-return" data-back="home">← メインメニューへ戻る</button>':''}<div class="profile-top"><span class="brand-mark">訛</span><span class="serif-label">Learning Profile / SLOT</span></div><section class="profile-intro"><p class="eyebrow">SAVE DATA SELECTION</p><h1>学習プロフィールを<br>選んでください</h1><p>選んだプロフィールごとに、学習状況と図鑑の記録を保存します。<br>チャレンジ内容はどちらも同じです。</p></section><div class="profile-options">${profiles.map((profile) => {
     const data = readProfile(profile.id);
     const done = profileRecordCount(data);
     const chosen = profile.id === activeProfileId;
     return `<button class="profile-option ${chosen ? 'selected' : ''}" data-select-profile="${profile.id}"><span class="profile-initial">${profile.initial}</span><span class="profile-option-check">${chosen ? '✓' : '↗'}</span><b>${profile.name}</b><small>${profile.slot}</small><span class="profile-progress-label">${done ? `${done} RECORD${done > 1 ? 'S' : ''}` : 'NEW PROFILE'}<span>図鑑 ${currentCards().filter(c=>data.collectedCards?.includes(c.id)).length}/${currentCards().length}</span></span><span class="progress-track"><i style="width:${Math.min(done * 18, 100)}%"></i></span></button>`;
   }).join('')}</div><p class="profile-note">いつでも右上のプロフィールボタンから切り替えられます。</p></main>`;
+  const returnHome=app.querySelector('[data-back="home"]');if(returnHome)returnHome.onclick=()=>navigate('home');
   app.querySelectorAll('[data-select-profile]').forEach((button) => button.addEventListener('click', () => {
     activeProfileId = button.dataset.selectProfile;
     activeProfile = profiles.find(({ id }) => id === activeProfileId);
@@ -206,7 +217,7 @@ function renderProfiles() {
     localStorage.setItem('kotoba-active-profile', activeProfileId);
     profileRecords[activeProfileId] ||= profileData;
     persistProfile();
-    screen = 'home';
+    screen = requestedCollection ? 'collection' : 'home';
     render();
     scrollTop();
   }));
@@ -243,7 +254,7 @@ function renderChallengeSelect() {
     ['accent', '高低', 'アクセント篇', '音の高低を組み立てよう', 'チュートリアル　からだ'],
     ['mora', '拍', 'モーラ篇', 'ことばのリズムに注目しよう', 'チュートリアル　らんぷ'],
   ];
-  app.innerHTML = `<main class="page-shell challenge-select-page">${profileHeader()}<section class="category-intro"><button class="back-circle" data-back="home" aria-label="ホームへ戻る">←</button><div><p class="eyebrow">CHOOSE A CHALLENGE</p><h1>どの篇に挑戦しますか？</h1><p>このモードでは、各問題にあらかじめ正解が設定されています。まずはチュートリアルで操作を試してみよう。</p><button class="text-action" data-mode1-info>モードの説明をもう一度見る</button></div></section><div class="challenge-categories">${categories.map(([route, icon, title, description, lesson]) => `<button class="challenge-category category-${route}" data-open-challenge="${route}"><span class="category-icon">${icon}</span><span class="category-copy"><small>CHALLENGE</small><b>${title}</b><span>${description}</span><em>${lesson}</em></span><span class="category-arrow">↗</span></button>`).join('')}</div>${bottomNav('')}</main>`;
+  app.innerHTML = `<main class="page-shell challenge-select-page">${profileHeader()}<section class="category-intro"><button class="back-circle" data-back="home" aria-label="ホームへ戻る">←</button><div><p class="eyebrow">CHOOSE A CHALLENGE</p><h1>どれに挑戦する？</h1><button class="text-action" data-mode1-info>モードの説明をもう一度見る</button></div></section><div class="challenge-categories">${categories.map(([route, icon, title, description, lesson]) => `<button class="challenge-category category-${route}" data-open-challenge="${route}"><span class="category-icon">${icon}</span><span class="category-copy"><small>CHALLENGE</small><b>${title}</b><span>${description}</span><em>${lesson}</em></span><span class="category-arrow">↗</span></button>`).join('')}</div>${bottomNav('')}</main>`;
   bindNav('');
   app.querySelector('[data-mode1-info]').onclick=()=>showModeIntro('mode1',{force:true});
   app.querySelectorAll('[data-open-challenge]').forEach((button) => button.addEventListener('click', () => {
@@ -261,7 +272,7 @@ const chapterTitles = {
 function chapterItems(chapter=challengeChapter){
  const base=tutorials.find(q=>q.chapter===chapter);const tutorial={...base,...sharedLibrary?.modeOneLevels?.find(q=>q.id===base.id),tutorial:true};
  const built=[{id:tutorial.id,word:tutorial.word,summary:'チュートリアル · 録音を聞いて操作を練習',tutorial}];
- return [...built,...mergeModeOneQuestions(sharedLibrary||{},diyQuestions,diyDeletedQuestions).filter(q=>!q.tutorial).filter(q=>q.chapter===chapter||(!q.chapter&&q.mode===({vowelChallenge:'diyVowel',accent:'diyAccent',mora:'diyMora'}[chapter]))).map(question=>({id:question.id,word:question.word,summary:'DIYで作成した問題',question}))];
+ return [...built,...mergeModeOneQuestions(sharedLibrary||{},diyQuestions,diyDeletedQuestions).filter(q=>!q.tutorial).filter(q=>q.chapter===chapter||(!q.chapter&&q.mode===({vowelChallenge:'diyVowel',accent:'diyAccent',mora:'diyMora'}[chapter]))).map(question=>({id:question.id,word:question.word,question}))];
 }
 async function openChapterItem(item){
  if(!item.tutorial&&modeOneStudyMode==='research'&&!await ensureParticipation('research'))return;
@@ -277,23 +288,32 @@ async function openChapterItem(item){
 }
 function startLegacyModeOne(question,route){
  if(question.mode==='diyAccent')question={...question,pattern:linkPitch(question.reading,question.pattern)};
- if(question.mode==='diyMora')return;
+ if(['diyMora','diyAccent'].includes(question.mode))return;
  const scoringDefinition=question.pattern?.length?{scoring:'pattern',characters:question.reading.map(text=>({text})),pitch:question.pattern,...(question.mode==='diyMora'?{longAfter:question.longAfter,blankAfter:question.blankAfter}:{})}:{scoring:'none',characters:question.reading.map(text=>({text}))};
  legacyModeOneScreen=route;legacyModeOneStats=createModeOneSession({...question,scoringDefinition},{profileId:activeProfileId,studyMode:modeOneStudyMode});
 }
 function attachLegacyModeOneStatus(){if(!legacyModeOneStats)return;const area=document.createElement('section');area.className='mode-one-sync';const label=document.createElement('small');label.textContent='Mode1 · '+(modeOneStudyMode==='research'?'研究参加':'お試し');const note=document.createElement('p');note.setAttribute('role','status');const retry=document.createElement('button');retry.className='text-action';retry.hidden=true;retry.textContent='未送信の記録を再送';retry.onclick=()=>legacyModeOneStats?.retry();area.append(label,note,retry);app.querySelector('main').append(area);legacyModeOneStats.setListener(s=>{if(area.isConnected){note.textContent=s.text;retry.hidden=s.status!=='pending';}});}
 
-async function advanceModeOne(){const next=nextChapterItem(chapterItems(),modeOneCurrentId);if(next)openChapterItem(next);else{await chapterRating({gameMode:'mode1',chapter:challengeChapter,studyMode:modeOneStudyMode});navigate('home');}}
+async function advanceModeOne(){
+ const items=chapterItems(),state=surveySession(modeOneStudyMode),normal=items.filter(i=>!i.tutorial),required=(normal.length?normal:items).map(i=>i.id);
+ if(chapterFinished(required,state.completed)){
+  updateSurveySession(modeOneStudyMode,s=>{s.chapters[challengeChapter]=true;});await showSurvey({gameMode:'mode1',chapter:challengeChapter,studyMode:modeOneStudyMode});await showModeOneOverallIfDue(modeOneStudyMode);
+  const done=surveySession(modeOneStudyMode).chapters,following=[nextModeOneChapter(challengeChapter),'vowelChallenge','accent','mora'].find(c=>c&&!done[c]);
+  if(following){challengeChapter=following;await openChapterItem(chapterItems()[0]);}else navigate('home');return;
+ }
+ const next=nextChapterItem(items,modeOneCurrentId);if(next)await openChapterItem(next);else navigate('chapterLevels');
+ }
+
 function appendModeOneNext(enabled){
  attachLegacyModeOneStatus();
  if(screen==='diyPlay'&&customPlayReturnScreen!=='chapterLevels')return;
- const next=nextChapterItem(chapterItems(),modeOneCurrentId);const area=document.createElement('div');area.className='mode-one-next';const button=document.createElement('button');button.className='judge-button';button.disabled=!enabled;button.textContent=next?'次の問題へ：'+next.word+' →':'おめでとう、全問クリア！';button.onclick=advanceModeOne;area.append(button);app.querySelector('main').append(area);
+ const next=nextChapterItem(chapterItems(),modeOneCurrentId);const area=document.createElement('div');area.className='mode-one-next';const button=document.createElement('button');button.className='judge-button';button.disabled=!enabled;button.textContent=next?'次の問題へ：'+next.word+' →':modeOneChapterLabel(challengeChapter);button.onclick=advanceModeOne;area.append(button);app.querySelector('main').append(area);
 }
 async function renderChapterLevels(){
  const [title]=chapterTitles[challengeChapter]||chapterTitles.vowelChallenge;
  app.innerHTML=`<main class="page-shell challenge-select-page">${profileHeader()}<section class="category-intro"><button class="back-circle" data-back="challenges" aria-label="篇の選択へ戻る">←</button><div><p class="eyebrow">MODE 1</p><h1>${title}</h1><p>挑戦する問題を選んでください。</p><label>データモード <select data-mode1-study><option value="test">お試し</option><option value="research">研究参加</option></select></label></div></section><div class="chapter-level-list" data-chapter-list>読み込み中…</div>${bottomNav('')}</main>`;
  bindNav('');const modeSelect=app.querySelector('[data-mode1-study]');modeSelect.value=modeOneStudyMode;modeSelect.onchange=async()=>{if(modeSelect.value==='research'&&!await ensureParticipation('research')){modeSelect.value=modeOneStudyMode;return;}modeOneStudyMode=modeSelect.value;localStorage.setItem('kotoba-mode1-study-mode',modeOneStudyMode);};const list=app.querySelector('[data-chapter-list]');
- try{[diyQuestions,diyDeletedQuestions]=await Promise.all([listDiyQuestions(),listDiyQuestions({deleted:true})]);await refreshLibrary();if(!list.isConnected)return;const items=chapterItems();list.innerHTML=items.map((item,i)=>`<button class="diy-saved-question chapter-level-card" data-level-index="${i}"><span class="diy-saved-glyph">${String(i+1).padStart(2,'0')}</span><span><b>${escapeHtml(item.word)}</b><small>${escapeHtml(item.summary)}</small></span><i>挑戦 ↗</i></button>`).join('');list.querySelectorAll('[data-level-index]').forEach(b=>b.onclick=()=>openChapterItem(items[Number(b.dataset.levelIndex)]));}catch{list.textContent='問題を読み込めませんでした。もう一度開いてください。';}
+ try{[diyQuestions,diyDeletedQuestions]=await Promise.all([listDiyQuestions(),listDiyQuestions({deleted:true})]);await refreshLibrary();if(!list.isConnected)return;const items=chapterItems();list.innerHTML=items.map((item,i)=>`<button class="diy-saved-question chapter-level-card" data-level-index="${i}"><span class="diy-saved-glyph">${String(i+1).padStart(2,'0')}</span><span><b>${escapeHtml(item.word)}</b>${item.tutorial?'<small>'+escapeHtml(item.summary)+'</small>':''}</span><i>挑戦 ↗</i></button>`).join('');list.querySelectorAll('[data-level-index]').forEach(b=>b.onclick=()=>openChapterItem(items[Number(b.dataset.levelIndex)]));}catch{list.textContent='問題を読み込めませんでした。もう一度開いてください。';}
 }
 
 const accentMorae = ['か', 'り', 'きゅ', 'ら', 'む'];
@@ -339,13 +359,13 @@ function unlockCards(ids) {
 }
 
 function renderCollection() {
-  app.innerHTML=`<main class="page-shell">${profileHeader()}${titleReturn()}${developerModeVisible()?'<button class="text-action" data-nav="developer">図鑑を編集 ↗</button>':''}<div data-library></div>${bottomNav('collection')}</main>`;
+  app.innerHTML=`<main class="page-shell">${profileHeader()}${titleReturn()}${developerModeVisible()?`<div class="library-local-tools"><button type="button" data-nav="developer">図鑑を編集 ↗</button><a href="${import.meta.env.BASE_URL}scripts/all-stroke-preview.html">変化をプレビュー・保存 ↗</a></div>`:''}<div data-library></div>${bottomNav('collection')}</main>`;
   bindNav('collection');mountLibrary(app.querySelector('[data-library]'));
 }
 function renderSettings() {
   app.innerHTML = `<main class="page-shell settings-page">${profileHeader()}${titleReturn()}<section class="page-heading"><p class="eyebrow">PREFERENCES</p><h1>設定</h1><p>プレイ中の音と振動を調整できます。</p></section><section class="settings-panel"><div class="settings-row"><span class="setting-symbol symbol-blue">⌁</span><div><b>振動フィードバック</b><small>間違えた位置を選んだときに軽く振動します</small></div><button class="toggle ${settings.vibration ? 'on' : ''}" role="switch" aria-checked="${settings.vibration}" data-setting="vibration" aria-label="振動フィードバック"><i></i></button></div><div class="settings-row"><span class="setting-symbol symbol-coral">♫</span><div><b>効果音</b><small>正解・不正解の操作音を再生します</small></div><button class="toggle ${settings.sfx ? 'on' : ''}" role="switch" aria-checked="${settings.sfx}" data-setting="sfx" aria-label="効果音"><i></i></button></div><div class="settings-row setting-static"><span class="setting-symbol">◖))</span><div><b>問題の音声</b><small>聞き分け問題の音声はいつでも再生できます</small></div><span class="always-on">ON</span></div></section><section class="settings-profile"><div><p class="eyebrow">CURRENT LEARNING SLOT</p><h2>学習プロフィール</h2><p>進捗はプロフィールごとに別々に保存されます。</p></div><button class="profile-switch" data-action="profiles">${activeProfile.initial}　${activeProfile.name}　↗</button></section><p class="settings-footnote">設定はこの端末に保存されます（端末間の同期なし）。</p>${bottomNav('settings')}</main>`;
   const researchPanel=document.createElement('section');researchPanel.className='study-settings';researchPanel.innerHTML='<h2>研究参加</h2><p>正式参加は確認済みの研究説明への同意後に開始します。</p><p data-anonymous-id></p><button class="outline-button" data-research-info>研究説明と参加設定</button><button class="text-action" data-research-test>説明フローを試す（test）</button><button class="text-action" data-study-forms>評価と感想を試す（test・端末のみ）</button><button class="text-action" data-research-withdraw>研究参加を中止</button>';app.querySelector('main').append(researchPanel);researchPanel.querySelector('[data-anonymous-id]').textContent='匿名ID：'+participantId();researchPanel.querySelector('[data-research-info]').onclick=()=>ensureParticipation('research');researchPanel.querySelector('[data-research-test]').onclick=()=>ensureParticipation('test',{preview:true});researchPanel.querySelector('[data-study-forms]').onclick=async()=>{await chapterRating({gameMode:'mode1',chapter:'preview',studyMode:'test',localPreview:true});await experienceFeedback('test',{localPreview:true});};researchPanel.querySelector('[data-research-withdraw]').onclick=()=>withdrawParticipation();
-  bindNav('settings');
+  mountDeliverySettings(app.querySelector('main'));bindNav('settings');
   app.querySelectorAll('[data-setting]').forEach((button) => button.addEventListener('click', () => {
     const key = button.dataset.setting;
     settings[key] = !settings[key];
@@ -622,10 +642,11 @@ async function renderCustomVowelChallenge(){
 
 function renderDiyPlayer() {
   if (!activeDiyQuestion) { navigate('diy'); return; }
+  disposeLegacyCompact?.();disposeLegacyCompact=null;
   const question = activeDiyQuestion;
   const gaveUp=legacyModeOneStats?.tracker.capture().gaveUp;
-  const openSuccess=()=>{const next=nextChapterItem(chapterItems(),modeOneCurrentId);showCorrectDialog(app.querySelector('main'),{label:customPlayReturnScreen==='chapterLevels'?(next?'次の問題へ：'+next.word+' →':'ホームへ'):'問題一覧へ',onNext:customPlayReturnScreen==='chapterLevels'?advanceModeOne:()=>navigate('diy')});};
-  if(question.mode==='diyMora'){renderRhythmQuestion(question,diyPlaybackUrl,customPlayReturnScreen);return;}
+  const openSuccess=()=>{const next=nextChapterItem(chapterItems(),modeOneCurrentId);showCorrectDialog(app.querySelector('main'),{label:customPlayReturnScreen==='chapterLevels'?(next?'次の問題へ：'+next.word+' →':modeOneChapterLabel(challengeChapter)):'問題一覧へ',onNext:customPlayReturnScreen==='chapterLevels'?advanceModeOne:()=>navigate('diy'),...(legacyModeOneStats?.tracker.capture().completed?{onQuestion:()=>legacyModeOneStats.feedback([]),questionSent:legacyModeOneStats.feedbackSent}:{})});};
+  if(['diyMora','diyAccent'].includes(question.mode)){renderRhythmQuestion(question,diyPlaybackUrl,customPlayReturnScreen);return;}
   if(question.mode==='diyAccent')diyPlayerPattern=linkPitch(question.reading,diyPlayerPattern);
   const isVowelQuestion = question.mode === 'diyVowel';
   const isMoraQuestion = question.mode === 'diyMora';
@@ -634,10 +655,12 @@ function renderDiyPlayer() {
     ? `<p>録音を聴いて、変形する拍を選んでください。</p><div class="diy-play-morae">${question.reading.map((mora, index) => `<button class="diy-play-mora diy-target-choice ${diyPlayerTargetIndex === index ? 'selected' : ''}" data-play-target="${index}"><b>${escapeHtml(mora)}</b><small>第${index + 1}拍</small></button>`).join('')}</div>`
     : `<p>${isMoraQuestion ? '拍ごとの高低、長音、空白拍を設定してください。' : '録音を聴いて、各拍の高低を選んでください。'}</p><div class="diy-play-morae">${question.reading.map((mora, index) => `<div class="diy-play-mora"><b>${escapeHtml(mora)}</b><button class="diy-pitch-option accent-dot ${diyPlayerPattern[index] === 'high' ? 'selected' : ''}" data-play-index="${index}" data-play-pitch="high" ${linkedMora(question.reading,index)?'disabled title="前の拍と連動"':''} aria-label="${escapeHtml(mora)}を高くする" aria-pressed="${diyPlayerPattern[index] === 'high'}"></button><button class="diy-pitch-option accent-dot ${diyPlayerPattern[index] === 'low' ? 'selected' : ''}" data-play-index="${index}" data-play-pitch="low" ${linkedMora(question.reading,index)?'disabled title="前の拍と連動"':''} aria-label="${escapeHtml(mora)}を低くする" aria-pressed="${diyPlayerPattern[index] === 'low'}"></button>${isMoraQuestion && index < question.reading.length - 1 ? `<button class="mora-config-option ${diyPlayerLongAfter[index] ? 'enabled' : ''}" data-play-long="${index}">長音</button>` : ''}${isMoraQuestion ? `<button class="mora-config-option ${diyPlayerBlankAfter[index] ? 'enabled' : ''}" data-play-blank="${index}">空白拍</button>` : ''}</div>`).join('')}</div>`;
   const backTarget = customPlayReturnScreen === 'chapterLevels' ? 'chapterLevels' : 'diy';
-  app.innerHTML = `<main class="page-shell diy-page ${isMoraQuestion ? 'diy-mora' : ''}">${profileHeader()}<div class="challenge-title-row"><button class="back-circle" data-back="${backTarget}" aria-label="問題一覧へ戻る">←</button><div><p class="eyebrow">${customPlayReturnScreen === 'chapterLevels' ? 'CHALLENGE / DIY LEVEL' : 'DIY QUESTION / PLAY'}</p><h1>${escapeHtml(question.word)}</h1></div></div><section class="diy-play-card">${responseArea}<audio class="diy-audio-playback" controls src="${diyPlaybackUrl || ''}"></audio></section>${diyPlayerFeedback&&!diyPlayerFeedback.startsWith('正解') ? `<p class="answer-feedback recorded" role="status">${diyPlayerFeedback}</p>` : ''}<button class="judge-button" data-check-diy ${!picked ? 'disabled' : ''}>${diyPlayerFeedback.startsWith('正解')?'正解を見る':'回答を判定する'}</button>${bottomNav(backTarget === 'diy' ? 'diy' : '')}</main>`;
+  app.innerHTML = `<main class="page-shell diy-page ${isMoraQuestion ? 'diy-mora' : ''}">${profileHeader()}<div class="challenge-title-row"><button class="back-circle" data-back="${backTarget}" aria-label="問題一覧へ戻る">←</button><div>${customPlayReturnScreen === 'chapterLevels' ? '' : '<p class="eyebrow">DIY QUESTION / PLAY</p>'}<h1>${escapeHtml(question.word)}</h1></div></div><section class="diy-play-card">${responseArea}<audio class="diy-audio-playback" controls src="${diyPlaybackUrl || ''}"></audio></section>${diyPlayerFeedback&&!diyPlayerFeedback.startsWith('正解') ? `<p class="answer-feedback recorded" role="status">${diyPlayerFeedback}</p>` : ''}<button class="judge-button" data-check-diy ${!picked ? 'disabled' : ''}>${diyPlayerFeedback.startsWith('正解')?'正解を見る':'回答を判定する'}</button>${bottomNav(backTarget === 'diy' ? 'diy' : '')}</main>`;
   bindNav(backTarget === 'diy' ? 'diy' : '');
   decorateGameLabels(app,sharedLibrary);
   legacyModeOneStats?.attachAudio(app.querySelector('audio'));
+  disposeLegacyCompact=mountCompactAudio(app.querySelector('.diy-play-card'),app.querySelector('audio'));
+  if(legacyModeOneStats&&!legacyAutoplaySessions.has(legacyModeOneStats)){legacyAutoplaySessions.add(legacyModeOneStats);disposeLegacyAutoplay?.();disposeLegacyAutoplay=startLevelAudio(app.querySelector('audio'),{mode:'mode1'});}
   if(question.mode==='diyAccent')attachLegacyModeOneStatus();else appendModeOneNext(diyPlayerFeedback.startsWith('正解'));
   app.querySelectorAll('[data-play-target]').forEach((button) => button.addEventListener('click', () => {
     diyPlayerTargetIndex = Number(button.dataset.playTarget);
@@ -662,7 +685,7 @@ function renderDiyPlayer() {
   if(question.mode==='diyAccent'&&legacyModeOneStats){
    const owner=app.querySelector('main'),judge=owner.querySelector('[data-check-diy]');
    mountAnswerReveal(owner,{session:legacyModeOneStats,before:judge,onReveal:()=>{diyPlayerPattern=[...linkPitch(question.reading,question.pattern)];diyPlayerFeedback='';renderDiyPlayer();}});
-   if(gaveUp){owner.querySelectorAll('[data-play-index],[data-play-target]').forEach(b=>b.disabled=true);judge.disabled=false;judge.textContent=customPlayReturnScreen==='chapterLevels'?'次の問題へ':'問題一覧へ';const note=document.createElement('p');note.className='mode-one-reveal-note';note.textContent='正解を表示しました。';judge.before(note);}
+   if(gaveUp){owner.querySelectorAll('[data-play-index],[data-play-target]').forEach(b=>b.disabled=true);judge.disabled=false;judge.textContent=customPlayReturnScreen==='chapterLevels'?(nextChapterItem(chapterItems(),modeOneCurrentId)?'次の問題へ':modeOneChapterLabel(challengeChapter)):'問題一覧へ';const note=document.createElement('p');note.className='mode-one-reveal-note';note.textContent='正解を表示しました。';judge.before(note);}
   }
   app.querySelector('[data-check-diy]').addEventListener('click', () => {
     if(gaveUp){if(customPlayReturnScreen==='chapterLevels')advanceModeOne();else navigate('diy');return;}
@@ -687,7 +710,7 @@ function renderDiyPlayer() {
 function tutorialContinuation(){
  const next=nextChapterItem(chapterItems(),modeOneCurrentId);
  if(next)return {label:'次の問題へ：'+next.word+' →',go:()=>openChapterItem(next)};
- return {label:'この篇のチュートリアル完了！篇の選択へ →',go:()=>navigate('challenges')};
+ return {label:modeOneChapterLabel(challengeChapter),go:advanceModeOne};
 }
 async function renderTutorial(){
  if(!activeTutorial){navigate('chapterLevels');return;}
@@ -699,7 +722,7 @@ async function renderRhythmQuestion(question,audio,backTarget){
  if(!question.tutorial&&modeOneStudyMode==='research'&&!await ensureParticipation('research'))return;
  app.innerHTML=`<main class="page-shell"><div data-lesson-header>${profileHeader()}</div><button class="title-return" data-back="${backTarget}">← 問題一覧へ戻る</button><div data-lesson-root></div>${bottomNav('')}</main>`;bindNav('');
  const root=app.querySelector('[data-lesson-root]');
- try{const library=await refreshLibrary();if(!root.isConnected)return;const next=nextChapterItem(chapterItems(),modeOneCurrentId),continuation=question.tutorial?tutorialContinuation():{label:next?'次の問題へ：'+next.word+' →':'おめでとう、全問クリア！ホームへ',go:backTarget==='chapterLevels'?advanceModeOne:()=>navigate('diy')};
+ try{const library=await refreshLibrary();if(!root.isConnected)return;const next=nextChapterItem(chapterItems(),modeOneCurrentId),continuation=question.tutorial?tutorialContinuation():{label:next?'次の問題へ：'+next.word+' →':modeOneChapterLabel(challengeChapter),go:backTarget==='chapterLevels'?advanceModeOne:()=>navigate('diy')};
  const dispose=await mountModeOneLesson(root,{question:{...question,audio},library,profileId:activeProfileId,studyMode:modeOneStudyMode,onNext:continuation.go,onSkipTutorial:()=>tutorialContinuation().go(),nextLabel:continuation.label,onCorrect:()=>{if(settings.sfx)playCorrectFeedback();}});
  if(root.isConnected)disposeModeOne=dispose;else dispose?.();
  }catch(e){if(root.isConnected)root.textContent='問題を読み込めません：'+e.message;}
@@ -711,8 +734,8 @@ async function renderMorphGame(){
 }
 async function renderModeOneQuestion(question,backTarget){
  if(!question.tutorial&&modeOneStudyMode==='research'&&!await ensureParticipation('research'))return;
- app.innerHTML=`<main class="page-shell morph-page">${profileHeader()}<section class="morph-heading"><button class="back-circle" data-back="${backTarget}" aria-label="問題一覧へ戻る">←</button><div><p class="eyebrow">MODE 1 / 母音＆子音篇</p><h1>発音の特徴を見つけよう</h1></div></section><p class="mode-one-study-label">${question.tutorial?'チュートリアル · 練習データ':'Mode1 · '+(modeOneStudyMode==='research'?'研究参加':'お試し')}</p><div data-mode-one>図鑑を読み込んでいます…</div>${bottomNav(backTarget==='diy'?'diy':'')}</main>`;bindNav(backTarget==='diy'?'diy':'');const target=app.querySelector('[data-mode-one]');
- try{const library=await refreshLibrary();if(!target.isConnected)return;const next=backTarget==='chapterLevels'?nextChapterItem(chapterItems(),modeOneCurrentId):null;disposeModeOne=mountModeOne(target,{library,question,profileId:activeProfileId,studyMode:modeOneStudyMode,onSkipTutorial:()=>tutorialContinuation().go(),nextWord:next?.word,nextLabel:question.tutorial?tutorialContinuation().label:null,onNext:question.tutorial?tutorialContinuation().go:backTarget==='chapterLevels'?advanceModeOne:()=>navigate('home'),onSolved:patternId=>{profileData.morphComplete=true;unlockCards([patternId]);persistProfile();},onCorrect:()=>{if(settings.sfx)playCorrectFeedback();},onWrong:()=>{if(settings.vibration&&navigator.vibrate)navigator.vibrate(65);if(settings.sfx)playWrongFeedback();}});}catch{if(target.isConnected)target.textContent='図鑑を読み込めませんでした。もう一度開いてください。';}
+ app.innerHTML=`<main class="page-shell morph-page">${profileHeader()}<section class="morph-heading"><button class="back-circle" data-back="${backTarget}" aria-label="問題一覧へ戻る">←</button><div><p class="eyebrow">MODE 1 / 母音＆子音篇</p><h1>発音の特徴を見つけよう</h1></div></section>${question.tutorial?'<p class="mode-one-study-label">チュートリアル · 練習データ</p>':''}<div data-mode-one>図鑑を読み込んでいます…</div>${bottomNav(backTarget==='diy'?'diy':'')}</main>`;bindNav(backTarget==='diy'?'diy':'');const target=app.querySelector('[data-mode-one]');
+ try{const library=await refreshLibrary();if(!target.isConnected)return;const next=backTarget==='chapterLevels'?nextChapterItem(chapterItems(),modeOneCurrentId):null;disposeModeOne=mountModeOne(target,{library,question,profileId:activeProfileId,studyMode:modeOneStudyMode,onSkipTutorial:()=>tutorialContinuation().go(),nextWord:next?.word,nextLabel:question.tutorial?tutorialContinuation().label:!next&&backTarget==='chapterLevels'?modeOneChapterLabel(challengeChapter):null,onNext:question.tutorial?tutorialContinuation().go:backTarget==='chapterLevels'?advanceModeOne:()=>navigate('home'),onSolved:patternId=>{profileData.morphComplete=true;unlockCards([patternId]);persistProfile();},onCorrect:()=>{if(settings.sfx)playCorrectFeedback();},onWrong:()=>{if(settings.vibration&&navigator.vibrate)navigator.vibrate(65);if(settings.sfx)playWrongFeedback();}});}catch{if(target.isConnected)target.textContent='図鑑を読み込めませんでした。もう一度開いてください。';}
 }
 
 function playCorrectFeedback() {

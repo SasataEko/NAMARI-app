@@ -10,9 +10,8 @@ import {linkedMora,linkPitch} from './data/linkedPitch.js';
 import {wordRows,wrapWordUnits,fitWordStage,observeWordStage} from './wordLayout.js';
 import {isSymbolSwitch,paintWholeGlyph,animateWholeGlyphSwitch,symbolDistribution} from './glyph/symbolSwitch.js';
 import {ensureParticipation,chapterRating} from './studyUI.js';
-import {studyMetadata,tutorialMetadata} from './data/researchState.js';
+import {studyMetadata,tutorialMetadata,markTutorial,MODE_TWO_TUTORIAL_VERSION} from './data/researchState.js';
 import {createComparisonMetrics,mountReferenceAudio} from './audioComparison.js';
-import { createModeTwoGuide } from './modeTwoGuide.js';
 import { createTutorialGuide } from './tutorialGuide.js';
 import { answerPreviewAggregate } from './data/answerPreview.js';
 import { retryPending, collectionConfig, readOutbox, retryAllPending } from './data/cloudCollection.js';
@@ -45,7 +44,7 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
   const edits=createEditHistory({capture:()=>({state,reduction,selected,mode}),restore:s=>{Object.assign(state,s.state);Object.assign(reduction,s.reduction);selected=s.selected;mode=s.mode;renderEditor();}});
   function remember(){edits.checkpoint();const undo=root.querySelector('[data-undo]');if(undo)undo.disabled=false;}
   let tutorialTour=null,resultGuide=null,artworkState=null,resultDispose=null;
-  const acceptArtwork=art=>{if(artworkState)comparison.markVisual();artworkState=art;state.noticed=art.noticed.map((v,i)=>Boolean(v||art.patterns[i]));state.pattern=[...art.patterns];state.features=[...art.patterns];state.intensity=art.patterns.map(Boolean).map(Number);state.pitch=[...art.pitch];state.beats=[...art.beats];state.blanks=[...art.blanks];state.emphasis=[...art.emphasis];state.glyphAngles={...art.glyphAngles};state.backgroundAngles={...art.backgroundAngles};state.interactionVersion=modeTwoInteractionVersion;Object.assign(state,tutorialMetadata('mode2','exploration'));};
+  const acceptArtwork=art=>{if(artworkState)comparison.markVisual();artworkState=art;state.noticed=art.noticed.map((v,i)=>Boolean(v||art.patterns[i]));state.pattern=[...art.patterns];state.features=[...art.patterns];state.intensity=art.patterns.map(Boolean).map(Number);state.pitch=[...art.pitch];state.beats=[...art.beats];state.blanks=[...art.blanks];state.emphasis=[...art.emphasis];state.glyphAngles={...art.glyphAngles};state.backgroundAngles={...art.backgroundAngles};state.interactionVersion=modeTwoInteractionVersion;};
   let toneSequence = 0;
   let mode = 'segment', selected = null, ready = false, busy = false, glyphs;
   const animations = new WeakMap();
@@ -217,7 +216,7 @@ export function mountExploration(root, { level, profileId, studyMode = studyConf
   function updateSubmitLabel(){const button=editor.querySelector('[data-submit]');if(button)button.textContent=hasChanges()?'こう聞こえます':'特に訛ってないよ';}
   function renderEditor(){
     if(!ready)return;clearStageObservers();
-    mountModeThree(editor,{level,tutorial:Boolean(level.tutorial),initialState:artworkState,audioElement:audio,referenceAudioElement:referenceAudio,controlsElement:modeSelect.closest('.explore-study-mode'),onChange:acceptArtwork,onSubmit:async(art,skipped=false)=>{acceptArtwork(art);await submit(skipped);}});return;
+    mountModeThree(editor,{level,guided:level.word==='かりきゅらむ',onGuideState:status=>{markTutorial('mode2','exploration',status);Object.assign(state,{tutorial_version:MODE_TWO_TUTORIAL_VERSION,tutorial_completed:status==='completed'?true:status==='skipped'?false:null,tutorial_status:status});},initialState:artworkState,audioElement:audio,referenceAudioElement:referenceAudio,controlsElement:modeSelect.closest('.explore-study-mode'),onChange:acceptArtwork,onSubmit:async(art,skipped=false)=>{acceptArtwork(art);await submit(skipped);}});return;
 
     editor.innerHTML=`<div data-mode2-workarea><button class="edit-undo" data-undo ${edits.canUndo?'':'disabled'}>↶ 元に戻す</button><div class="explore-tools" role="group" aria-label="操作を選ぶ">${Object.entries(labels).map(([key,label])=>`<button data-mode="${key}" aria-pressed="${key===mode}">${label}</button>`).join('')}</div><p>${{segment:selected!==null?'同じ文字を押すと選択を取り消せます。':'気になる文字を選んでカードを試そう。同じ文字をもう一度押すと、回答を取り消せます。',pitch:'文字の上・下の点を選んで、音の流れを描こう。',duration:'文字を選んで、拍を増やしたり減らしたりできます。'}[mode]}</p><div class="explore-scroll" data-word></div><div data-features></div></div><div class="explore-actions"><button class="judge-button" data-submit>${hasChanges()?'こう聞こえます':'特に訛ってないよ'}</button><button class="outline-button" data-skip>スキップ</button></div>`;
     editor.querySelector('[data-word]').append(makeStage(state,true));if(mode==='duration')durationChoices(editor.querySelector('[data-word]'));

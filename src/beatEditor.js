@@ -6,13 +6,13 @@ import { loadGlyph } from './glyph/loadGlyph.js';
 import { libraryGlyph } from './data/patternLibrary.js';
 import { assetUrl } from './data/projectLibrary.js';
 // Same ink spacing and integer beats as Mode2, without an accent task.
-export async function mountBeatEditor(root,{library,reading,beats,blanks,disabled=false,onChange,onSelect}){
+export async function mountBeatEditor(root,{library,reading,beats,blanks,disabled=false,onChange,onSelect,large=false}){
   let active=true,wordObserver=null;const reduction={index:null,history:[],hasDeleted:false};
   root.innerHTML='<p role="status">字形を読み込んでいます…</p>';
   const glyphs=await Promise.all(reading.map(async text=>{const glyph=libraryGlyph(library,text);return glyph?.normal?loadGlyph(assetUrl(glyph.normal)):null;}));
   if(!root.isConnected)return ()=>{active=false;};
   function render(){
-    if(!active)return;wordObserver?.disconnect();root.replaceChildren();const row=document.createElement('div');row.className='explore-stage lesson-beat-stage';
+    if(!active)return;wordObserver?.disconnect();root.replaceChildren();const row=document.createElement('div');row.className='explore-stage lesson-beat-stage';if(large)row.dataset.layout='mode1-mora';
     reading.forEach((text,i)=>{
       const unit=document.createElement('div');unit.className='explore-unit';unit.dataset.beats=String(beats[i]===0?0:1);unit.hidden=beats[i]===0;
       const kana=document.createElement('button');kana.type='button';kana.disabled=disabled;kana.className='explore-kana';kana.classList.toggle('beat-selected',reduction.index===i&&reduction.kind!=='blank');kana.setAttribute('aria-pressed',String(reduction.index===i));kana.setAttribute('aria-label',(i+1)+'拍目の「'+text+'」を'+(reduction.index===i?'選択解除':'選ぶ'));kana.dataset.beatKana=String(i);kana.onclick=()=>{if(reduction.kind==='blank')reduction.index=null;reduction.kind='base';if(toggleBeatSelection(beats,i,reduction)){render();onSelect?.();}};
@@ -29,7 +29,7 @@ export async function mountBeatEditor(root,{library,reading,beats,blanks,disable
         marker.innerHTML='<span>'+symbol+'</span>';marker.onclick=()=>{const nextKind=blank?'blank':'base';reduction.index=reduction.kind===nextKind&&reduction.index===i?null:i;reduction.kind=nextKind;render();onSelect?.();};decorateBeatMarker(marker.querySelector('span'),i);gap.append(marker);
       }row.append(gap);
     });root.append(row);wrapWordUnits(row,reading);wordObserver=observeWordStage(row);const i=reduction.index,selected=Number.isInteger(i),blank=reduction.kind==='blank';
-    const choices=mountBeatChoices(root,{text:selected?(blank?'ッ':reading[i]):null,canLong:selected&&!blank&&beats[i]===1&&!disabled,canBlank:selected&&!blank&&i<blanks.length&&!blanks[i]&&!disabled,
+    const choices=mountBeatChoices(root,{showHint:!large,longLabel:large?'一拍を増やす':'1拍増やす',text:selected?(blank?'ッ':reading[i]):null,canLong:selected&&!blank&&beats[i]===1&&!disabled,canBlank:selected&&!blank&&i<blanks.length&&!blanks[i]&&!disabled,
       onLong:()=>{beats[i]=2;render();onChange?.();},onBlank:()=>{blanks[i]=true;render();onChange?.();},
       onDelete:()=>{if(blank){reduction.history.push({blank:true,index:i});blanks[i]=false;reduction.index=null;}else removeSelectedBeat(beats,reduction);reduction.hasDeleted=true;render();onChange?.();}});
     if(selected){choices.querySelector('[data-beat-choice=long]').dataset.stretchIndex=String(i);choices.querySelector('[data-beat-choice=blank]').dataset.gapIndex=String(i);if(blank)choices.querySelector('[data-beat-choice=delete]').dataset.deleteBlankIndex=String(i);}

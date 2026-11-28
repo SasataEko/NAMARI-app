@@ -17,7 +17,7 @@
 
 ## 新增工作表及字段
 
-只有研究者主动运行 setupResearchExtension_ 后才会新增以下4表：
+只有研究者主动运行 setupResearchExtension 后才会新增以下4表：
 
 - Participants：participant_id、study_mode、consent_version、consented_at、consent_status、withdrawn_at、language_background、japanese_learning_experience、background_status、updated_at、app_version、payload_json。每个匿名参与者每种 study_mode 一行。
 - ChapterRatings：submission_id、participant_id、study_mode、game_mode、chapter、visual_helpfulness、response_status、submitted_at、app_version、scope_id、consent_version、consented_at。五级评价独立保存；同一次弹窗 scope_id 的状态更新同一行，历史进 ResearchAudit。
@@ -51,8 +51,8 @@ learner_audio_play_count 直接复用 audioPlayCount；前/后以第一次实际
 ## 部署顺序（先保持 research 关闭）
 
 1. 备份现有 Apps Script。保留原 SPREADSHEET_ID、SERVER_PEPPER、部署URL等配置，不重置匿名身份。Google Sheet 继续设为「受限」。
-2. 更新 apps-script/Code.gs、Mode1.gs，新增 Research.gs；使用当前 Levels.gs / Mode1Levels.gs 白名单。不要重新运行会改写旧表头的 setup_。
-3. 检查上述新增4表名称和字段后，由研究者执行 setupResearchExtension_。遇到已有同名表且表头不同会停止，不能覆盖。
+2. 更新 apps-script/Code.gs、Mode1.gs，新增 Research.gs；使用当前 Levels.gs / Mode1Levels.gs 白名单。不要重新运行会改写旧表头的 setup。
+3. 检查上述新增4表名称和字段后，由研究者执行 setupResearchExtension。遇到已有同名表且表头不同会停止，不能覆盖。
 4. Apps Script「管理部署」编辑现有 Web App，选择新版本，沿用执行身份和现有访问设置。前端提交仍用 text/plain 无预检POST，回执和聚合用 JSONP；opaque POST 本身不算成功。
 5. 构建并更新 GitHub Pages。先用 test 完整验证答题、评价、反馈、重复提交和失败重试；检查 test 行和 ResearchAudit。当前线上旧部署不能认定已具备本次功能。
 6. 确认后再运行 refreshResearchAnalysis_。刷新为手动操作，原答题表不会被重写。

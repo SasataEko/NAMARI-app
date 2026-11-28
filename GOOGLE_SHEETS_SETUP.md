@@ -1,3 +1,4 @@
+> 2026-11-28 最新更新：使用 APPS_SCRIPT_UPDATE_2026-11-28.txt。编辑器中运行 setup（没有下划线），会安全补建包含问卷在内的缺失工作表，保留已有数据、表头与额外列。运行 verifySetup 查看清单。旧文中“默认本地”“最低3人”等描述为早期记录；当前以实际collection.json、MODE1/LEVEL_MANIFEST及脚本规则为准。
 > 2026-11-19 更新：重复作答按每次提交/挑战统计；0拍、最新素材和新统计规则的部署步骤见 APPS_SCRIPT_UPDATE_2026-11-19.txt。以下早期“同参与者仅计一次”等描述已由此规则替代。
 
 > 2026-11-16 研究数据扩展：新增同意/背景/评价/反馈及部署流程见 [RESEARCH_DATA_EXTENSION.md](RESEARCH_DATA_EXTENSION.md)。该扩展尚未在线部署；research 保持禁用。下文早期初始化说明不应覆盖已有工作表。
@@ -26,8 +27,8 @@
 4. 打开左侧「项目设置 → 脚本属性」，添加：
    - SPREADSHEET_ID：你的表格URL中 /d/ 与 /edit 之间的ID
    - MIN_AGGREGATE_COUNT：3（可提高，不允许低于3）
-5. 保存，选择函数 setup_，点击「运行」。由你本人选择Google账户并授权访问表格；如提示未验证，只在确认代码属于自己且已检查的前提下继续授权你自己的项目。不要授权来历不明的脚本。
-6. 确认表格出现Raw、Audit和_Identities三张表。setup_自动生成SERVER_PEPPER，留在脚本属性中，不复制给网页、不提交GitHub。
+5. 保存，选择函数 setup，点击「运行」。由你本人选择Google账户并授权访问表格；如提示未验证，只在确认代码属于自己且已检查的前提下继续授权你自己的项目。不要授权来历不明的脚本。
+6. 确认表格出现Raw、Audit和_Identities三张表。setup自动生成SERVER_PEPPER，留在脚本属性中，不复制给网页、不提交GitHub。
 7. 如需显式设置V8及权限，可在项目设置显示appsscript.json，使用本项目同名文件。默认绑定表格项目使用V8亦可。
 
 ## 3. 部署 Web App
@@ -121,7 +122,7 @@ GitHub Pages实际地址的诊断页已验证成功：普通POST → Google Apps
 
 ## 2026-11-15：Mode1统计与主动反馈
 
-Mode1、Mode2现在可共用同一份表格并独立统计。升级需要同步Code.gs、Mode1.gs与Levels.gs，运行setup_，再更新现有部署为新版本。请参阅[MODE1_SHEETS_UPDATE.md](MODE1_SHEETS_UPDATE.md)，其中列出新工作表、字段、正确率口径、DIY纳入规则及删除后汇总更新方式。
+Mode1、Mode2现在可共用同一份表格并独立统计。升级需要同步Code.gs、Mode1.gs与Levels.gs，运行setup，再更新现有部署为新版本。请参阅[MODE1_SHEETS_UPDATE.md](MODE1_SHEETS_UPDATE.md)，其中列出新工作表、字段、正确率口径、DIY纳入规则及删除后汇总更新方式。
 
 ### 2026-11-15：Mode1チュートリアルと拍の判定
 

@@ -1,7 +1,8 @@
+import {surveySession} from './surveySession.js';
 import {participantId} from './participantIdentity.js';
-export const APP_VERSION='2026.11.24-mode2-tutorial-v1';
-export const TUTORIAL_VERSION='2026.11.19-guided-skippable-v5';
-export const MODE_TWO_TUTORIAL_VERSION='2026.11.24-mode2-make-guide-v2';
+export const APP_VERSION='2026.11.28-mora-large-v1';
+export const TUTORIAL_VERSION='2026.11.28-mode1-cards-v5';
+export const MODE_TWO_TUTORIAL_VERSION='2026.11.26-sequential-guide-v4';
 const tutorialVersionFor=gameMode=>gameMode==='mode2'?MODE_TWO_TUTORIAL_VERSION:TUTORIAL_VERSION;
 let protocol=null;
 const base=()=>import.meta.env?.BASE_URL||'/NAMARI-app/';
@@ -19,7 +20,7 @@ export function tutorialMetadata(gameMode,chapter){
   const rows=read('kotoba-tutorial-status-v1',[]).filter(r=>r.participant_id===participantId()&&r.game_mode===gameMode&&r.chapter===chapter&&r.tutorial_version===tutorialVersionFor(gameMode)),last=rows.at(-1);
   const completed=rows.some(r=>r.status==='completed');return {tutorial_version:tutorialVersionFor(gameMode),tutorial_completed:completed?true:last?.status==='skipped'?false:null,tutorial_status:completed?'completed':last?.status||'not_started'};
 }
-export function studyMetadata(mode,gameMode,chapter){const c=consentState(mode);return {app_version:APP_VERSION,consent_version:c?.status==='consented'?c.consent_version:null,consented_at:c?.status==='consented'?c.consented_at:null,...tutorialMetadata(gameMode,chapter)};}
+export function studyMetadata(mode,gameMode,chapter){const c=consentState(mode);return {session_id:surveySession(mode).id,app_version:APP_VERSION,consent_version:c?.status==='consented'?c.consent_version:null,consented_at:c?.status==='consented'?c.consented_at:null,...tutorialMetadata(gameMode,chapter)};}
 export async function assertResearchUpload(record){
   if(record.studyMode!=='research')return;
   if(record.schemaType==='study_event'&&record.event_type==='withdrawal')return;

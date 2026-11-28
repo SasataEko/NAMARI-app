@@ -1,3 +1,4 @@
+import {rememberDelivery} from './deliveryReport.js';
 import {visualStatistics,validVisualMetadata} from './modeTwoVisual.js';
 import {linkPitch} from './linkedPitch.js';
 import {participantId} from './participantIdentity.js';
@@ -53,10 +54,11 @@ export async function saveExploration(record, level) {
     saved.repeatComparison=reference?{noticedChanged:JSON.stringify(reference.noticed)!==JSON.stringify(saved.noticed),patternChanged:JSON.stringify(reference.pattern)!==JSON.stringify(saved.pattern),pitchChanged:JSON.stringify(reference.pitch)!==JSON.stringify(saved.pitch),beatsChanged:JSON.stringify(reference.beats)!==JSON.stringify(saved.beats),blanksChanged:JSON.stringify(reference.blanks)!==JSON.stringify(saved.blanks)}:null;
     if(!reference)saved.quality_flag.push('repeat_reference_missing');
   }
+  if(import.meta.env?.DEV&&new URLSearchParams(globalThis.location?.search||'').has('qa-local'))saved.visualExperiment=true;
   rows.push(saved); // Append-only revisions preserve original answers, including flagged ones.
   localStorage.setItem(RAW_KEY,JSON.stringify(rows));
-  if(level.visualExperiment){saved.visualExperiment=true;saved.sync={status:'local',visualExperiment:true};return saved;}
-  if(level.tutorial){saved.sync={status:'local',tutorial:true};return saved;}
+  if(saved.visualExperiment){saved.visualExperiment=true;saved.sync={status:'local',visualExperiment:true};rememberDelivery(saved,'local');return saved;}
+  if(level.tutorial){saved.sync={status:'local',tutorial:true};rememberDelivery(saved,'local');return saved;}
   try{saved.sync=await queueAndSend(saved,level);}catch(e){saved.sync={status:'pending',error:e.message};}
   return saved;
 }
